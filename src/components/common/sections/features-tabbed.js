@@ -45,7 +45,6 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="flex flex-col md:flex-row items-center justify-center gap-1">
         <div className="w-full md:w-1/3 space-y-3">
           <h3 className={`${styles.typography.h3.fontSize} ${styles.typography.h3.fontWeight} ${styles.typography.h3.color}`}>
@@ -57,7 +56,7 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
           <button 
             className={`${styles.button.base} ${styles.button.variants.primary} hover:scale-105 ${styles.button.sizes.sm}`}
           >
-            {buttonText}
+            {activeContent?.buttonText}
           </button>
         </div>
         <div className="w-full md:w-1/3">
