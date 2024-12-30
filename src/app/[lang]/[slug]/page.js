@@ -20,6 +20,9 @@ export default async function ArticlePage({ params }) {
     const { lang, slug } = resolvedParams;
     const articleData = await getArticleBySlug(slug, lang);
 
+    console.log('lang', lang);
+    console.log('slug', slug);
+
     console.log('articleData', articleData)
     
     // 立即处理错误情况

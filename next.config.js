@@ -41,8 +41,18 @@ const nextConfig = {
   },
   images: {
     domains: [
-      'strapi.sheet2email.com'  // 添加允许的图片域名
+      'strapi.sheet2email.com',
+      'websitelm.com'  // 添加新的域名
     ],
+  },
+  trailingSlash: true,
+  async rewrites() {
+    return [
+      {
+        source: '/',
+        destination: '/en/home',
+      },
+    ];
   },
 };
 

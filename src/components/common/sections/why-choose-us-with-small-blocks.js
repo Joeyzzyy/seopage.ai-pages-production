@@ -13,7 +13,7 @@ const WhyChooseUsWithSmallBlocks = ({ data, theme = 'normal' }) => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           {icon && (
-            <div className="text-4xl mb-4">{icon}</div>
+            <div className="text-7xl mb-4">{icon}</div>
           )}
           <h2 className={`${currentTheme.typography.h2.fontSize} ${currentTheme.typography.h2.fontWeight} ${currentTheme.typography.h2.color} mb-4`}>
             {title}

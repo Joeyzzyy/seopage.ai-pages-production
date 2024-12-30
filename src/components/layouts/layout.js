@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useMemo, memo } from 'react';
 import TitleSection from '../common/sections/title-section';
 import TitleSectionWithImage from '../common/sections/title-section-with-image';
 import HeroSectionWithVideo from '../common/sections/hero-section-with-video';
@@ -19,6 +19,9 @@ import Faqs from '../common/sections/faqs';
 import CallToActionComplex from '../common/sections/call-to-action-complex';
 import CallToActionWithInput from '../common/sections/call-to-action-with-input';
 import ProductBenefitsWithTable from '../common/sections/product-benefits-with-table';
+import Header from './header-template';
+import Footer from './footer-template';
+
 const COMPONENT_MAP = {
   TitleSection: TitleSection,
   TitleSectionWithImage: TitleSectionWithImage,
@@ -60,15 +63,33 @@ const generateSchemaMarkup = (article) => {
 };
 
 const CommonLayout = ({ article, keywords }) => {
+  const headerData = useMemo(() => {
+    return article?.pageLayout?.pageHeaders;
+  }, [article?.pageLayout?.pageHeaders]);
+
+  const footerData = useMemo(() => {
+    return article?.pageLayout?.pageFooters;
+  }, [article?.pageLayout?.pageFooters]);
+
+  useEffect(() => {
+  }, [article]);
+
   if (!article) {
-    console.warn('Article data is missing');
     return null;
   }
+
   const sections = article?.sections || [];
   const author = article?.author || 'default';
 
   return (
     <div suppressHydrationWarning>
+      {headerData && (
+        <Header 
+          data={headerData} 
+          memo={() => JSON.stringify(headerData)}
+        />
+      )}
+
       <div className="flex-1 w-full max-w-[100vw] overflow-x-hidden">
         {sections.map(section => {
           const Component = COMPONENT_MAP[section.componentName];
@@ -84,8 +105,15 @@ const CommonLayout = ({ article, keywords }) => {
           );
         })}
       </div>
+
+      {footerData && (
+        <Footer 
+          data={footerData}
+          memo={() => JSON.stringify(footerData)}
+        />
+      )}
     </div>
   );
 };
 
-export default CommonLayout;
+export default memo(CommonLayout);
