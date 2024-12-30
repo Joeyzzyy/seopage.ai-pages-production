@@ -25,9 +25,9 @@ export default async function ArticlePage({ params }) {
 
     console.log('articleData', articleData)
     
-    // 立即处理错误情况
-    if (!articleData?.data) {
-      console.error(`Article not found for slug: ${slug}`);
+    // 检查文章是否存在且状态为已发布
+    if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
+      console.error(`Article not found or not published for slug: ${slug}`);
       return notFound();
     }
     
@@ -85,10 +85,11 @@ export async function generateMetadata({ params }) {
     
     const articleData = await getArticleBySlug(slug, lang);
     
-    if (!articleData?.data) {
+    if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
         title: 'Not Found',
-        description: 'The page you are looking for does not exist.'
+        description: 'The page you are looking for does not exist.',
+        robots: 'noindex, nofollow' // 确保未发布的文章不被索引
       };
     }
 
@@ -97,7 +98,7 @@ export async function generateMetadata({ params }) {
       title: article.title, 
       description: article.description,
       keywords: joinArrayWithComma(article.pageStats?.genKeywords) ,
-      robots: 'index, follow',
+      robots: article.publishStatus === 'publish' ? 'index, follow' : 'noindex, nofollow',
       openGraph: { 
         title: article.title,
         description: article.description,
