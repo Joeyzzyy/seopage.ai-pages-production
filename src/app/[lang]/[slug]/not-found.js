@@ -24,7 +24,7 @@ export default function NotFound() {
                      text-white rounded-lg transition-colors duration-200
                      transform hover:scale-105"
         >
-          Back to Kreadoai
+          Back to WebsiteLM
         </Link>
       </div>
     </div>
