@@ -89,7 +89,7 @@ export async function generateMetadata({ params }) {
       return {
         title: 'Not Found',
         description: 'The page you are looking for does not exist.',
-        robots: 'noindex, nofollow' // 确保未发布的文章不被索引
+        robots: 'noindex, nofollow' 
       };
     }
 
