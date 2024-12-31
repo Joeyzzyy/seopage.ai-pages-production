@@ -16,6 +16,8 @@ const parseHtmlContent = (text) => {
 const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
   const { leftContent, rightContent } = data;
   const containerRef = useRef(null);
+
+  console.log('intro', data);
   const stickyRef = useRef(null);
 
   useEffect(() => {
@@ -32,7 +34,6 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
       const containerTop = window.pageYOffset + containerRect.top;
       const containerBottom = containerTop + containerRect.height;
       
-      const stopPosition = containerBottom - stickyRect.height;
       const currentScroll = window.pageYOffset;
 
       if (currentScroll + topOffset < containerTop) {
@@ -60,32 +61,8 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
     };
   }, []);
 
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 100;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  const isChineseContent = (content) => {
-    return /[\u4e00-\u9fa5]/.test(content[0]?.contentTitle);
-  };
-
   const getBgColor = () => {
     return themeConfig[theme].section.background.primary;
-  };
-
-  const getBlockStyle = () => {
-    return theme === 'tech'
-      ? `${themeConfig[theme].card.variants.primary}`
-      : `${themeConfig[theme].card.variants.primary}`;
   };
 
   const getHighlightStyle = () => {
@@ -158,24 +135,6 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
         <div className="grid grid-cols-[350px_1fr] gap-20" ref={containerRef}>
           <div className="relative w-[350px]">
             <div ref={stickyRef} className="sticky top-128 inline-block" style={{ width: '350px' }}>
-              <div className="bg-gray-50 p-8 rounded-lg mb-4 w-full">
-                <h3 className="text-xl font-bold mb-4">
-                  {isChineseContent(rightContent) ? '目录' : 'Table of Contents'}
-                </h3>
-                <ul className="space-y-2">
-                  {rightContent.map((content, index) => (
-                    <li key={`toc-${index}`}>
-                      <button
-                        onClick={() => scrollToSection(`section-${index}`)}
-                        className="text-gray-600 hover:text-blue-600 text-sm text-left"
-                      >
-                        {content.contentTitle}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
               <div className="bg-gray-50 p-8 rounded-lg">
                 <div className="text-center mb-6">
                   <img 
@@ -186,7 +145,7 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
                   <h3 className="text-xl font-bold mb-2">{leftContent.name}</h3>
                   <p className="text-gray-600 text-sm">{leftContent.title}</p>
                 </div>
-                <div className="text-gray-700 text-sm leading-relaxed">
+                <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
                   {leftContent.introduction}
                 </div>
               </div>
@@ -197,40 +156,12 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
             <main className="main-content">
               <article className="article max-w-[800px] pr-4">
                 {rightContent.map((content, index) => (
-                  <div key={index} className="mb-10 last:mb-0" id={`section-${index}`}>
+                  <div key={index} className="mb-10 last:mb-0">
                     <h3 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">
-                      {parseHtmlContent(content.contentTitle).map((part, i) => (
-                        part.type === 'link' ? (
-                          <a 
-                            key={i}
-                            href={part.href}
-                            className="text-blue-500 hover:text-blue-700 hover:underline font-bold"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {part.content}
-                          </a>
-                        ) : (
-                          <span key={i}>{part.content}</span>
-                        )
-                      ))}
+                      {content.contentTitle}
                     </h3>
                     <div className="text-lg md:text-xl leading-[1.8] text-gray-700 whitespace-pre-line">
-                      {parseHtmlContent(content.contentText).map((part, i) => (
-                        part.type === 'link' ? (
-                          <a 
-                            key={i}
-                            href={part.href}
-                            className="text-blue-500 hover:text-blue-700 hover:underline font-bold"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {part.content}
-                          </a>
-                        ) : (
-                          <span key={i}>{part.content}</span>
-                        )
-                      ))}
+                      {content.contentText}
                     </div>
                   </div>
                 ))}
