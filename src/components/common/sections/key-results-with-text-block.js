@@ -67,7 +67,6 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
       const containerTop = window.pageYOffset + containerRect.top;
       const containerBottom = containerTop + containerRect.height;
       
-      const stopPosition = containerBottom - stickyRect.height;
       const currentScroll = window.pageYOffset;
 
       if (currentScroll + topOffset < containerTop) {

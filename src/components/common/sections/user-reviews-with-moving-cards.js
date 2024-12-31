@@ -81,7 +81,7 @@ const UserReviewsWithMovingCards = ({ data, theme = 'normal' }) => {
                   <h4 className={`text-lg font-semibold ${themeStyle.text.color.primary} mb-2`}>
                     {review.title}
                   </h4>
-                  <p className={themeStyle.typography.paragraph.color}>
+                  <p className={`${themeStyle.typography.paragraph.color} whitespace-pre-line`}>
                     {review.content}
                   </p>
                 </div>

@@ -37,7 +37,7 @@ const HowItWorksWithWorkflow = ({ data, author, theme = 'normal' }) => {
                 </div>
                 {block.title && <h4 className="text-xl font-semibold mb-3">{block.title}</h4>}
                 {block.subTitle && <h5 className="text-base text-gray-600 mb-4">{block.subTitle}</h5>}
-                <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} leading-relaxed`}>
+                <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} leading-relaxed whitespace-pre-line`}>
                   {block.content}
                 </p>
               </div>

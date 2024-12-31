@@ -41,7 +41,7 @@ const MeetOurTeam = ({ data, theme = 'normal' }) => {
                 <p className={`${typography.caption.fontSize} ${typography.caption.color} mb-4`}>
                   {member.title}
                 </p>
-                <p className={`${typography.paragraph.color} mb-6 text-sm leading-relaxed`}>
+                <p className={`${typography.paragraph.color} mb-6 text-sm leading-relaxed whitespace-pre-line`}>
                   {member.description}
                 </p>
                 <div className="flex justify-center space-x-6">

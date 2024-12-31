@@ -37,8 +37,8 @@ const HeroSectionWithVideo = ({ data, theme = 'normal', buttonLink = '#' }) => {
           <h1 className={`${currentTheme.typography.h1.fontSize} ${currentTheme.typography.h1.fontWeight} ${currentTheme.typography.h1.color} mb-4`}>
             {topContent.title}
           </h1>
-          <p className={`${currentTheme.typography.paragraph.fontSize} ${currentTheme.typography.paragraph.color} mb-6 max-w-2xl`}>
-            {topContent.subtitle}
+          <p className={`${currentTheme.typography.paragraph.fontSize} ${currentTheme.typography.paragraph.color} mb-6 max-w-2xl whitespace-pre-line`}>
+            {topContent.description}
           </p>
           <a 
             href={topContent.buttonLink?.startsWith('http') 

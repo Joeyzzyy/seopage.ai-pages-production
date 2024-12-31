@@ -50,7 +50,7 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
           <h3 className={`${styles.typography.h3.fontSize} ${styles.typography.h3.fontWeight} ${styles.typography.h3.color}`}>
             {activeContent?.title}
           </h3>
-          <p className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color}`}>
+          <p className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} whitespace-pre-line`}>
             {activeContent?.description}
           </p>
           <button 
@@ -74,4 +74,3 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
 }
 
 export default FeaturesTabbedSection;
-

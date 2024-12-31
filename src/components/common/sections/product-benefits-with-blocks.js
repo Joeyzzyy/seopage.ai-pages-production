@@ -26,7 +26,7 @@ const ProductBenefitsWithFourBlocks = ({ data, theme = 'normal' }) => {
             <h2 className={`${themeConfig[theme].typography.h2.fontSize} ${themeConfig[theme].typography.h2.fontWeight} ${themeConfig[theme].typography.h2.color} mb-4`}>
               {data.leftContent.title}
             </h2>
-            <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-6`}>
+            <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-6 whitespace-pre-line`}>
               {data.leftContent.description}
             </p>
             <a 
@@ -57,7 +57,7 @@ const ProductBenefitsWithFourBlocks = ({ data, theme = 'normal' }) => {
                   <h4 className={`${themeConfig[theme].typography.h4.fontSize} ${themeConfig[theme].typography.h4.fontWeight} ${themeConfig[theme].typography.h4.color} mb-2`}>
                     {module.subTitle}
                   </h4>
-                  <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`}>
+                  <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} whitespace-pre-line`}>
                     {module.content}
                   </p>
                 </div>

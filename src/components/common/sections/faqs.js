@@ -18,7 +18,7 @@ const FAQs = ({ data, theme = 'normal' }) => {
               <h3 className={`${styles.typography.h3.fontSize} ${styles.typography.h3.fontWeight} ${styles.typography.h3.color} mb-4`}>
                 {faq.question}
               </h3>
-              <p className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color}`}>
+              <p className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} whitespace-pre-line`}>
                 {faq.answer}
               </p>
             </div>

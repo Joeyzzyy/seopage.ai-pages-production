@@ -44,7 +44,7 @@ const FAQTwoColumnsWithSmallTitle = ({ data, theme = 'normal' }) => {
                 <div className={`overflow-hidden transition-all duration-200 ${
                   openIndex === index ? 'max-h-96 pb-4' : 'max-h-0'
                 }`}>
-                  <p className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color}`}>
+                  <p className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} whitespace-pre-line`}>
                     {faq.answer}
                   </p>
                 </div>

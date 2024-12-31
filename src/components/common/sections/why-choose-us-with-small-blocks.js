@@ -35,7 +35,7 @@ const WhyChooseUsWithSmallBlocks = ({ data, theme = 'normal' }) => {
               <h3 className={`${currentTheme.typography.h3.fontSize} ${currentTheme.typography.h3.fontWeight} ${currentTheme.typography.h3.color} mb-2`}>
                 {module.title}
               </h3>
-              <p className={`${currentTheme.typography.paragraph.fontSize} ${currentTheme.typography.paragraph.color}`}>
+              <p className={`${currentTheme.typography.paragraph.fontSize} ${currentTheme.typography.paragraph.color} whitespace-pre-line`}>
                 {module.content}
               </p>
             </div>

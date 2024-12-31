@@ -145,7 +145,7 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
                   <h3 className="text-xl font-bold mb-2">{leftContent.name}</h3>
                   <p className="text-gray-600 text-sm">{leftContent.title}</p>
                 </div>
-                <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
+                <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-line whitespace-pre-line">
                   {leftContent.introduction}
                 </div>
               </div>
@@ -160,7 +160,7 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
                     <h3 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">
                       {content.contentTitle}
                     </h3>
-                    <div className="text-lg md:text-xl leading-[1.8] text-gray-700 whitespace-pre-line">
+                    <div className="text-lg md:text-xl leading-[1.8] text-gray-700 whitespace-pre-line whitespace-pre-line">
                       {content.contentText}
                     </div>
                   </div>

@@ -3,7 +3,7 @@ import React from 'react';
 import buttonLinks from '../../ui/button/links';
 import themeConfig from '../../../styles/themeConfig';
 
-const CallToAction = ({ data, theme = 'normal' }) => {
+const CallToActionComplex = ({ data, theme = 'normal' }) => {
   const getButtonLink = (buttonType) => {
     return buttonLinks[buttonType] || '#';
   };
@@ -16,7 +16,7 @@ const CallToAction = ({ data, theme = 'normal' }) => {
         <h2 className={`${typography.h2.fontSize} ${typography.h2.fontWeight} ${typography.h2.color} mb-6 leading-tight`}>
           {data.topContent.title}
         </h2>
-        <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+        <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto ">
           {data.topContent.description}
         </p>  
         
@@ -28,7 +28,7 @@ const CallToAction = ({ data, theme = 'normal' }) => {
             {data.bottomContent.content.map((item, index) => (
               <div key={index} className="text-left p-6 bg-gray-50 rounded-lg">
                 <h4 className="text-lg font-semibold mb-2">{item.title}</h4>
-                <p className="text-gray-600">{item.description}</p>
+                <p className="text-gray-600 whitespace-pre-line">{item.description}</p>
               </div>
             ))}
           </div>
@@ -55,4 +55,4 @@ const CallToAction = ({ data, theme = 'normal' }) => {
   );
 };
 
-export default CallToAction;
+export default CallToActionComplex;

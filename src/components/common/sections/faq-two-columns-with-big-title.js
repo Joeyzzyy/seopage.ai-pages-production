@@ -37,7 +37,7 @@ const FAQTwoColumnsWithBigTitle = ({ data, theme = 'normal' }) => {
               
               {openIndex === index && (
                 <div>
-                  <p className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} pb-4`}>
+                  <p className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} pb-4 whitespace-pre-line`}>
                     {faq.answer}
                   </p>
                 </div>
