@@ -19,7 +19,7 @@ export default function NotFound() {
         </p>
         
         <Link 
-          href="https://kreadoai.com/" 
+          href="https://websitelm.com/" 
           className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 
                      text-white rounded-lg transition-colors duration-200
                      transform hover:scale-105"
