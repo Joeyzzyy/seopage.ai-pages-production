@@ -1,13 +1,8 @@
 'use client';
 import React from 'react';
-import buttonLinks from '../../ui/button/links';
 import themeConfig from '../../../styles/themeConfig';
 
 const CallToAction = ({ data, theme = 'normal' }) => {
-  const getButtonLink = () => {
-    return buttonLinks.workbench || '#';
-  };
-
   const getBgColor = () => {
     return theme === 'tech' 
       ? themeConfig[theme].section.background.secondary
@@ -30,10 +25,10 @@ const CallToAction = ({ data, theme = 'normal' }) => {
           {data.subTitle}
         </p>
         <a 
-          href={getButtonLink()}
+          href={data.bottomContent.buttonLink}
           className={getButtonStyle()}
         >
-          {data.buttonText}
+          {data.bottomContent.buttonText}
         </a>
       </div>
     </div>
