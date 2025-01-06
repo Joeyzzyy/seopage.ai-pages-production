@@ -24,13 +24,12 @@ export async function getArticles(customerId, token) {
 };
 
 // 根据 slug 获取单篇文章
-export async function getArticleBySlug(slug, lang, token) {
+export async function getArticleBySlug(slug, lang, domain) {
   try {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    console.log('url', `${API_URL}/pages/${lang}/${slug}`);
     const response = await axios.get(`${API_URL}/pages/${lang}/${slug}`, { 
-      headers,
+      params: { domain }
     });
+    console.log('response', response.data)
     return response.data;
   } catch (error) {
     if (error.response?.status === 404) {
