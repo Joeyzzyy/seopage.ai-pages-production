@@ -18,7 +18,7 @@ export default async function ArticlePage({ params }) {
   try {
     const resolvedParams = await Promise.resolve(params);
     const { lang, slug } = resolvedParams;
-    const articleData = await getArticleBySlug(slug, lang);
+    const articleData = await getArticleBySlug(slug, lang, 'websitelm.com');
 
     console.log('lang', lang);
     console.log('slug', slug);
@@ -46,10 +46,6 @@ export default async function ArticlePage({ params }) {
       publisher: {
         '@type': 'Organization',
         name: 'WebsiteLM',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://websitelm.com/logo.png'
-        }
       },
       mainEntityOfPage: {
         '@type': 'WebPage',
@@ -83,7 +79,7 @@ export async function generateMetadata({ params }) {
     const resolvedParams = await Promise.resolve(params);
     const { lang = 'en', slug } = resolvedParams;
     
-    const articleData = await getArticleBySlug(slug, lang);
+    const articleData = await getArticleBySlug(slug, lang, 'websitelm.com');
     
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
