@@ -23,7 +23,7 @@ export default async function ArticlePage({ params }) {
     console.log('lang', lang);
     console.log('slug', slug);
 
-    console.log('articleData', articleData)
+    console.log('PageData', articleData)
     
     // 检查文章是否存在且状态为已发布
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
