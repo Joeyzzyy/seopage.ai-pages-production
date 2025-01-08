@@ -1,19 +1,17 @@
 'use client';
 import React from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import { format } from 'date-fns';
 
-const TitleSection = ({ data, author, theme = 'normal' }) => {
-  const containsChinese = (text) => {
-    return /[\u4e00-\u9fa5]/.test(text);
-  };
-
+const TitleSection = ({ data, author, theme = 'normal', date }) => {
   const styles = themeConfig[theme];
-  const isChineseTitle = containsChinese(data?.title || '');
-  const authorLabel = isChineseTitle ? '作者' : 'WRITTEN BY';
-  const dateLabel = isChineseTitle ? '发布日期' : 'PUBLISHED ON';
 
   return (
-    <div className={`relative z-10 ${styles.section.padding.base} flex items-center ${styles.section.background.primary}`}>
+    <div className={`
+      relative z-10 
+      ${styles.section.background.primary} 
+      ${styles.section.padding.base}
+    `}>
       <header className="w-full">
         <div className="w-full max-w-4xl mx-auto px-4 text-center">
           {data?.title && (
@@ -27,23 +25,23 @@ const TitleSection = ({ data, author, theme = 'normal' }) => {
             </h2>
           )}
           <div className="flex justify-center gap-8">
-            {data?.bottomContent.author && (
+            {author && (
               <div>
                 <span className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} block mb-1 font-medium`}>
-                  {authorLabel}
+                  WRITTEN BY
                 </span>
                 <span className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color}`}>
                   {author}
                 </span>
               </div>
             )}
-            {data?.bottomContent.publishDate && (
+            {date && (
               <div>
                 <span className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} block mb-1 font-medium`}>
-                  {dateLabel}
+                  PUBLISHED ON
                 </span>
                 <span className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color}`}>
-                  {data.bottomContent.publishDate}
+                  {date && format(new Date(date), 'yyyy-MM-dd HH:mm')}
                 </span>
               </div>
             )}

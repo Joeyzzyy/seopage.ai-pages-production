@@ -19,7 +19,10 @@ const ProductBenefitsWithFourBlocks = ({ data, theme = 'normal' }) => {
   };
 
   return (
-    <div className={`${getBgColor()} ${themeConfig[theme].section.padding.base}`}>
+    <div className={`
+      ${getBgColor()}
+      ${themeConfig[theme].section.padding.base}
+    `}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8 md:gap-12">
           <div className="w-full md:w-2/5">
@@ -34,6 +37,8 @@ const ProductBenefitsWithFourBlocks = ({ data, theme = 'normal' }) => {
               ? data.leftContent.buttonLink 
               : `https://${data.leftContent.buttonLink}` || '#'}
               className={getButtonStyle()}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               {data.leftContent.buttonText}
             </a>

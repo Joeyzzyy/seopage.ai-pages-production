@@ -20,7 +20,12 @@ const TitleSectionWithImage = ({ data, author, theme = 'normal' }) => {
   const dateLabel = isChineseTitle ? '发布日期' : 'PUBLISHED ON';
 
   return (
-    <div className={`relative z-10 ${styles.section.padding.base} flex items-center ${styles.section.background.primary}`}>
+    <div className={`
+      relative z-10 
+      ${styles.section.background.primary} 
+      ${styles.section.padding.base} 
+      flex items-center
+    `}>
       <header className="w-full">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">

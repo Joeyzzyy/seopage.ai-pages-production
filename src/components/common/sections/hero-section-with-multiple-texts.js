@@ -9,10 +9,10 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
 
   const handleButtonClick = (type) => (e) => {
     e.preventDefault();
-    if (type === 'demo') {
-      window.open('https://calendly.com/joey-techacc/30min', '_blank');
-    } else {
-      router.push('https://app.websitelm.com');
+    if (type === 'demo' && data.topContent.buttonLink) {
+      window.open(data.topContent.buttonLink, '_blank');
+    } else if (type === 'getStarted' && data.topContent.ctaButtonLink) {
+      window.open(data.topContent.ctaButtonLink, '_blank');
     }
   };
 
@@ -34,7 +34,10 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
   };
 
   return (
-    <section className={`${currentTheme.section.base} ${currentTheme.section.background.primary} pt-20 pb-20 md:pt-36 md:pb-36`}>
+    <section className={`
+      ${currentTheme.section.background.primary} 
+      ${currentTheme.section.padding.large}
+    `}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="relative z-10 pt-8 md:pt-12">
           <div className="flex flex-col items-center gap-4">

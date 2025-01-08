@@ -12,7 +12,10 @@ const UserReviewsWithSquareCards = ({ data, theme = 'normal' }) => {
   };
 
   return (
-    <div className={`${themeStyle.section.background.primary} ${themeStyle.section.padding.base}`}>
+    <div className={`
+      ${themeStyle.section.background.primary} 
+      ${themeStyle.section.padding.base}
+    `}>
       <div className="max-w-7xl mx-auto px-4">
         <h2 className={`${themeStyle.typography.h2.fontSize} ${themeStyle.typography.h2.fontWeight} ${themeStyle.typography.h2.color} text-center mb-8`}>
           {title}

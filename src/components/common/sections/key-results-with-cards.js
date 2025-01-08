@@ -67,8 +67,11 @@ const KeyResultsWithThreeCards = ({ data, theme = 'normal' }) => {
                 </p>
               </div>
 
-              <button className={getButtonStyle()}>
-                {buttonText}
+              <button 
+                className={getButtonStyle()}
+                onClick={() => comparison.buttonLink && window.open(comparison.buttonLink, '_blank')}
+              >
+                {comparison.buttonText}
                 <svg className={getIconStyle()} viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

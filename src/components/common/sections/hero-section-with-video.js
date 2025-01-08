@@ -31,7 +31,10 @@ const HeroSectionWithVideo = ({ data, theme = 'normal', buttonLink = '#' }) => {
   };
 
   return (
-    <div className={`relative ${getBgColor()} ${currentTheme.section.padding.base}`}>
+    <div className={`
+      ${currentTheme.section.background.primary} 
+      ${currentTheme.section.padding.large}
+    `}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col items-center text-center mb-12">
           <h1 className={`${currentTheme.typography.h1.fontSize} ${currentTheme.typography.h1.fontWeight} ${currentTheme.typography.h1.color} mb-4`}>

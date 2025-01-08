@@ -7,7 +7,10 @@ const FAQTwoColumnsWithBigTitle = ({ data, theme = 'normal' }) => {
   const styles = themeConfig[theme];
 
   return (
-    <div className={`${styles.section.background.primary} ${styles.section.padding.base}`}>
+    <div className={`
+      ${styles.section.background.primary} 
+      ${styles.section.padding.base}
+    `}>
       <div className="max-w-6xl mx-auto px-4">
         <h2 className={`${styles.typography.h2.fontSize} ${styles.typography.h2.fontWeight} ${styles.typography.h2.color} text-center mb-12`}>
           {data.title || 'Frequently Asked Questions'}

@@ -1,16 +1,11 @@
 'use client';
 
 import React from 'react';
-import buttonLinks from '../../ui/button/links';
 import themeConfig from '../../../styles/themeConfig';
 
-const HowItWorksWithThreeBlocks = ({ data, author, theme = 'normal' }) => {
+const HowItWorksWithBlocks = ({ data, author, theme = 'normal' }) => {
   const { leftContent, rightContent } = data;
   
-  const getButtonLink = () => {
-    return buttonLinks.workbench || '#';
-  };
-
   const getBgColor = () => {
     return theme === 'tech' 
       ? themeConfig[theme].section.background.secondary
@@ -41,7 +36,7 @@ const HowItWorksWithThreeBlocks = ({ data, author, theme = 'normal' }) => {
               {leftContent.content}
             </p>
             <a 
-              href={getButtonLink()}
+              href={leftContent.buttonLink}
               className={getButtonStyle()}
             >
               {leftContent.buttonText}
@@ -56,7 +51,7 @@ const HowItWorksWithThreeBlocks = ({ data, author, theme = 'normal' }) => {
                     {`0${index + 1}`}
                   </div>
                   <h3 className={`${themeConfig[theme].typography.h3.fontSize} ${themeConfig[theme].typography.h3.fontWeight} ${themeConfig[theme].typography.h3.color} mb-2`}>
-                    {block.title}
+                    {block.contentTitle}
                   </h3>
                   <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`}>
                     {block.content}
@@ -71,4 +66,4 @@ const HowItWorksWithThreeBlocks = ({ data, author, theme = 'normal' }) => {
   );
 };
 
-export default HowItWorksWithThreeBlocks;
+export default HowItWorksWithBlocks;

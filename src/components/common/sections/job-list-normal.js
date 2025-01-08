@@ -6,7 +6,7 @@ const JobListNormal = ({ data, theme = 'normal' }) => {
   const { typography, section } = themeConfig[theme];
 
   return (
-    <div className={`${section.background.primary} min-h-screen`}>
+    <div className={`${section.background.primary} ${section.padding.base} min-h-screen`}>
       <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h1 className={`${typography.h1.fontSize} ${typography.h1.fontWeight} ${typography.h1.color} mb-4`}>
@@ -37,8 +37,9 @@ const JobListNormal = ({ data, theme = 'normal' }) => {
                   </div>
                   <button 
                     className={`${themeConfig[theme].button.base} ${themeConfig[theme].button.variants.primary} hover:scale-105 transition-all duration-200`}
+                    onClick={() => window.open(job.buttonLink, '_blank')}
                   >
-                    Apply Now
+                    {job.buttonText || 'Apply Now'}
                   </button>
                 </div>
                 

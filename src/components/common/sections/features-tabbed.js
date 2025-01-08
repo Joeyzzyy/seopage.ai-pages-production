@@ -11,7 +11,10 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
   const activeContent = bottomContent?.find(tab => tab.tabName === activeTab);
 
   return (
-    <section className="container mx-auto px-4 py-12">
+    <section className={`
+      ${styles.section.background.primary}
+      ${styles.section.padding.base}
+    `}>
       {/* Header Section */}
       <header className="text-center mb-6">
         <h2 className={`${styles.typography.h2.fontSize} ${styles.typography.h2.fontWeight} ${styles.typography.h2.color} mb-3`}>
@@ -55,6 +58,7 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
           </p>
           <button 
             className={`${styles.button.base} ${styles.button.variants.primary} hover:scale-105 ${styles.button.sizes.sm}`}
+            onClick={() => activeContent?.buttonLink && window.open(activeContent.buttonLink, '_blank')}
           >
             {activeContent?.buttonText}
           </button>
@@ -74,3 +78,4 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
 }
 
 export default FeaturesTabbedSection;
+

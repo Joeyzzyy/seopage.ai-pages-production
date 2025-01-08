@@ -1,9 +1,6 @@
 'use client';
 import React from 'react';
-import CustomButton from './widget-custom_button';
-import buttonLinks from '../../ui/button/links';
 import themeConfig from '../../../styles/themeConfig';
-import Image from 'next/image';
 
 const CallToActionWithImage = ({ data, theme = 'normal' }) => {
   const { leftContent, rightContent } = data;

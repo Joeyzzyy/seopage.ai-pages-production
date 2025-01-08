@@ -1,17 +1,15 @@
 'use client';
 import React from 'react';
-import buttonLinks from '../../ui/button/links';
 import themeConfig from '../../../styles/themeConfig';
 
 const CallToActionComplex = ({ data, theme = 'normal' }) => {
-  const getButtonLink = (buttonType) => {
-    return buttonLinks[buttonType] || '#';
-  };
-
   const { button, typography, section } = themeConfig[theme];
 
   return (
-    <div className={`${section.background.primary} ${section.padding.base}`}>
+    <div className={`
+      ${section.background.primary} 
+      ${section.padding.wide}
+    `}>
       <div className="max-w-4xl mx-auto px-4 text-center">
         <h2 className={`${typography.h2.fontSize} ${typography.h2.fontWeight} ${typography.h2.color} mb-6 leading-tight`}>
           {data.topContent.title}
@@ -38,13 +36,13 @@ const CallToActionComplex = ({ data, theme = 'normal' }) => {
 
         <div className="flex justify-center items-center space-x-6">
           <a 
-            href={getButtonLink()}
+            href={data.bottomContent.buttonLink}
             className={`${button.base} ${button.variants.secondary}`}
           >
             {data.bottomContent.buttonText}
           </a>
           <a 
-            href={getButtonLink()}
+            href={data.bottomContent.buttonLink}
             className={`${button.base} ${button.variants.primary}`}
           >
             {data.bottomContent.buttonText}

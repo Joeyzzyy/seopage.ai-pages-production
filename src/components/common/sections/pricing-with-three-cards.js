@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import buttonLinks from '../../ui/button/links';
 import themeConfig from '../../../styles/themeConfig';
 
 const PricingWithThreeCards = ({ data, author, theme = 'normal' }) => {
@@ -51,7 +50,7 @@ const PricingWithThreeCards = ({ data, author, theme = 'normal' }) => {
       </p>
       
       <a 
-        href={buttonLinks[plan.buttonLink] || '#'}
+        href={plan.buttonLink || '#'}
         className={getButtonStyle(featured)}
       >
         {plan.buttonText}

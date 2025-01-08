@@ -8,7 +8,10 @@ const FAQTwoColumnsWithSmallTitle = ({ data, theme = 'normal' }) => {
   const isChineseContent = (content) => /[\u4e00-\u9fa5]/.test(content[0]?.question);
 
   return (
-    <div className={`${styles.section.background.primary} ${styles.section.padding.base}`}>
+    <div className={`
+      ${styles.section.background.primary} 
+      ${styles.section.padding.base}
+    `}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8 md:gap-12">
           <div className="w-full md:w-1/3">

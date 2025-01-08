@@ -117,7 +117,10 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
   };
 
   return (
-    <div className={`${getBgColor()} ${themeConfig[theme].section.padding.base} my-16`}>
+    <div className={`
+      ${themeConfig[theme].section.background.primary}
+      ${themeConfig[theme].section.padding.base}
+    `}>
       <div className="max-w-6xl mx-auto px-4">
         {data.title && (
           <div className="text-center mb-16">

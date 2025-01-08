@@ -48,7 +48,12 @@ const TableOfContents = ({ theme = 'normal' }) => {
   }, []);
 
   return (
-    <div className="fixed right-4 bottom-4 z-50">
+    <div className={`
+      fixed right-4 bottom-4 z-50 
+      ${getBgColor()} 
+      ${themeConfig[theme].section.padding.base}
+      rounded-lg shadow-lg
+    `}>
       <div className={`${getBgColor()} ${getBorderStyle()} rounded-lg shadow-lg max-w-xs`}>
         <button
           onClick={() => setIsOpen(!isOpen)}

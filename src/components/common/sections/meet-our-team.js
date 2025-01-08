@@ -7,7 +7,10 @@ const MeetOurTeam = ({ data, theme = 'normal' }) => {
   const { typography, section } = themeConfig[theme];
 
   return (
-    <div className={`${section.background.primary} ${section.padding.base} my-16`}>
+    <div className={`
+      ${section.background.primary} 
+      ${section.padding.base}
+    `}>
       <div className="max-w-5xl mx-auto px-4">
         <div className="text-center mb-12">
           <p className={`${typography.caption.color} ${typography.caption.fontSize} mb-2`}>

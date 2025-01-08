@@ -9,7 +9,10 @@ const WhyChooseUsWithSmallBlocks = ({ data, theme = 'normal' }) => {
   const currentTheme = themeConfig[theme];
 
   return (
-    <div className={`${currentTheme.section.background.primary} ${currentTheme.section.padding.wide}`}>
+    <div className={`
+      ${currentTheme.section.background.primary} 
+      ${currentTheme.section.padding.base}
+    `}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           {icon && (

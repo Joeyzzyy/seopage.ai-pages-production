@@ -16,7 +16,10 @@ const CallToAction = ({ data, theme = 'normal' }) => {
   };
 
   return (
-    <div className={`${getBgColor()} ${themeConfig[theme].section.padding.base}`}>
+    <div className={`
+      ${getBgColor()} 
+      ${themeConfig[theme].section.padding.wide}
+    `}>
       <div className="max-w-3xl mx-auto px-4 text-center">
         <h2 className={`${themeConfig[theme].typography.h2.fontSize} ${themeConfig[theme].typography.h2.fontWeight} ${themeConfig[theme].typography.h2.color} mb-4`}>
           {data.title}

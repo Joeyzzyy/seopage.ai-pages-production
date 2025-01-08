@@ -16,7 +16,10 @@ const KeyResultsWithImage = ({ data, theme = 'normal' }) => {
   };
 
   return (
-    <div className={`${getBgColor()} ${themeConfig[theme].section.padding.base}`}>
+    <div className={`
+      ${getBgColor()} 
+      ${themeConfig[theme].section.padding.base}
+    `}>
       <div className="max-w-6xl mx-auto px-4 md:px-6">
         {title && (
           <h2 className={`${themeConfig[theme].typography.h2.fontSize} ${themeConfig[theme].typography.h2.fontWeight} ${themeConfig[theme].typography.h2.color} text-center mb-16`}>
@@ -29,7 +32,7 @@ const KeyResultsWithImage = ({ data, theme = 'normal' }) => {
               {dataSet.map((item, index) => (
                 <div key={index} className="flex flex-col">
                   <div className={`text-4xl md:text-5xl xl:text-6xl font-bold ${getNumberColor()} mb-4`}>
-                    {item.percentage}%
+                    {item.percentage}
                   </div>
                   <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} max-w-[280px]`}>
                     {item.description}

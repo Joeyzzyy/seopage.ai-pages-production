@@ -1,10 +1,8 @@
 'use client';
 import React from 'react';
 import themeConfig from '../../../styles/themeConfig';
-import CustomButton from './widget-custom_button';
-import buttonLinks from '../../ui/button/links';
 
-const HowItWorksWithWorkflow = ({ data, author, theme = 'normal' }) => {
+const HowItWorksWithWorkflow = ({ data, theme = 'normal' }) => {
   const { bottomContent, topContent } = data;
   
   const getBgColor = () => {
@@ -13,12 +11,11 @@ const HowItWorksWithWorkflow = ({ data, author, theme = 'normal' }) => {
       : themeConfig[theme].section.background.primary;
   };
   
-  const getButtonLink = () => {
-    return buttonLinks.workbench || '#';
-  };
-  
   return (
-    <div className={`${getBgColor()} ${themeConfig[theme].section.padding.base}`}>
+    <div className={`
+      ${themeConfig[theme].section.background.primary}
+      ${themeConfig[theme].section.padding.base}
+    `}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16 md:mb-24">
           {topContent.icon && <div className="text-6xl mb-6">{topContent.icon}</div>}

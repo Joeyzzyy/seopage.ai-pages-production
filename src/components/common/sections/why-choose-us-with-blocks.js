@@ -61,12 +61,14 @@ const WhyChooseUsWithBlocks = ({ data, author, theme = 'normal' }) => {
                   <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-6`}>
                     {content.content}
                   </p>
-                  <button 
-                    onClick={handleRedirect}
+                  <a 
+                    href={content.buttonLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={getButtonStyle()}
                   >
                     {content.buttonText}
-                  </button>
+                  </a>
                 </div>
                 <div className="w-full md:w-1/2">
                   <img 
@@ -92,12 +94,14 @@ const WhyChooseUsWithBlocks = ({ data, author, theme = 'normal' }) => {
                   <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-6 whitespace-pre-line`}>
                     {content.content}
                   </p>
-                  <button 
-                    onClick={handleRedirect}
+                  <a 
+                    href={content.buttonLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={getButtonStyle()}
                   >
                     {content.buttonText}
-                  </button>
+                  </a>
                 </div>
               </>
             )}
