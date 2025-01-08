@@ -1,4 +1,4 @@
-import { getArticleBySlug, getArticles, getCustomRecommendations } from '../../../lib/api/index';
+import { getPageBySlug, getArticles, getCustomRecommendations } from '../../../lib/api/index';
 import { notFound } from 'next/navigation';
 import { ClientWrapper } from '../../../components/layouts/client-wrapper';
 import CommonLayout from '../../../components/layouts/layout';
@@ -18,7 +18,7 @@ export default async function ArticlePage({ params }) {
   try {
     const resolvedParams = await Promise.resolve(params);
     const { lang, slug } = resolvedParams;
-    const articleData = await getArticleBySlug(slug, lang, 'websitelm.com');
+    const articleData = await getPageBySlug(slug, lang, 'websitelm.com');
 
     console.log('lang', lang);
     console.log('slug', slug);
@@ -79,7 +79,7 @@ export async function generateMetadata({ params }) {
     const resolvedParams = await Promise.resolve(params);
     const { lang = 'en', slug } = resolvedParams;
     
-    const articleData = await getArticleBySlug(slug, lang, 'websitelm.com');
+    const articleData = await getPageBySlug(slug, lang, 'websitelm.com');
     
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {

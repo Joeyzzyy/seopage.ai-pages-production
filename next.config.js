@@ -52,6 +52,17 @@ const nextConfig = {
         source: '/',
         destination: '/en/home',
       },
+      {
+        source: '/:slug',
+        destination: '/en/:slug',
+        has: [
+          {
+            type: 'query',
+            key: 'lang',
+            value: undefined
+          }
+        ]
+      }
     ];
   },
 };
