@@ -17,14 +17,12 @@ export const revalidate = 86400; // 24小时重新验证一次
 export default async function ArticlePage({ params }) {
   try {
     const resolvedParams = await Promise.resolve(params);
-    const { lang, slug } = resolvedParams;
-    const articleData = await getPageBySlug(slug, lang, 'websitelm.com');
-
-    console.log('lang', lang);
-    console.log('slug', slug);
-
-    console.log('PageData', articleData)
+    const { lang = 'en', slug } = resolvedParams;
     
+    // 简化 slug 处理逻辑，直接取最后一个值
+    const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
+    const articleData = await getPageBySlug(fullSlug, lang, 'websitelm.com');
+
     // 检查文章是否存在且状态为已发布
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       console.error(`Article not found or not published for slug: ${slug}`);
@@ -79,7 +77,8 @@ export async function generateMetadata({ params }) {
     const resolvedParams = await Promise.resolve(params);
     const { lang = 'en', slug } = resolvedParams;
     
-    const articleData = await getPageBySlug(slug, lang, 'websitelm.com');
+    const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
+    const articleData = await getPageBySlug(fullSlug, lang, 'websitelm.com');
     
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
@@ -90,6 +89,10 @@ export async function generateMetadata({ params }) {
     }
 
     const article = articleData.data;
+    const host = process.env.NEXT_PUBLIC_HOST || 'https://websitelm.com';
+    
+    const metadataBaseUrl = host ? new URL(host) : null;
+
     return {
       title: article.title, 
       description: article.description,
@@ -118,13 +121,13 @@ export async function generateMetadata({ params }) {
         creator: ''
       },
       alternates: {
-        canonical: `https://websitelm.com/${lang}/${slug}`,
+        canonical: `${host}/${lang}/${fullSlug}`,
         languages: {
-          'en': `https://websitelm.com/en/${slug}`,
-          'zh': `https://websitelm.com/zh/${slug}`,
+          'en': `${host}/${fullSlug}`,
+          'zh': `${host}/zh/${fullSlug}`,
         }
       },
-      metadataBase: new URL('https://websitelm.com'),
+      metadataBase: metadataBaseUrl,
       authors: [{ name: article.author }],
       category: article.category
     };

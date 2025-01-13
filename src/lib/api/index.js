@@ -26,7 +26,12 @@ export async function getArticles(customerId, token) {
 // 根据 slug 获取单篇文章
 export async function getPageBySlug(slug, lang, domain) {
   try {
-    const response = await axios.get(`${API_URL}/pages/view/${slug}`, { 
+    // 确保 slug 是正确的路径格式，并进行编码
+    const encodedSlug = encodeURIComponent(slug);
+    console.log('编码前的 slug:', slug);
+    console.log('编码后的 slug:', encodedSlug);
+    
+    const response = await axios.get(`${API_URL}/pages/view/${encodedSlug}`, { 
       params: { domain, lang }
     });
     console.log('response', response.data)

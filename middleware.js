@@ -1,40 +1,48 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
-  // 获取当前URL
   const url = request.nextUrl.clone()
   
-  // 添加 sitemap.xml 的访问控制
+  // 处理 sitemap.xml
   if (url.pathname === '/sitemap.xml') {
-    // 当域名是 websitelm.com，只允许该域名访问 sitemap
-    if (url.hostname === 'websitelm.com') {
-      return NextResponse.next()
-    }
-    // 其他域名访问 sitemap.xml 时返回 404
-    return new NextResponse(null, { status: 404 })
+    return NextResponse.next()
   }
   
-  // 检查是否是 /home 路径
+  // 处理首页重定向
   if (url.pathname === '/home') {
-    // 重定向到根路径
     return NextResponse.redirect(new URL('/', url.origin))
   }
   
-  // 如果是根路径，内部重写到 /home
   if (url.pathname === '/') {
     url.pathname = '/home'
     return NextResponse.rewrite(url)
   }
 
-  // 其他请求放行
+  // 处理语言路径
+  const pathSegments = url.pathname.split('/').filter(Boolean)
+  if (pathSegments.length >= 1) {
+    const firstSegment = pathSegments[0]
+    
+    // 如果第一段是语言代码
+    if (['zh', 'es', 'fr', 'de', 'ja', 'en'].includes(firstSegment)) {
+      // 保持现有路径不变
+      return NextResponse.next()
+    } else {
+      // 如果不是语言代码，添加默认语言前缀
+      url.pathname = `/en${url.pathname}`
+      return NextResponse.rewrite(url)
+    }
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
   matcher: [
     '/',
+    '/home',
+    '/sitemap.xml',
     '/:path*',
-    '/sitemap.xml',  // 添加 sitemap.xml 到 matcher
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

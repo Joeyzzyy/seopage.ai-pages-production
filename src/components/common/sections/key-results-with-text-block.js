@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
 
 // 添加解析HTML字符串的辅助函数
@@ -8,30 +8,27 @@ const parseHtmlContent = (htmlString) => {
   
   const result = [];
   let currentIndex = 0;
-  const linkRegex = /<a\s+(?:[^>]*?\s+)?href="([^"]*)"[^>]*>(.*?)<\/a>/g;
+  // 修改正则表达式以更准确地匹配 img 标签
+  const imgRegex = /<img\s+[^>]*?src="([^"]*)"[^>]*?alt="([^"]*)"[^>]*>/g;
   
   let match;
-  while ((match = linkRegex.exec(htmlString)) !== null) {
-    // 添加链接前的文本
+  while ((match = imgRegex.exec(htmlString)) !== null) {
+    // 添加标签前的文本
     if (match.index > currentIndex) {
-      result.push({
-        type: 'text',
-        content: htmlString.slice(currentIndex, match.index)
-      });
+      const textContent = htmlString.slice(currentIndex, match.index).trim();
+      if (textContent) {
+        result.push({
+          type: 'text',
+          content: textContent
+        });
+      }
     }
     
-    // 处理链接URL
-    let href = match[1];
-    // 如果链接不是以 http:// 或 https:// 开头，添加 https://
-    if (!href.match(/^https?:\/\//)) {
-      href = `https://${href}`;
-    }
-    
-    // 添加链接
+    // 添加图片
     result.push({
-      type: 'link',
-      href: href,
-      content: match[2]
+      type: 'image',
+      src: match[1],    // 第一个捕获组是 src
+      alt: match[2]     // 第二个捕获组是 alt
     });
     
     currentIndex = match.index + match[0].length;
@@ -39,10 +36,13 @@ const parseHtmlContent = (htmlString) => {
   
   // 添加最后剩余的文本
   if (currentIndex < htmlString.length) {
-    result.push({
-      type: 'text',
-      content: htmlString.slice(currentIndex)
-    });
+    const textContent = htmlString.slice(currentIndex).trim();
+    if (textContent) {
+      result.push({
+        type: 'text',
+        content: textContent
+      });
+    }
   }
   
   return result;
@@ -52,6 +52,7 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
   const { leftContent, rightContent } = data;
   const containerRef = useRef(null);
   const stickyRef = useRef(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -138,42 +139,68 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
     return themeConfig[theme].text.color.primary;
   };
 
+  const ImageModal = ({ src, alt, onClose }) => {
+    if (!src) return null;
+
+    return (
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <div className="relative max-w-[90vw] max-h-[90vh]">
+          <button
+            className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75"
+            onClick={onClose}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img
+            src={src}
+            alt={alt}
+            className="max-w-full max-h-[90vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = (content) => {
-    if (typeof content === 'string') {
+    // 检查内容是否包含 HTML 标签
+    const hasHtmlTags = /<[^>]*>/g.test(content);
+    
+    // 如果是纯文本，直接返回
+    if (!hasHtmlTags) {
       return (
-        <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`}>
+        <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4`}>
           {content}
         </p>
       );
     }
 
+    // 处理 HTML 内容
     const parsedContent = parseHtmlContent(content);
     return parsedContent.map((item, index) => {
       switch (item.type) {
         case 'text':
-          return (
-            <p key={index} className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4`}>
+          return item.content ? (
+            <p key={`text-${index}`} className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4`}>
               {item.content}
             </p>
-          );
-        case 'list':
+          ) : null;
+        case 'image':
           return (
-            <ul key={index} className="space-y-2 mb-4">
-              {item.items.map((listItem, i) => (
-                <li key={i} className={getListItemStyle()}>
-                  <svg className="w-5 h-5 mt-0.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>{listItem}</span>
-                </li>
-              ))}
-            </ul>
-          );
-        case 'highlight':
-          return (
-            <span key={index} className={getHighlightStyle()}>
-              {item.content}
-            </span>
+            <div key={`image-${index}`} className="my-4">
+              <img
+                src={item.src}
+                alt={item.alt}
+                className="w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                loading="lazy"
+                onClick={() => setSelectedImage({ src: item.src, alt: item.alt })}
+              />
+            </div>
           );
         default:
           return null;
@@ -182,98 +209,77 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
   };
 
   return (
-    <div className={`${getBgColor()} ${themeConfig[theme].section.padding.base}`}>
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-[350px_1fr] gap-20" ref={containerRef}>
-          <div className="relative w-[350px]">
-            <div ref={stickyRef} className="sticky top-128 inline-block" style={{ width: '350px' }}>
-              <div className="bg-gray-50 p-8 rounded-lg mb-4 w-full">
-                <h3 className="text-xl font-bold mb-4">
-                  {isChineseContent(rightContent) ? '目录' : 'Table of Contents'}
-                </h3>
-                <ul className="space-y-2">
-                  {rightContent.map((content, index) => (
-                    <li key={`toc-${index}`}>
-                      <button
-                        onClick={() => scrollToSection(`section-${index}`)}
-                        className="text-gray-600 hover:text-blue-600 text-sm text-left"
-                      >
-                        {content.contentTitle}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {shouldShowKeyResults() && (
-                <div className="bg-gray-50 p-8 rounded-lg">
-                  <h3 className="text-xl font-bold mb-6">
-                    {isChineseContent(rightContent) ? '关键指标' : 'Key Results'}
+    <>
+      <div className={`${getBgColor()} ${themeConfig[theme].section.padding.base}`}>
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-[350px_1fr] gap-20" ref={containerRef}>
+            <div className="relative w-[350px]">
+              <div ref={stickyRef} className="sticky top-128 inline-block" style={{ width: '350px' }}>
+                <div className="bg-gray-50 p-8 rounded-lg mb-4 w-full">
+                  <h3 className="text-xl font-bold mb-4">
+                    {isChineseContent(rightContent) ? '目录' : 'Table of Contents'}
                   </h3>
-                  {leftContent
-                    .filter(result => result.display)
-                    .map((result, index) => (
-                      <div key={index} className="mb-8 last:mb-0">
-                        <div className="text-6xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                          {result.percentage}%
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          {result.description}
-                        </p>
-                      </div>
+                  <ul className="space-y-2">
+                    {rightContent.map((content, index) => (
+                      <li key={`toc-${index}`}>
+                        <button
+                          onClick={() => scrollToSection(`section-${index}`)}
+                          className="text-gray-600 hover:text-blue-600 text-sm text-left"
+                        >
+                          {content.contentTitle}
+                        </button>
+                      </li>
                     ))}
+                  </ul>
                 </div>
-              )}
-            </div>
-          </div>
 
-          <div>
-            <main className="main-content">
-              <article className="article max-w-[800px] pr-4">
-                {rightContent.map((content, index) => (
-                  <div key={index} className="mb-10 last:mb-0" id={`section-${index}`}>
-                    <h3 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">
-                      {parseHtmlContent(content.contentTitle).map((part, i) => (
-                        part.type === 'link' ? (
-                          <a 
-                            key={i}
-                            href={part.href}
-                            className="text-blue-500 hover:text-blue-700 hover:underline font-bold"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {part.content}
-                          </a>
-                        ) : (
-                          <span key={i}>{part.content}</span>
-                        )
-                      ))}
+                {shouldShowKeyResults() && (
+                  <div className="bg-gray-50 p-8 rounded-lg">
+                    <h3 className="text-xl font-bold mb-6">
+                      {isChineseContent(rightContent) ? '关键指标' : 'Key Results'}
                     </h3>
-                    <div className="text-lg md:text-xl leading-[1.8] text-gray-700 whitespace-pre-line">
-                      {parseHtmlContent(content.contentText).map((part, i) => (
-                        part.type === 'link' ? (
-                          <a 
-                            key={i}
-                            href={part.href}
-                            className="text-blue-500 hover:text-blue-700 hover:underline font-bold"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {part.content}
-                          </a>
-                        ) : (
-                          <span key={i}>{part.content}</span>
-                        )
+                    {leftContent
+                      .filter(result => result.display)
+                      .map((result, index) => (
+                        <div key={index} className="mb-8 last:mb-0">
+                          <div className="text-6xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            {result.percentage}%
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {result.description}
+                          </p>
+                        </div>
                       ))}
-                    </div>
                   </div>
-                ))}
-              </article>            
-            </main>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <main className="main-content">
+                <article className="article max-w-[800px] pr-4">
+                  {rightContent.map((content, index) => (
+                    <div key={index} className="mb-10 last:mb-0" id={`section-${index}`}>
+                      <h3 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">
+                        {content.contentTitle}
+                      </h3>
+                      <div className="text-lg md:text-xl leading-[1.8] text-gray-700">
+                        {renderContent(content.contentText)}
+                      </div>
+                    </div>
+                  ))}
+                </article>            
+              </main>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      <ImageModal
+        src={selectedImage?.src}
+        alt={selectedImage?.alt}
+        onClose={() => setSelectedImage(null)}
+      />
+    </>
   );
 };
 
