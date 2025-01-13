@@ -19,6 +19,12 @@ export function middleware(request) {
   }
 
   // 修改语言路径处理逻辑
+  // 移除末尾的斜杠，但保留根路径的斜杠
+  if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
+    url.pathname = url.pathname.slice(0, -1)
+    return NextResponse.redirect(url)
+  }
+
   const pathSegments = url.pathname.split('/').filter(Boolean)
   if (pathSegments.length >= 1) {
     const firstSegment = pathSegments[0]
@@ -49,6 +55,7 @@ export const config = {
     '/home',
     '/sitemap.xml',
     '/:path*',
+    '/:path*/',
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
