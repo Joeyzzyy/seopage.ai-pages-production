@@ -35,8 +35,9 @@ export function middleware(request) {
       return NextResponse.rewrite(url)
     }
     
-    // 如果不是语言代码，保持原样（默认视为英语内容）
-    return NextResponse.next()
+    // 如果不是语言代码，添加默认语言前缀 'en'
+    url.pathname = `/en${url.pathname}`
+    return NextResponse.rewrite(url)
   }
 
   return NextResponse.next()
