@@ -13,15 +13,20 @@ export const dynamicParams = true
 // 添加缓存控制
 export const revalidate = 86400; // 24小时重新验证一次
 
+// 添加支持的语言列表
+const SUPPORTED_LANGUAGES = ['en', 'zh'];
+
 // 主页面组件
 export default async function ArticlePage({ params }) {
   try {
     const resolvedParams = await Promise.resolve(params);
-    const { lang = 'en', slug } = resolvedParams;
+    const { lang, slug } = resolvedParams;
     
-    // 简化 slug 处理逻辑，直接取最后一个值
+    // 检查是否为支持的语言，如果不是则使用默认语言
+    const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
+    
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, lang, 'websitelm.com');
+    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
 
     // 检查文章是否存在且状态为已发布
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
@@ -75,10 +80,13 @@ function joinArrayWithComma(arr) {
 export async function generateMetadata({ params }) {
   try {
     const resolvedParams = await Promise.resolve(params);
-    const { lang = 'en', slug } = resolvedParams;
+    const { lang, slug } = resolvedParams;
+    
+    // 检查是否为支持的语言，如果不是则使用默认语言
+    const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, lang, 'websitelm.com');
+    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
     
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
@@ -121,7 +129,9 @@ export async function generateMetadata({ params }) {
         creator: ''
       },
       alternates: {
-        canonical: `${host}/${lang}/${fullSlug}`,
+        canonical: currentLang === 'en' 
+          ? `${host}/${fullSlug}`
+          : `${host}/${currentLang}/${fullSlug}`,
         languages: {
           'en': `${host}/${fullSlug}`,
           'zh': `${host}/zh/${fullSlug}`,

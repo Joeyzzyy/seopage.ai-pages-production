@@ -18,20 +18,25 @@ export function middleware(request) {
     return NextResponse.rewrite(url)
   }
 
-  // 处理语言路径
+  // 修改语言路径处理逻辑
   const pathSegments = url.pathname.split('/').filter(Boolean)
   if (pathSegments.length >= 1) {
     const firstSegment = pathSegments[0]
     
-    // 如果第一段是语言代码
-    if (['zh', 'es', 'fr', 'de', 'ja', 'en'].includes(firstSegment)) {
-      // 保持现有路径不变
+    // 如果第一段是语言代码，直接通过
+    if (['zh', 'es', 'fr', 'de', 'ja'].includes(firstSegment)) {
       return NextResponse.next()
-    } else {
-      // 如果不是语言代码，添加默认语言前缀
-      url.pathname = `/en${url.pathname}`
+    }
+    
+    // 如果是 'en'，移除语言前缀
+    if (firstSegment === 'en') {
+      const newPathname = '/' + pathSegments.slice(1).join('/')
+      url.pathname = newPathname
       return NextResponse.rewrite(url)
     }
+    
+    // 如果不是语言代码，保持原样（默认视为英语内容）
+    return NextResponse.next()
   }
 
   return NextResponse.next()
