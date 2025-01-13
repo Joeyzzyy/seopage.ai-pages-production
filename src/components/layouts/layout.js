@@ -36,6 +36,8 @@ import CallToActionWithInput from '../common/sections/call-to-action-with-input'
 import KeyResultsWithTextBlock from '../common/sections/key-results-with-text-block';
 import KeyResultsWithImage from '../common/sections/key-results-with-image';
 import KeyResultsWithCards from '../common/sections/key-results-with-cards';
+/* divider */
+import PageListCard from '../common/sections/page-list.card'; 
 
 const COMPONENT_MAP = {
   TitleSection: TitleSection,
@@ -59,7 +61,8 @@ const COMPONENT_MAP = {
   KeyResultsWithImage: KeyResultsWithImage,
   KeyResultsWithCards: KeyResultsWithCards,
   HowItWorksWithBlocks: HowItWorksWithBlocks,
-  CallToAction: CallToAction
+  CallToAction: CallToAction,
+  PageListCard: PageListCard
 };
 
 const generateSchemaMarkup = (article) => {
