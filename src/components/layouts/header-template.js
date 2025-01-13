@@ -59,7 +59,8 @@ export default function Header({ data }) {
   
   const handleRedirect = (url, e) => {
     e.preventDefault();
-    window.open(url, '_blank');
+    const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+    window.open(cleanUrl, '_blank');
   };
 
   const renderActionItem = (item) => {
@@ -108,6 +109,7 @@ export default function Header({ data }) {
           <Link
             href="#"
             className="text-[15px] font-medium text-gray-600 hover:text-[#1890ff] transition-all duration-300 flex items-center gap-1"
+            replace
           >
             {item.label}
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,14 +117,13 @@ export default function Header({ data }) {
             </svg>
           </Link>
         ) : (
-          <a
-            href={`#${item.label.toLowerCase()}`}
+          <Link
+            href={item.href || `#${item.label.toLowerCase()}`}
             className="text-[15px] font-medium text-gray-600 hover:text-[#1890ff] transition-all duration-300"
-            target="_blank"
-            rel="noopener noreferrer"
+            replace
           >
             {item.label}
-          </a>
+          </Link>
         )}
 
         {/* Dropdown Menu */}
