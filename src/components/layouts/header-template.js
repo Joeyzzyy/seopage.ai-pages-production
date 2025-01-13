@@ -14,40 +14,39 @@ export default function Header({ data }) {
     isOpen: false,
     activeDropdown: null
   });
-
-  const memoizedData = useMemo(() => ({
-    mainMenu: data?.mainMenu || [],
-    actionItems: data?.actionItems || [],
-    logo: data?.logo
-  }), [data]);
-
+  
   useEffect(() => {
     if (!debugEnabled) return;
 
     if (!isMounted.current) {
       isMounted.current = true;
       prevDataRef.current = data;
+      console.group('=== Header 初始数据 ===');
+      console.log('初始数据:', data);
+      console.groupEnd();
       return;
     }
 
     const hasDataChanged = prevDataRef.current === null || 
       JSON.stringify(prevDataRef.current) !== JSON.stringify(data);
 
-    if (hasDataChanged) {
-      console.group('=== Header Component Debug ===');
-      console.log(`Render #${renderCount.current++}:`, {
-        dataChanged: hasDataChanged,
-        previous: prevDataRef.current,
-        current: data
-      });
-      console.groupEnd();
-      
-      prevDataRef.current = data;
-    }
+    console.group('=== Header 数据更新检查 ===');
+    console.log('当前渲染次数:', renderCount.current);
+    console.log('数据是否变化:', hasDataChanged);
+    console.log('当前数据:', {
+      mainMenu: data?.mainMenu,
+      actionItems: data?.actionItems,
+      logo: data?.logo
+    });
+    console.log('完整数据对象:', data);
+    console.groupEnd();
+
+    renderCount.current++;
+    prevDataRef.current = data;
 
     return () => {
       if (debugEnabled && renderCount.current > 0) {
-        console.log(`Header cleanup - Render #${renderCount.current}`);
+        console.log(`Header 组件卸载 - 渲染次数: ${renderCount.current}`);
       }
     };
   }, [data]);
@@ -103,24 +102,22 @@ export default function Header({ data }) {
     return (
       <div 
         key={item.label}
-        className="relative"
-        onMouseEnter={() => setState({ ...state, activeDropdown: item.label })}
-        onMouseLeave={() => setState({ ...state, activeDropdown: null })}
+        className="relative group"
       >
         {hasChildren ? (
           <Link
             href="#"
-            className="text-[15px] font-medium hover:text-[#3374FF] transition-all duration-300 flex items-center"
+            className="text-[15px] font-medium text-gray-600 hover:text-[#1890ff] transition-all duration-300 flex items-center gap-1"
           >
             {item.label}
-            <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </Link>
         ) : (
           <a
             href={`#${item.label.toLowerCase()}`}
-            className="text-[15px] font-medium hover:text-[#3374FF] transition-all duration-300 flex items-center"
+            className="text-[15px] font-medium text-gray-600 hover:text-[#1890ff] transition-all duration-300"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -129,13 +126,13 @@ export default function Header({ data }) {
         )}
 
         {/* Dropdown Menu */}
-        {hasChildren && state.activeDropdown === item.label && (
-          <div className="absolute top-full left-0 w-48 bg-white shadow-lg rounded-lg py-2 mt-1">
+        {hasChildren && (
+          <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 w-40 bg-white shadow-lg rounded-lg py-1 mt-1 transition-all duration-200">
             {item.children.map((child) => (
               <a
                 key={child.label}
                 href={child.href}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="block px-4 py-2 text-sm text-gray-600 hover:text-[#1890ff] hover:bg-gray-50"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -151,17 +148,17 @@ export default function Header({ data }) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow">
       <div className="max-w-[1450px] mx-auto px-6">
-        <div className="flex justify-between h-[4.2rem]">
+        <div className="flex items-center justify-between h-[4.2rem]">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center">
-            <a href="/" className="flex items-center" target="_blank" rel="noopener noreferrer">
+          <div className="flex-shrink-0 flex items-center h-full">
+            <a href="/" className="flex items-center h-full py-2" target="_blank" rel="noopener noreferrer">
               {data?.logo ? (
                 <Image
                   src={data.logo.src}
                   alt={data.logo.alt}
                   width={data.logo.width}
                   height={data.logo.height}
-                  className="h-9 w-auto"
+                  className="object-contain h-full w-auto max-h-[3rem]"
                   quality={100}
                   priority
                 />
@@ -170,26 +167,25 @@ export default function Header({ data }) {
           </div>
 
           {/* Desktop Navigation */}
-          
-          <div className="hidden md:flex items-center justify-between flex-1 pl-8">
+          <div className="hidden md:flex items-center justify-center flex-1 px-8">
             {/* 主导航菜单 */}
-            {data?.mainMenu && (
-              <div className="flex space-x-8">
-                {data.mainMenu?.length > 0 ? (
-                  data.mainMenu.map(renderMenuItem)
-                ) : null}
-              </div>
-            )}
-            {/* Action Items - 固定在右侧 */}
-            {data?.actionItems && (
-              <div className="flex items-center space-x-6 ml-auto">
-                {data.actionItems?.length > 0 ? (
-                  data.actionItems.map(renderActionItem)
+            {data?.mainMenuItems && (
+              <div className="flex gap-8">
+                {data.mainMenuItems?.length > 0 ? (
+                  data.mainMenuItems.map(renderMenuItem)
                 ) : null}
               </div>
             )}
           </div>
-         
+
+          {/* Action Items */}
+          {data?.actionItems && (
+            <div className="hidden md:flex items-center gap-4">
+              {data.actionItems?.length > 0 ? (
+                data.actionItems.map(renderActionItem)
+              ) : null}
+            </div>
+          )}
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
@@ -216,8 +212,8 @@ export default function Header({ data }) {
           <div className="md:hidden absolute top-[4.2rem] left-0 right-0 bg-white border-t border-gray-100 shadow-lg">
             <div className="py-4 px-6">
               <div className="space-y-3">
-                {data.mainMenu?.length > 0 ? (
-                  data.mainMenu.map((item) => (
+                {data.mainMenuItems?.length > 0 ? (
+                  data.mainMenuItems.map((item) => (
                     <div key={item.label} className="space-y-2">
                       <div className="text-[15px] font-medium">{item.label}</div>
                       {item.children?.length > 0 && (
