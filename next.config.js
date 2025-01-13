@@ -45,25 +45,26 @@ const nextConfig = {
       'websitelm.com'  // 添加新的域名
     ],
   },
-  trailingSlash: true,
   async rewrites() {
+    const VALID_LANGS = ['zh', 'es', 'fr', 'de', 'ja', 'en']
+    
     return [
       {
+        // 处理根路径
         source: '/',
         destination: '/en/home',
       },
+      // 为每个有效语言添加一个规则
+      ...VALID_LANGS.map(lang => ({
+        source: `/${lang}/:path*`,
+        destination: `/${lang}/:path*`,
+      })),
       {
-        source: '/:slug',
-        destination: '/en/:slug',
-        has: [
-          {
-            type: 'query',
-            key: 'lang',
-            value: undefined
-          }
-        ]
+        // 处理所有其他路径
+        source: '/:path*',
+        destination: '/en/:path*',
       }
-    ];
+    ]
   },
 };
 
