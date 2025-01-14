@@ -174,7 +174,7 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
     // 如果是纯文本，直接返回
     if (!hasHtmlTags) {
       return (
-        <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4`}>
+        <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4 whitespace-pre-line`}>
           {content}
         </p>
       );
