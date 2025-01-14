@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postbuild": "next-sitemap",
     "generate-sitemap": "cross-env SITE_URL=https://websitelm.com next-sitemap"
   },
   "dependencies": {
