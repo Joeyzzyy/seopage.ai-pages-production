@@ -186,7 +186,7 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
       switch (item.type) {
         case 'text':
           return item.content ? (
-            <p key={`text-${index}`} className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4`}>
+            <p key={`text-${index}`} className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4 whitespace-pre-line`}>
               {item.content}
             </p>
           ) : null;
