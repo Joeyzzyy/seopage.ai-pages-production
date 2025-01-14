@@ -215,8 +215,8 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
           <div className="grid grid-cols-[350px_1fr] gap-20" ref={containerRef}>
             <div className="relative w-[350px]">
               <div ref={stickyRef} className="sticky top-128 inline-block" style={{ width: '350px' }}>
-                <div className="bg-gray-50 p-8 rounded-lg mb-4 w-full">
-                  <h3 className="text-xl font-bold mb-4">
+                <div className="bg-white shadow rounded-lg p-8 mb-4 border border-gray-100">
+                  <h3 className="text-xl font-bold mb-4 text-gray-800 border-b border-gray-100 pb-4">
                     {isChineseContent(rightContent) ? '目录' : 'Table of Contents'}
                   </h3>
                   <ul className="space-y-2">
@@ -224,7 +224,7 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
                       <li key={`toc-${index}`}>
                         <button
                           onClick={() => scrollToSection(`section-${index}`)}
-                          className="text-gray-600 hover:text-blue-600 text-sm text-left"
+                          className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 text-sm text-left py-2 px-3 w-full rounded-md transition-all duration-200"
                         >
                           {content.contentTitle}
                         </button>
@@ -234,15 +234,15 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
                 </div>
 
                 {shouldShowKeyResults() && (
-                  <div className="bg-gray-50 p-8 rounded-lg">
-                    <h3 className="text-xl font-bold mb-6">
+                  <div className="bg-white shadow rounded-lg p-8 border border-gray-100">
+                    <h3 className="text-xl font-bold mb-6 text-gray-800 border-b border-gray-100 pb-4">
                       {isChineseContent(rightContent) ? '关键指标' : 'Key Results'}
                     </h3>
                     {leftContent
                       .filter(result => result.display)
                       .map((result, index) => (
-                        <div key={index} className="mb-8 last:mb-0">
-                          <div className="text-6xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <div key={index} className="mb-8 last:mb-0 hover:bg-gray-50 p-4 rounded-md transition-all duration-200">
+                          <div className="text-6xl font-bold mb-2 text-blue-600">
                             {result.percentage}%
                           </div>
                           <p className="text-sm text-gray-600">
