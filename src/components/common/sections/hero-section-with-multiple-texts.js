@@ -51,19 +51,23 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
           </h2>
           
           <div className="pt-8 flex justify-center gap-4">
-            <button 
-              onClick={handleButtonClick('demo')}
-              className={`${currentTheme.button.base} ${currentTheme.button.variants.secondary} hover:scale-105`}
-            >
-              {data.topContent.buttonText}
-            </button>
+            {data.topContent.showButton && (
+              <button 
+                onClick={handleButtonClick('demo')}
+                className={`${currentTheme.button.base} ${currentTheme.button.variants.secondary} hover:scale-105`}
+              >
+                {data.topContent.buttonText}
+              </button>
+            )}
             
-            <button 
-              onClick={handleButtonClick('getStarted')}
-              className={`${currentTheme.button.base} ${currentTheme.button.variants.primary} hover:scale-105`}
-            >
-              {data.topContent.ctaButtonText}
-            </button>
+            {data.topContent.showCtaButton && (
+              <button 
+                onClick={handleButtonClick('getStarted')}
+                className={`${currentTheme.button.base} ${currentTheme.button.variants.primary} hover:scale-105`}
+              >
+                {data.topContent.ctaButtonText}
+              </button>
+            )}
           </div>
         </div>
       </div>
