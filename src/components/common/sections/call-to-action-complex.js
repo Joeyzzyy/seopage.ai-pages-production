@@ -35,18 +35,22 @@ const CallToActionComplex = ({ data, theme = 'normal' }) => {
         </div>
 
         <div className="flex justify-center items-center space-x-6">
-          <a 
-            href={data.bottomContent.buttonLink}
-            className={`${button.base} ${button.variants.secondary}`}
-          >
-            {data.bottomContent.buttonText}
-          </a>
-          <a 
-            href={data.bottomContent.buttonLink}
-            className={`${button.base} ${button.variants.primary}`}
-          >
-            {data.bottomContent.buttonText}
-          </a>
+          {data.bottomContent.showButton && (
+            <a 
+              href={data.bottomContent.buttonLink}
+              className={`${button.base} ${button.variants.secondary}`}
+            >
+              {data.bottomContent.buttonText}
+            </a>
+          )}
+          {data.bottomContent.showCtaButton && (
+            <a 
+              href={data.bottomContent.buttonLink}
+              className={`${button.base} ${button.variants.primary}`}
+            >
+              {data.bottomContent.ctaButtonText}
+            </a>
+          )}
         </div>
       </div>
     </div>
