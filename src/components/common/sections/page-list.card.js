@@ -57,8 +57,11 @@ const PageListCard = ({ data, theme = 'normal' }) => {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {insights.map((insight, index) => (
-            <div 
+            <a 
               key={index}
+              href={insight.targetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className={getCardStyle()}
             >
               <div className="relative aspect-[16/9] overflow-hidden">
@@ -88,7 +91,7 @@ const PageListCard = ({ data, theme = 'normal' }) => {
                   </p>
                 )}
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
