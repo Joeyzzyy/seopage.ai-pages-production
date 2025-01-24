@@ -66,9 +66,16 @@ export default function Header({ data }) {
   const renderActionItem = (item) => {
     if (!item?.key || !item?.label) return null;
 
-    const buttonStyles = item.buttonType === 'primary' 
-      ? 'text-white bg-[#3374FF] hover:bg-[#3374FF]/90 px-4 py-2 rounded-lg' 
+    const buttonStyles = item.variant === 'button' 
+      ? 'px-4 py-2 rounded-lg hover:opacity-90' 
       : 'hover:text-[#3374FF]';
+
+    const inlineStyles = item.variant === 'button' 
+      ? {
+          backgroundColor: item.backgroundColor,
+          color: item.textColor
+        }
+      : {};
 
     if (item.isExternal) {
       return (
@@ -76,6 +83,7 @@ export default function Header({ data }) {
           key={item.key}
           href={item.href}
           className={`text-[15px] font-medium ${buttonStyles} transition-all duration-300`}
+          style={inlineStyles}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -89,6 +97,7 @@ export default function Header({ data }) {
         key={item.key}
         onClick={(e) => handleRedirect(item.href, e)}
         className={`text-[15px] font-medium ${buttonStyles} transition-all duration-300`}
+        style={inlineStyles}
       >
         {item.label}
       </a>
@@ -99,16 +108,21 @@ export default function Header({ data }) {
     if (!item?.label) return null;
 
     const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+    const menuItemStyles = {
+      color: item.color || 'text-gray-600',
+      fontWeight: item.fontWeight || 'normal'
+    };
     
     return (
       <div 
-        key={item.label}
+        key={item.key || item.label}
         className="relative group"
       >
         {hasChildren ? (
           <Link
             href="#"
-            className="text-[15px] font-medium text-gray-600 hover:text-[#1890ff] transition-all duration-300 flex items-center gap-1"
+            style={menuItemStyles}
+            className="text-[15px] hover:text-[#1890ff] transition-all duration-300 flex items-center gap-1"
             replace
           >
             {item.label}
@@ -119,19 +133,19 @@ export default function Header({ data }) {
         ) : (
           <Link
             href={item.href || `#${item.label.toLowerCase()}`}
-            className="text-[15px] font-medium text-gray-600 hover:text-[#1890ff] transition-all duration-300"
+            style={menuItemStyles}
+            className="text-[15px] hover:text-[#1890ff] transition-all duration-300"
             replace
           >
             {item.label}
           </Link>
         )}
 
-        {/* Dropdown Menu */}
         {hasChildren && (
           <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 w-40 bg-white shadow-lg rounded-lg py-1 mt-1 transition-all duration-200">
             {item.children.map((child) => (
               <a
-                key={child.label}
+                key={child.key || child.label}
                 href={child.href}
                 className="block px-4 py-2 text-sm text-gray-600 hover:text-[#1890ff] hover:bg-gray-50"
                 target="_blank"
@@ -147,7 +161,14 @@ export default function Header({ data }) {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow">
+    <nav 
+      className="fixed top-0 left-0 right-0 z-50"
+      style={{
+        background: data.styles.backgroundType === 'gradient'
+          ? `linear-gradient(${data.styles.gradientAngle}deg, ${data.styles.gradientStart}, ${data.styles.gradientEnd})`
+          : data.styles.backgroundColor
+      }}
+    >
       <div className="max-w-[1450px] mx-auto px-6">
         <div className="flex items-center justify-between h-[4.2rem]">
           {/* Logo */}
