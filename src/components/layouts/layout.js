@@ -37,7 +37,7 @@ import KeyResultsWithTextBlock from '../common/sections/key-results-with-text-bl
 import KeyResultsWithImage from '../common/sections/key-results-with-image';
 import KeyResultsWithCards from '../common/sections/key-results-with-cards';
 /* divider */
-import PageListCard from '../common/sections/page-list.card'; 
+import PageListCard from '../common/sections/page-list-card'; 
 
 const COMPONENT_MAP = {
   TitleSection: TitleSection,
