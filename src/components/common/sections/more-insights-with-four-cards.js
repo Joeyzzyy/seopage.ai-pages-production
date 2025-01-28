@@ -9,7 +9,6 @@ const MoreInsightsWithFourCards = ({ data, theme = 'normal' }) => {
   const getBgColor = () => {
     return themeConfig[theme].section.background.primary;
   };
-
   const getCardStyle = () => {
     return theme === 'tech'
       ? 'group overflow-hidden rounded-lg border border-indigo-100 hover:border-indigo-200 hover:shadow-sm transition-all duration-200'

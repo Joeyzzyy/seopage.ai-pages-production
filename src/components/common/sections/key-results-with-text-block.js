@@ -2,17 +2,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
 
-// 添加解析HTML字符串的辅助函数
+// 修改 parseHtmlContent 函数以支持链接标签
 const parseHtmlContent = (htmlString) => {
   if (!htmlString) return [];
   
   const result = [];
   let currentIndex = 0;
-  // 修改正则表达式以更准确地匹配 img 标签
-  const imgRegex = /<img\s+[^>]*?src="([^"]*)"[^>]*?alt="([^"]*)"[^>]*>/g;
+  // 同时匹配图片和链接标签
+  const regex = /<(img|a)\s+[^>]*?(src|href)="([^"]*)"[^>]*>(?:(.*?)<\/a>)?/g;
   
   let match;
-  while ((match = imgRegex.exec(htmlString)) !== null) {
+  while ((match = regex.exec(htmlString)) !== null) {
     // 添加标签前的文本
     if (match.index > currentIndex) {
       const textContent = htmlString.slice(currentIndex, match.index).trim();
@@ -24,12 +24,25 @@ const parseHtmlContent = (htmlString) => {
       }
     }
     
-    // 添加图片
-    result.push({
-      type: 'image',
-      src: match[1],    // 第一个捕获组是 src
-      alt: match[2]     // 第二个捕获组是 alt
-    });
+    if (match[1] === 'img') {
+      // 处理图片
+      result.push({
+        type: 'image',
+        src: match[3],
+        alt: match[0].match(/alt="([^"]*)"/)?.[1] || ''
+      });
+    } else if (match[1] === 'a') {
+      // 处理链接
+      let href = match[3];
+      if (!href.match(/^https?:\/\//)) {
+        href = `https://${href}`;
+      }
+      result.push({
+        type: 'link',
+        href: href,
+        content: match[4] || ''
+      });
+    }
     
     currentIndex = match.index + match[0].length;
   }
@@ -167,28 +180,26 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
     );
   };
 
+  // 修改 renderContent 函数以支持链接渲染
   const renderContent = (content) => {
-    // 检查内容是否包含 HTML 标签
     const hasHtmlTags = /<[^>]*>/g.test(content);
     
-    // 如果是纯文本，直接返回
     if (!hasHtmlTags) {
       return (
-        <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4 whitespace-pre-line`}>
+        <p key="simple-text" className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4 whitespace-pre-line`}>
           {content}
         </p>
       );
     }
 
-    // 处理 HTML 内容
     const parsedContent = parseHtmlContent(content);
     return parsedContent.map((item, index) => {
       switch (item.type) {
         case 'text':
           return item.content ? (
-            <p key={`text-${index}`} className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-4 whitespace-pre-line`}>
+            <span key={`text-${index}`} className="whitespace-pre-line">
               {item.content}
-            </p>
+            </span>
           ) : null;
         case 'image':
           return (
@@ -201,6 +212,18 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
                 onClick={() => setSelectedImage({ src: item.src, alt: item.alt })}
               />
             </div>
+          );
+        case 'link':
+          return (
+            <span key={`link-wrapper-${index}`}>{' '}<a
+              key={`link-${index}`}
+              href={item.href}
+              className="text-blue-500 hover:text-blue-700 hover:underline font-bold"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {item.content}
+            </a>{' '}</span>
           );
         default:
           return null;
@@ -259,11 +282,11 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
               <main className="main-content">
                 <article className="article max-w-[800px] pr-4">
                   {rightContent.map((content, index) => (
-                    <div key={index} className="mb-10 last:mb-0" id={`section-${index}`}>
+                    <div key={`section-${index}`} className="mb-10 last:mb-0" id={`section-${index}`}>
                       <h3 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">
                         {content.contentTitle}
                       </h3>
-                      <div className="text-lg md:text-xl leading-[1.8] text-gray-700">
+                      <div key={`content-${index}`} className="text-lg md:text-xl leading-[1.8] text-gray-700">
                         {renderContent(content.contentText)}
                       </div>
                     </div>

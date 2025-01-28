@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import Image from 'next/image';
 
 const KeyResultsWithImage = ({ data, theme = 'normal' }) => {
   const dataSet = data?.leftContent || [];
@@ -42,12 +43,16 @@ const KeyResultsWithImage = ({ data, theme = 'normal' }) => {
             </div>
           </div>
           
-          <div className="w-full md:w-1/2">
-            <img 
-              src={image.imageUrl}
-              alt={image.imageAlt}
-              className="w-full h-auto object-contain max-w-[500px] mx-auto"
-            />
+          <div className="w-full md:w-1/2 relative" style={{ height: '500px' }}>
+            {image.imageUrl && (
+              <Image 
+                src={image.imageUrl}
+                alt={image.imageAlt || ''}
+                fill
+                className="object-contain"
+                priority
+              />
+            )}
           </div>
         </div>
       </div>

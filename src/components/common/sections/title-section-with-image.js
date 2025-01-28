@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import Image from 'next/image';
 
 const TitleSectionWithImage = ({ data, author, theme = 'normal' }) => {
   const containsChinese = (text) => {
@@ -70,11 +71,15 @@ const TitleSectionWithImage = ({ data, author, theme = 'normal' }) => {
             
             <div className="w-full md:w-1/2">
               <div className={getImageContainerStyle()}>
-                <img 
-                  src={data?.rightContent?.imageUrl}
-                  alt={data?.rightContent?.imageAlt}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
+                {data?.rightContent?.imageUrl && (
+                  <Image 
+                    src={data.rightContent.imageUrl}
+                    alt={data.rightContent.imageAlt || ''}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                )}
               </div>  
             </div>
           </div>

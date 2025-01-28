@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import Image from 'next/image';
 
 const TrustedByLogos = ({ data, themeName = 'normal' }) => {
   const theme = themeConfig[themeName];
@@ -42,11 +43,15 @@ const TrustedByLogos = ({ data, themeName = 'normal' }) => {
                 key={`${logo.imageUrl}-${index}`}
                 className={`${theme.card.variants.primary} flex-shrink-0 w-24 h-24 flex items-center justify-center`}
               >
-                <img
-                  src={logo.imageUrl}
-                  alt={`Logo ${index}`}
-                  className="w-full h-full object-contain p-2"
-                />
+                {logo.imageUrl && (
+                  <Image
+                    src={logo.imageUrl}
+                    alt={`Logo ${index}`}
+                    width={96}
+                    height={96}
+                    className="object-contain p-2"
+                  />
+                )}
               </div>
             ))}
           </div>

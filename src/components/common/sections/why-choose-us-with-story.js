@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import Image from 'next/image';
 
 // 添加解析HTML字符串的辅助函数
 const parseHtmlContent = (text) => {
@@ -140,11 +141,15 @@ const WhyChooseUsWithStory = ({ data, theme = 'normal' }) => {
             <div ref={stickyRef} className="sticky top-128 inline-block" style={{ width: '350px' }}>
               <div className="bg-gray-50 p-8 rounded-lg">
                 <div className="text-center mb-6">
-                  <img 
-                    src={leftContent.avatarUrl} 
-                    alt={leftContent.avatarAlt}
-                    className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                  />
+                  {leftContent.avatarUrl && (
+                    <Image 
+                      src={leftContent.avatarUrl}
+                      alt={leftContent.avatarAlt || ''}
+                      width={128}
+                      height={128}
+                      className="rounded-full mx-auto mb-4 object-cover"
+                    />
+                  )}
                   <h3 className="text-xl font-bold mb-2">{leftContent.name}</h3>
                   <p className="text-gray-600 text-sm">{leftContent.title}</p>
                 </div>

@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import Image from 'next/image';
 
 const CallToActionWithImage = ({ data, theme = 'normal' }) => {
   const { leftContent, rightContent } = data;
@@ -40,11 +41,14 @@ const CallToActionWithImage = ({ data, theme = 'normal' }) => {
           
           <div className="w-full md:w-1/2">
             <div className={getImageContainerStyle()}>
-              <img 
-                src={rightContent.imageUrl} 
-                alt={rightContent.imageAlt}
-                className="w-full h-full object-cover"
-              />
+              {rightContent.imageUrl && (
+                <Image 
+                  src={rightContent.imageUrl}
+                  alt={rightContent.imageAlt || ''}
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
           </div>
         </div>

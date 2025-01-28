@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import Image from 'next/image';
 
 const UserReviewsWithSquareCards = ({ data, theme = 'normal' }) => {
   const title = data.title;
@@ -46,11 +47,15 @@ const UserReviewsWithSquareCards = ({ data, theme = 'normal' }) => {
               </p>
               
               <div className="flex items-center mt-4">
-                <img 
-                  src={review.avatarUrl}
-                  alt={review.avatarAlt}
-                  className="w-12 h-12 rounded-full object-contain p-1"
-                />
+                {review.avatarUrl && (
+                  <Image 
+                    src={review.avatarUrl}
+                    alt={review.avatarAlt || ''}
+                    width={48}
+                    height={48}
+                    className="rounded-full object-contain"
+                  />
+                )}
                 <div className="ml-4">
                   <h3 className={themeStyle.text.color.primary}>{review.name}</h3>
                   <p className={themeStyle.text.color.secondary}>{review.position}</p>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import Image from 'next/image';
 
 function FeaturesTabbedSection({ data, theme = 'normal' }) {
   const { title, description, bottomContent, buttonText } = data || {};
@@ -65,11 +66,15 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
         </div>
         <div className="w-full md:w-1/3">
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <img 
-              src={activeContent?.imageUrl} 
-              alt={activeContent?.imageAlt}
-              className="w-full h-auto max-w-sm mx-auto object-cover"
-            />
+            {activeContent?.imageUrl && (
+              <Image 
+                src={activeContent.imageUrl}
+                alt={activeContent.imageAlt || ''}
+                width={400}
+                height={300}
+                className="w-full h-auto max-w-sm mx-auto object-cover"
+              />
+            )}
           </div>
         </div>
       </div>
