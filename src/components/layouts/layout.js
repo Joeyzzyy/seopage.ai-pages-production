@@ -123,8 +123,8 @@ const CommonLayout = ({ article, keywords }) => {
               key={`${section.componentName}-${section.position}`}
               className={`w-full ${
                 index % 2 === 1 
-                  ? 'bg-gradient-to-b from-[#FAFBFF] via-[#F4F7FF] to-[#FAFBFF]' 
-                  : 'bg-[#FAFBFF]'
+                  ? 'bg-gradient-to-b from-white via-[#E5EDFF] to-white' 
+                  : 'bg-white'
               }`}
             >
               <Component 
