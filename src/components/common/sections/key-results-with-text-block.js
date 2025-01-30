@@ -3,59 +3,73 @@ import React, { useEffect, useRef, useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
 
 // 修改 parseHtmlContent 函数以支持链接标签
-const parseHtmlContent = (htmlString) => {
-  if (!htmlString) return [];
+const parseContent = (content) => {
+  if (!content) return [];
+  
+  // 移除 <p> 标签
+  const cleanedContent = content.replace(/<\/?p>/g, '');
   
   const result = [];
   let currentIndex = 0;
-  // 同时匹配图片和链接标签
-  const regex = /<(img|a)\s+[^>]*?(src|href)="([^"]*)"[^>]*>(?:(.*?)<\/a>)?/g;
+  
+  // 使用单个正则表达式处理所有情况
+  const htmlRegex = /<(?:div class="video-container"><video|img|a|video)(?:[^>]*?\s+)?(?:src|href)="([^"]*)"[^>]*>(?:(.*?)<\/(?:a|video|div)>)?/g;
   
   let match;
-  while ((match = regex.exec(htmlString)) !== null) {
-    // 添加标签前的文本
+  while ((match = htmlRegex.exec(cleanedContent)) !== null) {
+    // 处理匹配前的文本
     if (match.index > currentIndex) {
-      const textContent = htmlString.slice(currentIndex, match.index).trim();
-      if (textContent) {
-        result.push({
-          type: 'text',
-          content: textContent
-        });
-      }
+      result.push({
+        type: 'text',
+        content: cleanedContent.slice(currentIndex, match.index)
+      });
     }
     
-    if (match[1] === 'img') {
-      // 处理图片
-      result.push({
-        type: 'image',
-        src: match[3],
-        alt: match[0].match(/alt="([^"]*)"/)?.[1] || ''
-      });
-    } else if (match[1] === 'a') {
-      // 处理链接
-      let href = match[3];
-      if (!href.match(/^https?:\/\//)) {
-        href = `https://${href}`;
-      }
-      result.push({
-        type: 'link',
-        href: href,
-        content: match[4] || ''
-      });
+    // 判断标签类型
+    const tagType = match[0].startsWith('<div class="video-container">') ? 'video' :
+                   match[0].startsWith('<img') ? 'image' :
+                   match[0].startsWith('<a') ? 'link' :
+                   match[0].startsWith('<video') ? 'video' : null;
+    
+    // 根据类型添加对应的内容
+    switch (tagType) {
+      case 'image':
+        result.push({
+          type: 'image',
+          src: match[1],
+          alt: match[0].match(/alt="([^"]*)"/)?.[1] || ''
+        });
+        break;
+      case 'link':
+        let href = match[1];
+        if (!href.match(/^https?:\/\//)) {
+          href = `https://${href}`;
+        }
+        result.push({
+          type: 'link',
+          href,
+          content: match[2] || ''
+        });
+        break;
+      case 'video':
+        result.push({
+          type: 'video',
+          src: match[1],
+          controls: true,
+          preload: 'metadata'
+        });
+        break;
     }
     
     currentIndex = match.index + match[0].length;
   }
   
-  // 添加最后剩余的文本
-  if (currentIndex < htmlString.length) {
-    const textContent = htmlString.slice(currentIndex).trim();
-    if (textContent) {
-      result.push({
-        type: 'text',
-        content: textContent
-      });
-    }
+  // 处理剩余文本
+  if (currentIndex < cleanedContent.length) {
+    result.push({
+      type: 'text',
+      content: cleanedContent.slice(currentIndex)
+    });
   }
   
   return result;
@@ -192,7 +206,7 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
       );
     }
 
-    const parsedContent = parseHtmlContent(content);
+    const parsedContent = parseContent(content);
     return parsedContent.map((item, index) => {
       switch (item.type) {
         case 'text':
@@ -224,6 +238,19 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
             >
               {item.content}
             </a>{' '}</span>
+          );
+        case 'video':
+          return (
+            <div key={`video-${index}`} className="my-4 w-full aspect-video">
+              <video
+                src={item.src}
+                controls
+                preload="metadata"
+                className="w-full h-full rounded-lg"
+              >
+                您的浏览器不支持视频播放。
+              </video>
+            </div>
           );
         default:
           return null;
