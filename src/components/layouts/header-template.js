@@ -67,8 +67,8 @@ export default function Header({ data }) {
     if (!item?.key || !item?.label) return null;
 
     const buttonStyles = item.variant === 'button' 
-      ? 'px-4 py-2 rounded-lg hover:opacity-90' 
-      : 'hover:text-[#3374FF]';
+      ? 'px-4 py-2 rounded-lg hover:opacity-90 cursor-pointer' 
+      : 'hover:text-[#3374FF] cursor-pointer';
 
     const inlineStyles = item.variant === 'button' 
       ? {
@@ -213,7 +213,7 @@ export default function Header({ data }) {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setState({ ...state, isOpen: !state.isOpen })}
-              className="p-2 rounded-md"
+              className="p-2 rounded-md cursor-pointer"
             >
               <span className="sr-only">Open menu</span>
               {!state.isOpen ? (
