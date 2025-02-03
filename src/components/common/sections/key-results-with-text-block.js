@@ -15,249 +15,73 @@ const extractContentTitle = (contentText) => {
 const parseContent = (content) => {
   if (!content) return [];
   
-  const cleanContent = content.replace(/\r\n/g, '\n');
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(`<div>${content}</div>`, 'text/html');
   
-  const result = [];
-  let currentIndex = 0;
-  
-  const tagRegex = /<(\/?)(\w+)(?:\s+[^>]*)?>/g;
-  let match;
-  let stack = [];
-  let lastTag = null;
-  
-  while ((match = tagRegex.exec(cleanContent)) !== null) {
-    const [fullMatch, isClosing, tagName] = match;
-    
-    if (match.index > currentIndex) {
-      const text = cleanContent.slice(currentIndex, match.index);
-      if (text) {
-        result.push({
-          type: 'text',
-          content: text
-        });
-      }
+  const processNode = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      // 处理文本节点，保留换行
+      return node.textContent ? [{
+        type: 'text',
+        content: node.textContent
+      }] : [];
     }
     
-    const tag = tagName.toLowerCase();
-    if (!isClosing) {
-      switch (tag) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName = node.tagName.toLowerCase();
+      
+      switch (tagName) {
         case 'p':
-          // 如果上一个标签是 p 的闭合标签，只添加一个换行
-          if (lastTag === 'p') {
-            result.push({
-              type: 'text',
-              content: '\n' // 只添加一个换行
-            });
-          }
-          stack.push({
-            type: 'p',
-            startIndex: result.length
-          });
-          break;
+          // 处理段落，保持段落间的空行
+          const processedNodes = Array.from(node.childNodes).flatMap(processNode);
+          return [...processedNodes, { type: 'text', content: '\n' }];
           
         case 'br':
-          result.push({
-            type: 'text',
-            content: '\n'
-          });
-          break;
+          return [{ type: 'text', content: '\n' }];
           
         case 'img':
-          const src = fullMatch.match(/src="([^"]*)"/)?.[1] || '';
-          const alt = fullMatch.match(/alt="([^"]*)"/)?.[1] || '';
-          result.push({
+          return [{
             type: 'image',
-            src,
-            alt
-          });
-          break;
-          
-        case 'span':
-          const classMatch = fullMatch.match(/class="([^"]*)"/);
-          const className = classMatch ? classMatch[1] : '';
-          stack.push({
-            type: 'span',
-            className,
-            startIndex: result.length
-          });
-          break;
-          
-        case 'video':
-          const videoSrc = fullMatch.match(/src="([^"]*)"/)?.[1] || '';
-          result.push({
-            type: 'video',
-            src: videoSrc,
-            controls: true,
-            preload: 'metadata'
-          });
-          break;
+            src: node.getAttribute('src'),
+            alt: node.getAttribute('alt') || ''
+          }];
           
         case 'a':
-          stack.push({
+          return [{
             type: 'link',
-            href: fullMatch.match(/href="([^"]*)"/)?.[1] || '',
-            startIndex: result.length
-          });
-          break;
+            href: node.getAttribute('href'),
+            content: node.textContent
+          }];
           
         case 'strong':
         case 'b':
-          stack.push({
+          const boldChildren = Array.from(node.childNodes).flatMap(processNode);
+          return [{
             type: 'bold',
-            startIndex: result.length
-          });
-          break;
+            nested: boldChildren.length > 1,
+            children: boldChildren,
+            content: node.textContent
+          }];
           
-        case 'i':
-          stack.push({
-            type: 'italic',
-            startIndex: result.length
-          });
-          break;
-        
-        case 'ul':
-        case 'ol':
-          stack.push({
-            type: 'list',
-            startIndex: result.length
-          });
-          break;
-          
-        case 'li':
-          result.push({
-            type: 'text',
-            content: '\n• ' // 添加列表项标记
-          });
-          break;
-          
-        case 'h1':
-        case 'h2':
-        case 'h3':
-        case 'h4':
-        case 'h5':
-        case 'h6':
-          result.push({
-            type: 'text',
-            content: '\n\n'
-          });
-          stack.push({
-            type: 'heading',
-            level: parseInt(tag[1]),
-            startIndex: result.length
-          });
-          break;
-      }
-    } else {
-      const openTag = stack.pop();
-      if (openTag) {
-        const content = result.slice(openTag.startIndex);
-        result.length = openTag.startIndex;
-        
-        switch (tag) {
-          case 'p':
-            // 添加段落内容
-            result.push(...content);
-            // 不在这里添加额外的换行，让下一个开始标签处理
-            break;
-            
-          case 'span':
-            const textContent = content.map(item => item.content).join('');
-            result.push({
+        case 'span':
+          if (node.classList.contains('content-subtitle')) {
+            return [{
               type: 'text',
-              content: textContent,
-              className: openTag.className
-            });
-            break;
-            
-          case 'a':
-            result.push({
-              type: 'link',
-              href: openTag.href,
-              content: content.map(item => item.content).join('')
-            });
-            break;
-            
-          case 'strong':
-          case 'b':
-            result.push({
-              type: 'bold',
-              nested: content.length > 1,
-              children: content,
-              content: content.map(item => item.content).join('')
-            });
-            break;
-            
-          case 'i':
-            result.push({
-              type: 'italic',
-              nested: content.length > 1,
-              children: content,
-              content: content.map(item => item.content).join('')
-            });
-            break;
+              content: node.textContent,
+              className: 'content-subtitle'
+            }];
+          }
+          return Array.from(node.childNodes).flatMap(processNode);
           
-          case 'ul':
-          case 'ol':
-            result.push({
-              type: 'text',
-              content: '\n'
-            });
-            break;
-          
-          case 'h1':
-          case 'h2':
-          case 'h3':
-          case 'h4':
-          case 'h5':
-          case 'h6':
-            result.push({
-              type: 'text',
-              content: '\n\n'
-            });
-            break;
-        }
+        default:
+          return Array.from(node.childNodes).flatMap(processNode);
       }
     }
     
-    lastTag = tag;
-    currentIndex = match.index + fullMatch.length;
-  }
+    return [];
+  };
   
-  // 处理剩余文本
-  if (currentIndex < cleanContent.length) {
-    result.push({
-      type: 'text',
-      content: cleanContent.slice(currentIndex)
-    });
-  }
-  
-  // 清理连续的换行
-  const cleanedResult = [];
-  let skipNext = false;
-  
-  for (let i = 0; i < result.length; i++) {
-    if (skipNext) {
-      skipNext = false;
-      continue;
-    }
-    
-    const current = result[i];
-    const next = result[i + 1];
-    
-    if (current.type === 'text' && next?.type === 'text' &&
-        current.content === '\n' && next.content === '\n') {
-      // 遇到连续换行时只保留一个
-      cleanedResult.push({
-        type: 'text',
-        content: '\n'
-      });
-      skipNext = true;
-    } else {
-      cleanedResult.push(current);
-    }
-  }
-  
-  return cleanedResult;
+  return Array.from(doc.body.firstChild.childNodes).flatMap(processNode);
 };
 
 const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
@@ -387,19 +211,19 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
           return (
             <span 
               key={index}
-              className="text-xl font-bold text-gray-900 block mb-4"
+              className="content-subtitle text-xl font-bold text-gray-900 block mb-4"
             >
               {part.content}
             </span>
           );
         }
-        // 处理换行
-        return part.content.split('\n').map((text, i, arr) => (
-          <React.Fragment key={`${index}-${i}`}>
-            {text}
-            {i < arr.length - 1 && <br />}
-          </React.Fragment>
-        ));
+        
+        // 确保每个换行都被渲染为 <br>
+        if (part.content === '\n') {
+          return <br key={index} />;
+        }
+        
+        return <span key={index}>{part.content}</span>;
       }
       switch (part.type) {
         case 'image':
@@ -520,8 +344,12 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
               <main className="main-content">
                 <article className="article max-w-[800px] pr-4">
                   {rightContent.map((content, index) => (
-                    <div key={`section-${index}`} className="mb-10 last:mb-0" id={`section-${index}`}>
-                      <div className="text-lg md:text-xl leading-[1.8] text-gray-700">
+                    <div 
+                      key={`section-${index}`} 
+                      id={`section-${index}`}
+                      className="mb-10 last:mb-0"
+                    >
+                      <div className="text-lg md:text-xl leading-[1.8] text-gray-700 whitespace-pre-line">
                         {renderContent(parseContent(content.contentText))}
                       </div>
                     </div>
