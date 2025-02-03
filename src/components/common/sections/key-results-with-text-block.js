@@ -2,25 +2,32 @@
 import React, { useEffect, useRef, useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
 
+// 修改提取标题的函数，返回所有匹配的副标题
+const extractContentTitle = (contentText) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(contentText, 'text/html');
+  const subtitleSpans = doc.querySelectorAll('span.content-subtitle');
+  // 返回所有副标题文本组成的数组
+  return Array.from(subtitleSpans).map(span => span.textContent);
+};
+
 // 修改 parseHtmlContent 函数以支持链接标签
 const parseContent = (content) => {
   if (!content) return [];
   
-  // 使用统一的解析方法，不区分服务器/客户端
-  const cleanContent = content.replace(/\r\n/g, '\n'); // 统一换行符
+  const cleanContent = content.replace(/\r\n/g, '\n');
   
   const result = [];
   let currentIndex = 0;
   
-  // 使用正则表达式匹配所有标签
   const tagRegex = /<(\/?)(\w+)(?:\s+[^>]*)?>/g;
   let match;
   let stack = [];
+  let lastTag = null;
   
   while ((match = tagRegex.exec(cleanContent)) !== null) {
     const [fullMatch, isClosing, tagName] = match;
     
-    // 处理标签前的文本
     if (match.index > currentIndex) {
       const text = cleanContent.slice(currentIndex, match.index);
       if (text) {
@@ -31,10 +38,23 @@ const parseContent = (content) => {
       }
     }
     
-    // 处理标签
     const tag = tagName.toLowerCase();
-    if (!isClosing) { // 开始标签
+    if (!isClosing) {
       switch (tag) {
+        case 'p':
+          // 如果上一个标签是 p 的闭合标签，只添加一个换行
+          if (lastTag === 'p') {
+            result.push({
+              type: 'text',
+              content: '\n' // 只添加一个换行
+            });
+          }
+          stack.push({
+            type: 'p',
+            startIndex: result.length
+          });
+          break;
+          
         case 'br':
           result.push({
             type: 'text',
@@ -49,6 +69,16 @@ const parseContent = (content) => {
             type: 'image',
             src,
             alt
+          });
+          break;
+          
+        case 'span':
+          const classMatch = fullMatch.match(/class="([^"]*)"/);
+          const className = classMatch ? classMatch[1] : '';
+          stack.push({
+            type: 'span',
+            className,
+            startIndex: result.length
           });
           break;
           
@@ -70,6 +100,7 @@ const parseContent = (content) => {
           });
           break;
           
+        case 'strong':
         case 'b':
           stack.push({
             type: 'bold',
@@ -83,15 +114,62 @@ const parseContent = (content) => {
             startIndex: result.length
           });
           break;
+        
+        case 'ul':
+        case 'ol':
+          stack.push({
+            type: 'list',
+            startIndex: result.length
+          });
+          break;
+          
+        case 'li':
+          result.push({
+            type: 'text',
+            content: '\n• ' // 添加列表项标记
+          });
+          break;
+          
+        case 'h1':
+        case 'h2':
+        case 'h3':
+        case 'h4':
+        case 'h5':
+        case 'h6':
+          result.push({
+            type: 'text',
+            content: '\n\n'
+          });
+          stack.push({
+            type: 'heading',
+            level: parseInt(tag[1]),
+            startIndex: result.length
+          });
+          break;
       }
-    } else { // 结束标签
+    } else {
       const openTag = stack.pop();
       if (openTag) {
         const content = result.slice(openTag.startIndex);
         result.length = openTag.startIndex;
         
-        switch (openTag.type) {
-          case 'link':
+        switch (tag) {
+          case 'p':
+            // 添加段落内容
+            result.push(...content);
+            // 不在这里添加额外的换行，让下一个开始标签处理
+            break;
+            
+          case 'span':
+            const textContent = content.map(item => item.content).join('');
+            result.push({
+              type: 'text',
+              content: textContent,
+              className: openTag.className
+            });
+            break;
+            
+          case 'a':
             result.push({
               type: 'link',
               href: openTag.href,
@@ -99,7 +177,8 @@ const parseContent = (content) => {
             });
             break;
             
-          case 'bold':
+          case 'strong':
+          case 'b':
             result.push({
               type: 'bold',
               nested: content.length > 1,
@@ -108,7 +187,7 @@ const parseContent = (content) => {
             });
             break;
             
-          case 'italic':
+          case 'i':
             result.push({
               type: 'italic',
               nested: content.length > 1,
@@ -116,10 +195,31 @@ const parseContent = (content) => {
               content: content.map(item => item.content).join('')
             });
             break;
+          
+          case 'ul':
+          case 'ol':
+            result.push({
+              type: 'text',
+              content: '\n'
+            });
+            break;
+          
+          case 'h1':
+          case 'h2':
+          case 'h3':
+          case 'h4':
+          case 'h5':
+          case 'h6':
+            result.push({
+              type: 'text',
+              content: '\n\n'
+            });
+            break;
         }
       }
     }
     
+    lastTag = tag;
     currentIndex = match.index + fullMatch.length;
   }
   
@@ -131,7 +231,33 @@ const parseContent = (content) => {
     });
   }
   
-  return result;
+  // 清理连续的换行
+  const cleanedResult = [];
+  let skipNext = false;
+  
+  for (let i = 0; i < result.length; i++) {
+    if (skipNext) {
+      skipNext = false;
+      continue;
+    }
+    
+    const current = result[i];
+    const next = result[i + 1];
+    
+    if (current.type === 'text' && next?.type === 'text' &&
+        current.content === '\n' && next.content === '\n') {
+      // 遇到连续换行时只保留一个
+      cleanedResult.push({
+        type: 'text',
+        content: '\n'
+      });
+      skipNext = true;
+    } else {
+      cleanedResult.push(current);
+    }
+  }
+  
+  return cleanedResult;
 };
 
 const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
@@ -255,19 +381,27 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
 
   // 修改 renderContent 函数以支持链接渲染
   const renderContent = (content) => {
-    const parsedContent = parseContent(content);
-    
-    return parsedContent.map((part, index) => {
+    return content.map((part, index) => {
+      if (part.type === 'text') {
+        if (part.className === 'content-subtitle') {
+          return (
+            <span 
+              key={index}
+              className="text-xl font-bold text-gray-900 block mb-4"
+            >
+              {part.content}
+            </span>
+          );
+        }
+        // 处理换行
+        return part.content.split('\n').map((text, i, arr) => (
+          <React.Fragment key={`${index}-${i}`}>
+            {text}
+            {i < arr.length - 1 && <br />}
+          </React.Fragment>
+        ));
+      }
       switch (part.type) {
-        case 'text':
-          // 将文本内容中的 \n 分割并用 <br /> 连接
-          return part.content.split('\n').map((text, i, array) => (
-            <React.Fragment key={`text-${index}-${i}`}>
-              {text}
-              {i < array.length - 1 && <br />}
-            </React.Fragment>
-          ));
-        
         case 'image':
           return (
             <img
@@ -344,16 +478,19 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
                     {isChineseContent(rightContent) ? '目录' : 'Table of Contents'}
                   </h3>
                   <ul className="space-y-2">
-                    {rightContent.map((content, index) => (
-                      <li key={`toc-${index}`}>
-                        <button
-                          onClick={() => scrollToSection(`section-${index}`)}
-                          className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 text-sm text-left py-2 px-3 w-full rounded-md transition-all duration-200"
-                        >
-                          {content.contentTitle}
-                        </button>
-                      </li>
-                    ))}
+                    {rightContent.map((content, index) => {
+                      const titles = extractContentTitle(content.contentText);
+                      return titles.map((title, titleIndex) => (
+                        <li key={`toc-${index}-${titleIndex}`}>
+                          <button
+                            onClick={() => scrollToSection(`section-${index}`)}
+                            className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 text-sm text-left py-2 px-3 w-full rounded-md transition-all duration-200"
+                          >
+                            {title}
+                          </button>
+                        </li>
+                      ));
+                    })}
                   </ul>
                 </div>
 
@@ -384,11 +521,8 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
                 <article className="article max-w-[800px] pr-4">
                   {rightContent.map((content, index) => (
                     <div key={`section-${index}`} className="mb-10 last:mb-0" id={`section-${index}`}>
-                      <h3 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">
-                        {content.contentTitle}
-                      </h3>
-                      <div key={`content-${index}`} className="text-lg md:text-xl leading-[1.8] text-gray-700">
-                        {renderContent(content.contentText)}
+                      <div className="text-lg md:text-xl leading-[1.8] text-gray-700">
+                        {renderContent(parseContent(content.contentText))}
                       </div>
                     </div>
                   ))}
