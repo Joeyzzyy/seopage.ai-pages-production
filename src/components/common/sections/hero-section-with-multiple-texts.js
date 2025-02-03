@@ -1,10 +1,8 @@
 'use client';
 import React from 'react';
 import themeConfig from '../../../styles/themeConfig';
-import { useRouter } from 'next/navigation';
 
 const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
-  const router = useRouter();
   const currentTheme = themeConfig[theme];
 
   const handleButtonClick = (type) => (e) => {
@@ -16,10 +14,10 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
     }
   };
 
-  const renderTitle = (title) => {
+  const renderTitle = (title, highlightWordCount = 2) => {
     const words = title.split(' ');
-    const lastTwoWords = words.slice(-2).join(' ');
-    const restOfTitle = words.slice(0, -2).join(' ');
+    const lastWords = words.slice(-highlightWordCount).join(' ');
+    const restOfTitle = words.slice(0, -highlightWordCount).join(' ');
 
     return (
       <>
@@ -27,7 +25,7 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
           {restOfTitle}{' '}
         </span>
         <span className={`inline-block -rotate-1 px-2 py-1 bg-gradient-to-r from-[#3374FF]/[0.75] via-[#3374FF]/[0.5] to-[#3374FF]/[0.75] text-white`}>
-          {lastTwoWords}
+          {lastWords}
         </span>
       </>
     );
@@ -42,7 +40,7 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
         <div className="relative z-10 pt-8 md:pt-12">
           <div className="flex flex-col items-center gap-4">
             <h1 className="text-center text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight">
-              {renderTitle(data.topContent.title)}
+              {renderTitle(data.topContent.title, data.topContent.highlightWordCount)}
             </h1>
           </div>
           
@@ -67,6 +65,23 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
               >
                 {data.topContent.ctaButtonText}
               </button>
+            )}
+
+            {/* Product Hunt Widget */}
+            {data.topContent.enableProductHunt && data.topContent.productHuntId && (
+              <a 
+                href={`https://www.producthunt.com/posts/${data.topContent.productHuntId}?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-${data.topContent.productHuntId}`}
+                target="_blank"
+                className="transition-transform duration-200 hover:scale-105"
+              >
+                <img 
+                  src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=${data.topContent.productHuntId}&theme=light`}
+                  alt={`${data.topContent.productHuntId} - Featured on Product Hunt`}
+                  style={{ width: '250px', height: '54px' }}
+                  width="250"
+                  height="54"
+                />
+              </a>
             )}
           </div>
         </div>
