@@ -119,26 +119,28 @@ export default function Header({ data }) {
         className="relative group"
       >
         {hasChildren ? (
-          <Link
-            href="#"
+          <a
+            href={item.link || '#'}
             style={menuItemStyles}
             className="text-[15px] hover:text-[#1890ff] transition-all duration-300 flex items-center gap-1"
-            replace
+            target="_blank"
+            rel="noopener noreferrer"
           >
             {item.label}
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
-          </Link>
+          </a>
         ) : (
-          <Link
-            href={item.href || `#${item.label.toLowerCase()}`}
+          <a
+            href={item.link || `#${item.label.toLowerCase()}`}
             style={menuItemStyles}
             className="text-[15px] hover:text-[#1890ff] transition-all duration-300"
-            replace
+            target="_blank"
+            rel="noopener noreferrer"
           >
             {item.label}
-          </Link>
+          </a>
         )}
 
         {hasChildren && (
