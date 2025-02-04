@@ -38,6 +38,8 @@ import KeyResultsWithImage from '../common/sections/key-results-with-image';
 import KeyResultsWithCards from '../common/sections/key-results-with-cards';
 /* divider */
 import PageListCard from '../common/sections/page-list-card';
+/* divider */
+import SubscriptionCard from '../common/sections/subscription-card';
 
 const COMPONENT_MAP = {
   TitleSection: TitleSection,
@@ -62,7 +64,8 @@ const COMPONENT_MAP = {
   KeyResultsWithCards: KeyResultsWithCards,
   HowItWorksWithBlocks: HowItWorksWithBlocks,
   CallToAction: CallToAction,
-  PageListCard: PageListCard
+  PageListCard: PageListCard,
+  SubscriptionCard: SubscriptionCard
 };
 
 const generateSchemaMarkup = (article) => {
