@@ -77,6 +77,22 @@ function joinArrayWithComma(arr) {
   return Array.isArray(arr) ? arr.filter(Boolean).join(',') : '';
 }
 
+function getCanonicalUrl(host, lang, fullSlug) {
+  // 确保 host 没有尾部斜杠
+  const baseUrl = host.replace(/\/$/, '');
+  
+  // 规范化 slug（移除首尾斜杠）
+  const normalizedSlug = fullSlug.replace(/^\/+|\/+$/g, '');
+  
+  // 对于英文页面，使用不带语言标识符的URL作为规范链接
+  if (lang === 'en') {
+    return `${baseUrl}/${normalizedSlug}`;
+  }
+  
+  // 其他语言使用带语言标识符的URL
+  return `${baseUrl}/${lang}/${normalizedSlug}`;
+}
+
 export async function generateMetadata({ params }) {
   try {
     const resolvedParams = await Promise.resolve(params);
@@ -100,6 +116,8 @@ export async function generateMetadata({ params }) {
     const host = process.env.NEXT_PUBLIC_HOST || 'https://websitelm.com';
     
     const metadataBaseUrl = host ? new URL(host) : null;
+
+    const canonicalUrl = getCanonicalUrl(host, currentLang, fullSlug);
 
     return {
       title: article.title, 
@@ -129,13 +147,25 @@ export async function generateMetadata({ params }) {
         creator: ''
       },
       alternates: {
-        canonical: currentLang === 'en' 
-          ? `${host}/${fullSlug}`
-          : `${host}/${currentLang}/${fullSlug}`,
+        canonical: canonicalUrl,
         languages: {
-          'en': `${host}/${fullSlug}`,
-          'zh': `${host}/zh/${fullSlug}`,
-        }
+          'en': `${host}/${fullSlug}`,          // 英文版本不带语言标识符
+          'zh': `${host}/zh/${fullSlug}`,       // 其他语言带语言标识符
+        },
+        hreflang: [
+          {
+            href: `${host}/${fullSlug}`,
+            hrefLang: 'en'
+          },
+          {
+            href: `${host}/zh/${fullSlug}`,
+            hrefLang: 'zh'
+          },
+          {
+            href: `${host}/${fullSlug}`,        // x-default 指向英文版本
+            hrefLang: 'x-default'
+          }
+        ]
       },
       metadataBase: metadataBaseUrl,
       authors: [{ name: article.author }],
