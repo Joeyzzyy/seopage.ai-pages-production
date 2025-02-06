@@ -58,7 +58,7 @@ const WhyChooseUsWithBlocks = ({ data, author, theme = 'normal' }) => {
                   <h3 className={`${themeConfig[theme].typography.h3.fontSize} ${themeConfig[theme].typography.h3.fontWeight} ${themeConfig[theme].typography.h3.color} mb-4`}>
                     {content.title}
                   </h3>
-                  <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-6`}>
+                  <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} mb-6 whitespace-pre-line`}>
                     {content.content}
                   </p>
                   <a 

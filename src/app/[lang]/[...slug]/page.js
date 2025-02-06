@@ -11,7 +11,7 @@ export const dynamic = 'force-static'
 export const dynamicParams = true
 
 // 添加缓存控制
-export const revalidate = 86400; // 24小时重新验证一次
+export const revalidate = 3600; // 1小时
 
 // 添加支持的语言列表
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
