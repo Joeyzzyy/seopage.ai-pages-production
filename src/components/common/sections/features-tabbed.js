@@ -49,24 +49,9 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-1">
-        {/* 当 imageOnRight 不为 true 时显示左侧图片 */}
-        {(!activeContent?.imageOnRight) && (
-          <div className="w-full md:w-1/3">
-            <div className="rounded-lg overflow-hidden">
-              {activeContent?.imageUrl && (
-                <Image 
-                  src={activeContent.imageUrl}
-                  alt={activeContent.imageAlt || ''}
-                  width={400}
-                  height={300}
-                  className="w-full h-auto max-w-sm mx-auto object-cover"
-                />
-              )}
-            </div>
-          </div>
-        )}
-        
+      <div className="flex flex-col md:flex-row items-center justify-center gap-6"
+           style={{ flexDirection: activeContent?.imageOnRight ? 'row' : 'row-reverse' }}>
+        {/* 内容部分始终在左侧 */}
         <div className="w-full md:w-1/3 space-y-3">
           <h3 className={`${styles.typography.h3.fontSize} ${styles.typography.h3.fontWeight} ${styles.typography.h3.color}`}>
             {activeContent?.title}
@@ -81,23 +66,21 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
             {activeContent?.buttonText}
           </button>
         </div>
-        
-        {/* 当 imageOnRight 为 true 时显示右侧图片 */}
-        {(activeContent?.imageOnRight === true) && (
-          <div className="w-full md:w-1/3">
-            <div className="rounded-lg overflow-hidden">
-              {activeContent?.imageUrl && (
-                <Image 
-                  src={activeContent.imageUrl}
-                  alt={activeContent.imageAlt || ''}
-                  width={400}
-                  height={300}
-                  className="w-full h-auto max-w-sm mx-auto object-cover"
-                />
-              )}
-            </div>
+
+        {/* 图片部分 */}
+        <div className="w-full md:w-1/3">
+          <div className="rounded-lg overflow-hidden">
+            {activeContent?.imageUrl && (
+              <Image 
+                src={activeContent.imageUrl}
+                alt={activeContent.imageAlt || ''}
+                width={400}
+                height={300}
+                className="w-full h-auto max-w-sm mx-auto object-cover"
+              />
+            )}
           </div>
-        )}
+        </div>
       </div>
     </section>
   );
