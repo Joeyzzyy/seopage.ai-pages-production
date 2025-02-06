@@ -29,9 +29,9 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
       {/* Navigation Tabs */}
       <div className="border-gray-200 border-b mb-6">
         <div className="flex -mb-px justify-center">
-          {bottomContent?.map((tab, index) => (
+          {bottomContent?.map((tab) => (
             <button
-              key={`${tab.tabName}-${index}`}
+              key={`tab-${tab.tabName}`}
               onClick={() => setActiveTab(tab.tabName)}
               className={`
                 ${styles.typography.caption.fontSize} px-6 py-3 
@@ -50,6 +50,23 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
       </div>
 
       <div className="flex flex-col md:flex-row items-center justify-center gap-1">
+        {/* 当 imageOnRight 不为 true 时显示左侧图片 */}
+        {(!activeContent?.imageOnRight) && (
+          <div className="w-full md:w-1/3">
+            <div className="rounded-lg overflow-hidden">
+              {activeContent?.imageUrl && (
+                <Image 
+                  src={activeContent.imageUrl}
+                  alt={activeContent.imageAlt || ''}
+                  width={400}
+                  height={300}
+                  className="w-full h-auto max-w-sm mx-auto object-cover"
+                />
+              )}
+            </div>
+          </div>
+        )}
+        
         <div className="w-full md:w-1/3 space-y-3">
           <h3 className={`${styles.typography.h3.fontSize} ${styles.typography.h3.fontWeight} ${styles.typography.h3.color}`}>
             {activeContent?.title}
@@ -64,19 +81,23 @@ function FeaturesTabbedSection({ data, theme = 'normal' }) {
             {activeContent?.buttonText}
           </button>
         </div>
-        <div className="w-full md:w-1/3">
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            {activeContent?.imageUrl && (
-              <Image 
-                src={activeContent.imageUrl}
-                alt={activeContent.imageAlt || ''}
-                width={400}
-                height={300}
-                className="w-full h-auto max-w-sm mx-auto object-cover"
-              />
-            )}
+        
+        {/* 当 imageOnRight 为 true 时显示右侧图片 */}
+        {(activeContent?.imageOnRight === true) && (
+          <div className="w-full md:w-1/3">
+            <div className="rounded-lg overflow-hidden">
+              {activeContent?.imageUrl && (
+                <Image 
+                  src={activeContent.imageUrl}
+                  alt={activeContent.imageAlt || ''}
+                  width={400}
+                  height={300}
+                  className="w-full h-auto max-w-sm mx-auto object-cover"
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

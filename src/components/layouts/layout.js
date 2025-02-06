@@ -126,7 +126,7 @@ const CommonLayout = ({ article, keywords }) => {
           
           return (
             <div 
-              key={`${section.componentName}-${section.position}`}
+              key={`${section.componentName}-${section.sectionId}`}
               className={`w-full ${
                 index % 2 === 1 
                   ? 'bg-gradient-to-b from-white via-[#E5EDFF] to-white' 
