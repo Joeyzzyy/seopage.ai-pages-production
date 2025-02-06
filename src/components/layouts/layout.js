@@ -40,6 +40,8 @@ import KeyResultsWithCards from '../common/sections/key-results-with-cards';
 import PageListCard from '../common/sections/page-list-card';
 /* divider */
 import SubscriptionCard from '../common/sections/subscription-card';
+/* divider */
+import FeatureComparisonTable from '../common/sections/feature-comparison-table';
 
 const COMPONENT_MAP = {
   TitleSection: TitleSection,
@@ -65,7 +67,8 @@ const COMPONENT_MAP = {
   HowItWorksWithBlocks: HowItWorksWithBlocks,
   CallToAction: CallToAction,
   PageListCard: PageListCard,
-  SubscriptionCard: SubscriptionCard
+  SubscriptionCard: SubscriptionCard,
+  FeatureComparisonTable: FeatureComparisonTable
 };
 
 const generateSchemaMarkup = (article) => {
