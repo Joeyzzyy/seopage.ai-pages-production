@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function Footer({ data }) {
   useEffect(() => {
+    console.log('Footer socialMedia data:', data?.socialMedia);
   }, [data]);
 
   const socialIcons = {
@@ -81,7 +82,7 @@ export default function Footer({ data }) {
                 return (
                   <a
                     key={key}
-                    href={`https://${link.url}`}
+                    href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: data.socialMedia?.iconColor || '#9CA3AF' }}
