@@ -32,7 +32,7 @@ export async function getPageBySlug(slug, lang, domain) {
     console.log('编码后的 slug:', encodedSlug);
     
     const response = await axios.get(`${API_URL}/pages/view/${encodedSlug}`, { 
-      params: { domain, lang }
+      params: { lang, domain }
     });
     console.log('response', response.data)
     return response.data;
