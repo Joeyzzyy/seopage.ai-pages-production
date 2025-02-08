@@ -2,87 +2,110 @@
 import React from 'react';
 import themeConfig from '../../../styles/themeConfig';
 
-const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
-  const currentTheme = themeConfig[theme];
-
-  const handleButtonClick = (type) => (e) => {
-    e.preventDefault();
-    if (type === 'demo' && data.topContent.buttonLink) {
-      window.open(data.topContent.buttonLink, '_blank');
-    } else if (type === 'getStarted' && data.topContent.ctaButtonLink) {
-      window.open(data.topContent.ctaButtonLink, '_blank');
-    }
+const HowItWorksWithWorkflow = ({ data, theme = 'normal' }) => {
+  const { bottomContent, topContent } = data;
+  
+  const commonStyles = {
+    heading: `${themeConfig[theme].typography.h2.fontSize} ${themeConfig[theme].typography.h2.fontWeight} ${themeConfig[theme].typography.h2.color}`,
+    paragraph: `${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`,
+    accent: themeConfig[theme].text.color.accent
   };
 
+  const getBgColor = () => {
+    return theme === 'tech' 
+      ? themeConfig[theme].section.background.secondary
+      : themeConfig[theme].section.background.primary;
+  };
+  
   return (
-    <div className="py-10">
-      <section className={`
-        bg-gradient-to-b from-[#3374FF] to-[#1F4699]
-        ${currentTheme.section.padding.large}
-        w-[95%] mx-auto rounded-2xl
-      `}>
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="relative z-10 pt-8 md:pt-12">
-            <div className="flex flex-col items-center gap-4">
-              <h1 className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
-                {data.topContent.title}
-              </h1>
-            </div>
-            
-            <h2 className={`text-center text-xl md:text-2xl font-semibold text-white pt-3 max-w-3xl mx-auto`}>
-              {data.topContent.subTitle}
+    <div className={`
+      bg-[#e6eeff]
+      ${themeConfig[theme].section.padding.base}
+      py-16 md:py-24
+    `}>
+      <div className="w-[80%] mx-auto">
+        <div className="flex flex-col md:flex-row gap-12">
+          {/* Left Section */}
+          <div className="w-full md:w-1/2">
+            <h2 className={`${commonStyles.heading} mb-2`}>
+              {topContent.title}
             </h2>
-            
-            <div className="pt-8 flex justify-center gap-4">
-              {data.topContent.showButton && (
-                <button 
-                  onClick={handleButtonClick('demo')}
-                  className={`px-8 py-3 rounded-xl text-base font-semibold transition-all duration-200 ${currentTheme.button.base} bg-transparent text-white border-2 border-white hover:scale-105`}
-                >
-                  {data.topContent.buttonText}
-                </button>
-              )}
-              
-              {data.topContent.showCtaButton && (
-                <button 
-                  onClick={handleButtonClick('getStarted')}
-                  className={`px-8 py-3 rounded-xl text-base font-semibold transition-all duration-200 ${currentTheme.button.base} ${currentTheme.button.variants.primary} hover:scale-105`}
-                >
-                  {data.topContent.ctaButtonText}
-                </button>
-              )}
-
-              {/* Product Hunt Widget */}
-              {data.topContent.enableProductHunt && data.topContent.productHuntId && (
-                <a 
-                  href={`https://www.producthunt.com/posts/${data.topContent.productHuntId}?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-${data.topContent.productHuntId}`}
-                  target="_blank"
-                  className="transition-transform duration-200 hover:scale-105"
-                >
-                  <img 
-                    src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=${data.topContent.productHuntId}&theme=light`}
-                    alt={`${data.topContent.productHuntId} - Featured on Product Hunt`}
-                    style={{ width: '250px', height: '54px' }}
-                    width="250"
-                    height="54"
-                  />
-                </a>
-              )}
-            </div>
-
-            {/* 修改banner图显示区域，使用data中的图片URL */}
-            <div className="mt-12 w-full flex justify-center">
+            {topContent.subTitle && (
+              <h3 className="text-xl text-gray-600 leading-relaxed mb-6">
+                {topContent.subTitle}
+              </h3>
+            )}
+            {/* Example Image */}
+            <div className="mb-8 aspect-[4/3] overflow-hidden rounded-xl">
               <img 
-                src={data.topContent.bannerImage || "https://picsum.photos/1200/600"}
-                alt="Banner"
-                className="w-[95%] h-auto object-cover rounded-2xl shadow-lg"
+                src={topContent.imageUrl}
+                alt={topContent.imageAlt}
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
+            </div>
+            {/* Button Group */}
+            {(topContent.showButton || topContent.showCtaButton) && (
+              <div className="flex flex-col sm:flex-row gap-4">
+                {topContent.showButton && (
+                  <a
+                    href={topContent.buttonLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 rounded-full bg-blue-600 text-white font-medium
+                      hover:bg-blue-700 transition-colors duration-300 text-center">
+                    {topContent.buttonText}
+                  </a>
+                )}
+                {topContent.showCtaButton && (
+                  <a
+                    href={topContent.ctaButtonLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 text-blue-600 font-medium hover:text-blue-700 
+                      transition-colors duration-300 flex items-center">
+                    {topContent.ctaButtonText}
+                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Section */}
+          <div className="w-full md:w-1/2 md:flex md:items-center">
+            <div className="flex flex-col divide-y divide-gray-200">
+              {bottomContent.map((block, index) => (
+                <div key={block.number} 
+                  className="flex gap-6 py-8 first:pt-0 last:pb-0">
+                  <div className="text-lg font-medium text-gray-900 shrink-0 w-12">
+                    {block.number}
+                  </div>
+                  <div>
+                    {block.title && (
+                      <h4 className="text-lg font-semibold mb-2 tracking-wide">
+                        {block.title}
+                      </h4>
+                    )}
+                    {block.subTitle && (
+                      <h5 className="text-base text-gray-500 mb-2">
+                        {block.subTitle}
+                      </h5>
+                    )}
+                    <p className={`${commonStyles.paragraph} leading-relaxed 
+                      whitespace-pre-line`}>
+                      {block.content}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };
 
-export default HeroSectionWithMultipleTexts;
+export default HowItWorksWithWorkflow;
