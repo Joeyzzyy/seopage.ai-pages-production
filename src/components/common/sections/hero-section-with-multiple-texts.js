@@ -70,10 +70,10 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
               )}
             </div>
 
-            {/* 添加banner图显示区域 */}
+            {/* 修改banner图显示区域，使用data中的图片URL */}
             <div className="mt-12 w-full flex justify-center">
               <img 
-                src="https://picsum.photos/1200/600"
+                src={data.topContent.bannerImage || "https://picsum.photos/1200/600"}
                 alt="Banner"
                 className="w-[95%] h-auto object-cover rounded-2xl shadow-lg"
               />
