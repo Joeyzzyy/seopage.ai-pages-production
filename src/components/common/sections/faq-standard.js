@@ -4,7 +4,6 @@ import themeConfig from '../../../styles/themeConfig';
 
 const FAQTwoColumnsWithSmallTitle = ({ data, theme = 'normal' }) => {
   const styles = themeConfig[theme];
-  const isChineseContent = (content) => /[\u4e00-\u9fa5]/.test(content[0]?.question);
 
   return (
     <div className={`
@@ -14,7 +13,7 @@ const FAQTwoColumnsWithSmallTitle = ({ data, theme = 'normal' }) => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className={`${styles.typography.h3.fontSize} ${styles.typography.h2.fontWeight} ${styles.typography.h2.color}`}>
-            {isChineseContent(data.topContent) ? '常见问题解答' : 'Frequently asked questions'}
+            Frequently asked questions
           </h2>
         </div>
 
