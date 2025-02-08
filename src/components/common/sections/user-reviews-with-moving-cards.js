@@ -52,21 +52,21 @@ const UserReviewsWithMovingCards = ({ data, theme = 'normal' }) => {
   };
 
   return (
-    <div className="w-[80%] mx-auto py-12">
+    <div className="w-[90%] md:w-[80%] mx-auto py-6 md:py-12">
       {/* 标题和导航按钮区域 */}
-      <div className="w-full mx-auto flex justify-between items-center mb-10">
-        <h2 className={`text-3xl font-bold ${themeStyle.textColor}`}>
+      <div className="w-full mx-auto flex flex-col md:flex-row justify-between items-center mb-6 md:mb-10 gap-4">
+        <h2 className={`text-2xl md:text-3xl font-bold ${themeStyle.textColor} text-center md:text-left`}>
           {title}
         </h2>
-        <div className="flex gap-4">
+        <div className="flex gap-2 md:gap-4">
           {/* Previous 按钮 */}
           <button
             onClick={handlePrevious}
-            className={`flex items-center justify-between px-4 py-1.5 rounded-full border ${themeStyle.borderColor} ${themeStyle.textColor} hover:bg-gray-50 transition-colors w-40`}
+            className={`flex items-center justify-between px-3 md:px-4 py-1.5 rounded-full border ${themeStyle.borderColor} ${themeStyle.textColor} hover:bg-gray-50 transition-colors w-32 md:w-40`}
           >
-            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="w-6 md:w-8 h-6 md:h-8 rounded-full bg-gray-100 flex items-center justify-center">
               <svg
-                className="w-4 h-4"
+                className="w-3 md:w-4 h-3 md:h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -79,18 +79,18 @@ const UserReviewsWithMovingCards = ({ data, theme = 'normal' }) => {
                 />
               </svg>
             </div>
-            <span className="flex-1 text-center">Previous</span>
+            <span className="flex-1 text-center text-sm md:text-base">Previous</span>
           </button>
 
           {/* Next 按钮 */}
           <button
             onClick={handleNext}
-            className={`flex items-center justify-between px-4 py-1.5 rounded-full border ${themeStyle.borderColor} ${themeStyle.textColor} hover:bg-gray-50 transition-colors w-40`}
+            className={`flex items-center justify-between px-3 md:px-4 py-1.5 rounded-full border ${themeStyle.borderColor} ${themeStyle.textColor} hover:bg-gray-50 transition-colors w-32 md:w-40`}
           >
-            <span className="flex-1 text-center">Next</span>
-            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+            <span className="flex-1 text-center text-sm md:text-base">Next</span>
+            <div className="w-6 md:w-8 h-6 md:h-8 rounded-full bg-gray-100 flex items-center justify-center">
               <svg
-                className="w-4 h-4"
+                className="w-3 md:w-4 h-3 md:h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -120,7 +120,7 @@ const UserReviewsWithMovingCards = ({ data, theme = 'normal' }) => {
           {extendedReviews.map((review, index) => (
             <div
               key={index}
-              className={`flex-shrink-0 w-full px-4 transition-all duration-500`}
+              className={`flex-shrink-0 w-full px-2 md:px-4 transition-all duration-500`}
             >
               <div
                 className={`transition-all duration-500 ${
@@ -131,17 +131,17 @@ const UserReviewsWithMovingCards = ({ data, theme = 'normal' }) => {
                     : 'opacity-0 scale-90'
                 }`}
               >
-                {/* 卡片主体 - 2:1 宽高比 */}
-                <div className="w-[600px] h-[300px] bg-white rounded-xl shadow-lg flex overflow-hidden mx-auto">
-                  {/* 左侧用户信息区域 - 占据 1/3 宽度 */}
-                  <div className="w-1/3 relative">
+                {/* 卡片主体 - 移动端改为上下布局 */}
+                <div className="w-full md:w-[600px] flex flex-col md:flex-row bg-white rounded-xl shadow-lg overflow-hidden mx-auto">
+                  {/* 上方/左侧用户信息区域 */}
+                  <div className="w-full md:w-1/3 h-48 md:h-[300px] relative">
                     {/* 背景图片 */}
                     <div className="absolute inset-0">
                       <Image
                         src={review.avatarUrl}
                         alt={review.avatarAlt}
                         fill
-                        className="object-cover"
+                        className="object-cover md:object-center object-top"
                       />
                       {/* 渐变遮罩 确保文字可读性 */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -154,10 +154,10 @@ const UserReviewsWithMovingCards = ({ data, theme = 'normal' }) => {
                     </div>
                   </div>
 
-                  {/* 右侧评论内容 - 占据 2/3 宽度 */}
-                  <div className="w-2/3 p-8 flex flex-col bg-[#f6f6f6]">
-                    {/* 顶部区域：评分 */}
-                    <div className="flex justify-end mb-6">
+                  {/* 下方/右侧评论内容 */}
+                  <div className="w-full md:w-2/3 p-4 md:p-8 flex flex-col bg-[#f6f6f6]">
+                    {/* 评分部分 */}
+                    <div className="flex justify-end mb-4 md:mb-6">
                       {/* 五星评分 */}
                       <div className="flex gap-1">
                         {[...Array(5)].map((_, i) => (
@@ -173,12 +173,12 @@ const UserReviewsWithMovingCards = ({ data, theme = 'normal' }) => {
                       </div>
                     </div>
 
-                    {/* 下方区域：标题和内容 */}
+                    {/* 评论内容部分 */}
                     <div className="mt-auto">
-                      <h4 className="text-xl font-semibold mb-3 text-gray-800">
+                      <h4 className="text-lg md:text-xl font-semibold mb-2 md:mb-3 text-gray-800">
                         {review.title}
                       </h4>
-                      <p className="text-gray-600 leading-relaxed">
+                      <p className="text-sm md:text-base text-gray-600 leading-relaxed">
                         {review.content}
                       </p>
                     </div>
