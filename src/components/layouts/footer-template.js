@@ -42,7 +42,7 @@ export default function Footer({ data }) {
         ? `linear-gradient(${data.styles.gradientAngle}deg, ${data.styles.gradientStart}, ${data.styles.gradientEnd})`
         : data.styles.backgroundColor
     }}>
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-[80%] mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-8 mb-8">
           <div className="px-4">
             <h3 style={{ color: data.colors.companyName }} className="text-xl font-semibold mb-4">
@@ -75,7 +75,7 @@ export default function Footer({ data }) {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="mt-20 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex gap-6">
             {data.socialMedia?.links && Object.entries(data.socialMedia.links).map(([key, link]) => {
               if (link && link.platform && link.url) {

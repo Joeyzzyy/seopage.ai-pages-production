@@ -27,7 +27,7 @@ import MeetOurTeam from '../common/sections/meet-our-team';
 /* divider */
 import JobListNormal from '../common/sections/job-list-normal';
 /* divider */
-import FAQTwoColumnsWithSmallTitle from '../common/sections/faq-two-columns-with-small-title';
+import FAQ from '../common/sections/faq-standard';
 /* divider */
 import CallToAction from '../common/sections/call-to-action';
 import CallToActionComplex from '../common/sections/call-to-action-complex';
@@ -57,7 +57,7 @@ const COMPONENT_MAP = {
   UserReviewsWithMovingCards: UserReviewsWithMovingCards,
   MeetOurTeam: MeetOurTeam,
   JobList: JobListNormal,
-  Faqs: FAQTwoColumnsWithSmallTitle,
+  Faqs: FAQ,
   CallToActionComplex: CallToActionComplex,
   CallToActionWithEmailInput: CallToActionWithInput,
   ProductBenefitsWithTable: ProductBenefitsWithTable,
@@ -127,11 +127,7 @@ const CommonLayout = ({ article, keywords }) => {
           return (
             <div 
               key={`${section.componentName}-${section.sectionId}`}
-              className={`w-full ${
-                index % 2 === 1 
-                  ? 'bg-gradient-to-b from-white via-[#E5EDFF] to-white' 
-                  : 'bg-white'
-              }`}
+              className="w-full bg-white"
             >
               <Component 
                 data={section}

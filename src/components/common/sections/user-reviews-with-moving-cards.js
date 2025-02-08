@@ -1,97 +1,192 @@
 'use client';
 import React, { useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
+import Image from 'next/image';
 
 const UserReviewsWithMovingCards = ({ data, theme = 'normal' }) => {
   const [activeIndex, setActiveIndex] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const title = data.title;
   const reviews = data.bottomContent;
   const themeStyle = themeConfig[theme];
 
-  const getCardStyle = (position) => {
-    const baseStyle = `${themeStyle.card.variants.primary} ${themeStyle.card.padding.md}`;
+  // 创建包含首尾克隆的扩展数组
+  const extendedReviews = [
+    reviews[reviews.length - 1],
+    ...reviews,
+    reviews[0]
+  ];
 
-    return `absolute ${baseStyle} rounded-lg transition-all duration-700 ease-in-out cursor-pointer
-      w-[500px] min-h-[220px] 
-      ${position === 0 
-        ? 'z-20 scale-100 opacity-100 translate-x-0' 
-        : position === -1
-          ? 'z-10 scale-95 opacity-70 -translate-x-[120%]'
-          : position === 1
-            ? 'z-10 scale-95 opacity-70 translate-x-[120%]'
-            : 'opacity-0 scale-90'
-      }`;
+  const handleTransitionEnd = () => {
+    if (activeIndex >= reviews.length + 1) {
+      setIsTransitioning(true);
+      setActiveIndex(1);
+      // 重要：给浏览器一个重绘的机会
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsTransitioning(false);
+        });
+      });
+    } else if (activeIndex === 0) {
+      setIsTransitioning(true);
+      setActiveIndex(reviews.length);
+      // 重要：给浏览器一个重绘的机会
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsTransitioning(false);
+        });
+      });
+    }
   };
 
-  const handleCardClick = (index) => {
-    setActiveIndex(index);
+  const handlePrevious = () => {
+    if (!isTransitioning) {
+      setActiveIndex(prev => prev - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (!isTransitioning) {
+      setActiveIndex(prev => prev + 1);
+    }
   };
 
   return (
-    <div className={`
-      ${themeStyle.section.background.primary} 
-      ${themeStyle.section.padding.base}
-    `}>
-      <div className="max-w-6xl mx-auto px-4">
-        <h2 className={`${themeStyle.typography.h2.fontSize} ${themeStyle.typography.h2.fontWeight} ${themeStyle.typography.h2.color} text-center mb-8`}>
+    <div className="w-[80%] mx-auto py-12">
+      {/* 标题和导航按钮区域 */}
+      <div className="w-full mx-auto flex justify-between items-center mb-10">
+        <h2 className={`text-3xl font-bold ${themeStyle.textColor}`}>
           {title}
         </h2>
+        <div className="flex gap-4">
+          {/* Previous 按钮 */}
+          <button
+            onClick={handlePrevious}
+            className={`flex items-center justify-between px-4 py-1.5 rounded-full border ${themeStyle.borderColor} ${themeStyle.textColor} hover:bg-gray-50 transition-colors w-40`}
+          >
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </div>
+            <span className="flex-1 text-center">Previous</span>
+          </button>
 
-        <div className="relative flex justify-center items-center min-h-[300px] overflow-hidden">
-          {reviews.map((review, index) => {
-            let position = index - activeIndex;
-            if (position < -2) position += reviews.length;
-            if (position > 2) position -= reviews.length;
-            
-            if (position >= -1 && position <= 1) {
-              return (
-                <div
-                  key={index}
-                  onClick={() => handleCardClick(index)}
-                  className={getCardStyle(position)}
-                >
-                  <div className="flex justify-end mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className="w-5 h-5"
-                        fill={theme === 'tech' ? 'url(#star-gradient)' : '#3374FF'}
-                        viewBox="0 0 24 24"
-                      >
-                        <defs>
-                          <linearGradient id="star-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#818cf8" />
-                            <stop offset="100%" stopColor="#6366f1" />
-                          </linearGradient>
-                        </defs>
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    ))}
-                  </div>
+          {/* Next 按钮 */}
+          <button
+            onClick={handleNext}
+            className={`flex items-center justify-between px-4 py-1.5 rounded-full border ${themeStyle.borderColor} ${themeStyle.textColor} hover:bg-gray-50 transition-colors w-40`}
+          >
+            <span className="flex-1 text-center">Next</span>
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+          </button>
+        </div>
+      </div>
 
-                  <div className="flex items-center mb-4">
-                    <img 
-                      src={review.avatarUrl}
-                      alt={review.avatarAlt}
-                      className="w-12 h-12 rounded-full object-contain p-1"
-                    />
-                    <div className="ml-4">
-                      <h3 className={themeStyle.text.color.primary}>{review.name}</h3>
-                      <p className={themeStyle.text.color.secondary}>{review.position}</p>
+      {/* 轮播卡片容器 */}
+      <div className="relative w-full mx-auto overflow-hidden">
+        <div 
+          className="flex transition-transform duration-500 ease-in-out"
+          style={{
+            transform: `translateX(-${activeIndex * 100}%)`,
+            transition: isTransitioning ? 'none' : 'transform 500ms ease-in-out'
+          }}
+          onTransitionEnd={handleTransitionEnd}
+        >
+          {extendedReviews.map((review, index) => (
+            <div
+              key={index}
+              className={`flex-shrink-0 w-full px-4 transition-all duration-500`}
+            >
+              <div
+                className={`transition-all duration-500 ${
+                  index === activeIndex
+                    ? 'opacity-100 scale-100'
+                    : index === activeIndex - 1 || index === activeIndex + 1
+                    ? 'opacity-50 scale-95'
+                    : 'opacity-0 scale-90'
+                }`}
+              >
+                {/* 卡片主体 - 2:1 宽高比 */}
+                <div className="w-[600px] h-[300px] bg-white rounded-xl shadow-lg flex overflow-hidden mx-auto">
+                  {/* 左侧用户信息区域 - 占据 1/3 宽度 */}
+                  <div className="w-1/3 relative">
+                    {/* 背景图片 */}
+                    <div className="absolute inset-0">
+                      <Image
+                        src={review.avatarUrl}
+                        alt={review.avatarAlt}
+                        fill
+                        className="object-cover"
+                      />
+                      {/* 渐变遮罩 确保文字可读性 */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    </div>
+                    
+                    {/* 用户信息 - 定位在底部 */}
+                    <div className="absolute bottom-0 left-0 p-4 w-full">
+                      <h3 className="font-bold text-lg text-white">{review.name}</h3>
+                      <p className="text-gray-200 text-sm">{review.position}</p>
                     </div>
                   </div>
-                  
-                  <h4 className={`text-lg font-semibold ${themeStyle.text.color.primary} mb-2`}>
-                    {review.title}
-                  </h4>
-                  <p className={`${themeStyle.typography.paragraph.color} whitespace-pre-line`}>
-                    {review.content}
-                  </p>
+
+                  {/* 右侧评论内容 - 占据 2/3 宽度 */}
+                  <div className="w-2/3 p-8 flex flex-col bg-[#f6f6f6]">
+                    {/* 顶部区域：评分 */}
+                    <div className="flex justify-end mb-6">
+                      {/* 五星评分 */}
+                      <div className="flex gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <svg
+                            key={i}
+                            className="w-5 h-5 text-[#2f3337]"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 下方区域：标题和内容 */}
+                    <div className="mt-auto">
+                      <h4 className="text-xl font-semibold mb-3 text-gray-800">
+                        {review.title}
+                      </h4>
+                      <p className="text-gray-600 leading-relaxed">
+                        {review.content}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              );
-            }
-            return null;
-          })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

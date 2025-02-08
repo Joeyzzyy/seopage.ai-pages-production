@@ -182,7 +182,11 @@ export default function Header({ data }) {
                   alt={data.logo.alt}
                   width={data.logo.width}
                   height={data.logo.height}
-                  className="object-contain h-full w-auto max-h-[3rem]"
+                  className="object-contain"
+                  style={{  
+                    width: `${data.logo.width}px`,
+                    height: `${data.logo.height}px`
+                  }}
                   quality={100}
                   priority
                 />

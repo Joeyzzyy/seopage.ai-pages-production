@@ -14,79 +14,74 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
     }
   };
 
-  const renderTitle = (title, highlightWordCount = 2) => {
-    const words = title.split(' ');
-    const lastWords = words.slice(-highlightWordCount).join(' ');
-    const restOfTitle = words.slice(0, -highlightWordCount).join(' ');
-
-    return (
-      <>
-        <span className={`${currentTheme.typography.h1.color}`}>
-          {restOfTitle}{' '}
-        </span>
-        <span className={`inline-block -rotate-1 px-2 py-1 bg-gradient-to-r from-[#3374FF]/[0.75] via-[#3374FF]/[0.5] to-[#3374FF]/[0.75] text-white`}>
-          {lastWords}
-        </span>
-      </>
-    );
-  };
-
   return (
-    <section className={`
-      ${currentTheme.section.background.primary} 
-      ${currentTheme.section.padding.large}
-    `}>
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="relative z-10 pt-8 md:pt-12">
-          <div className="flex flex-col items-center gap-4">
-            <h1 className="text-center text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight">
-              {renderTitle(data.topContent.title, data.topContent.highlightWordCount)}
-            </h1>
-          </div>
-          
-          <h2 className={`text-center ${currentTheme.typography.h2.fontSize} ${currentTheme.typography.h2.fontWeight} ${currentTheme.typography.h2.color} pt-3 max-w-3xl mx-auto`}>
-            {data.topContent.subTitle}
-          </h2>
-          
-          <div className="pt-8 flex justify-center gap-4">
-            {data.topContent.showButton && (
-              <button 
-                onClick={handleButtonClick('demo')}
-                className={`${currentTheme.button.base} ${currentTheme.button.variants.secondary} hover:scale-105`}
-              >
-                {data.topContent.buttonText}
-              </button>
-            )}
+    <div className="py-10">
+      <section className={`
+        bg-gradient-to-b from-[#3374FF] to-[#1F4699]
+        ${currentTheme.section.padding.large}
+        w-[95%] mx-auto rounded-2xl
+      `}>
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="relative z-10 pt-8 md:pt-12">
+            <div className="flex flex-col items-center gap-4">
+              <h1 className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
+                {data.topContent.title}
+              </h1>
+            </div>
             
-            {data.topContent.showCtaButton && (
-              <button 
-                onClick={handleButtonClick('getStarted')}
-                className={`${currentTheme.button.base} ${currentTheme.button.variants.primary} hover:scale-105`}
-              >
-                {data.topContent.ctaButtonText}
-              </button>
-            )}
+            <h2 className={`text-center text-xl md:text-2xl font-semibold text-white pt-3 max-w-3xl mx-auto`}>
+              {data.topContent.subTitle}
+            </h2>
+            
+            <div className="pt-8 flex justify-center gap-4">
+              {data.topContent.showButton && (
+                <button 
+                  onClick={handleButtonClick('demo')}
+                  className={`px-8 py-3 rounded-xl text-base font-semibold transition-all duration-200 ${currentTheme.button.base} bg-transparent text-white border-2 border-white hover:scale-105`}
+                >
+                  {data.topContent.buttonText}
+                </button>
+              )}
+              
+              {data.topContent.showCtaButton && (
+                <button 
+                  onClick={handleButtonClick('getStarted')}
+                  className={`px-8 py-3 rounded-xl text-base font-semibold transition-all duration-200 ${currentTheme.button.base} ${currentTheme.button.variants.primary} hover:scale-105`}
+                >
+                  {data.topContent.ctaButtonText}
+                </button>
+              )}
 
-            {/* Product Hunt Widget */}
-            {data.topContent.enableProductHunt && data.topContent.productHuntId && (
-              <a 
-                href={`https://www.producthunt.com/posts/${data.topContent.productHuntId}?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-${data.topContent.productHuntId}`}
-                target="_blank"
-                className="transition-transform duration-200 hover:scale-105"
-              >
-                <img 
-                  src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=${data.topContent.productHuntId}&theme=light`}
-                  alt={`${data.topContent.productHuntId} - Featured on Product Hunt`}
-                  style={{ width: '250px', height: '54px' }}
-                  width="250"
-                  height="54"
-                />
-              </a>
-            )}
+              {/* Product Hunt Widget */}
+              {data.topContent.enableProductHunt && data.topContent.productHuntId && (
+                <a 
+                  href={`https://www.producthunt.com/posts/${data.topContent.productHuntId}?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-${data.topContent.productHuntId}`}
+                  target="_blank"
+                  className="transition-transform duration-200 hover:scale-105"
+                >
+                  <img 
+                    src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=${data.topContent.productHuntId}&theme=light`}
+                    alt={`${data.topContent.productHuntId} - Featured on Product Hunt`}
+                    style={{ width: '250px', height: '54px' }}
+                    width="250"
+                    height="54"
+                  />
+                </a>
+              )}
+            </div>
+
+            {/* 添加banner图显示区域 */}
+            <div className="mt-12 w-full flex justify-center">
+              <img 
+                src="https://picsum.photos/1200/600"
+                alt="Banner"
+                className="w-[95%] h-auto object-cover rounded-2xl shadow-lg"
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 };
 
