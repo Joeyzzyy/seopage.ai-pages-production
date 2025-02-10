@@ -5,14 +5,14 @@ import CommonLayout from '../../../components/layouts/layout';
 import Script from 'next/script'
 import { headers } from 'next/headers';
 
-// 添加这个配置来启用动态路由
-export const dynamic = 'force-static'
+// 修改这个配置，改为动态渲染
+export const dynamic = 'force-dynamic'  // 从 'force-static' 改为 'force-dynamic'
 
 // 如果需要的话，也可以添加这个配置来处理不同的域名
 export const dynamicParams = true
 
-// 添加缓存控制
-export const revalidate = 3600; // 1小时
+// 移除或注释掉 revalidate 配置
+// export const revalidate = 3600;
 
 // 添加支持的语言列表
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
