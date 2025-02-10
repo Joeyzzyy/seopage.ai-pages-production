@@ -396,15 +396,18 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
         
         case 'link':
           return (
-            <a
-              key={`link-${index}`}
-              href={part.href}
-              className="text-blue-500 hover:text-blue-700 hover:underline font-bold"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {part.content}
-            </a>
+            <React.Fragment key={`link-wrapper-${index}`}>
+              {' '}
+              <a
+                href={part.href}
+                className="text-blue-500 hover:text-blue-700 hover:underline font-bold"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {part.content}
+              </a>
+              {' '}
+            </React.Fragment>
           );
         
         case 'video':
