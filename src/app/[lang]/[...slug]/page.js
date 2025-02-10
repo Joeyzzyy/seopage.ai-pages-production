@@ -5,14 +5,17 @@ import CommonLayout from '../../../components/layouts/layout';
 import Script from 'next/script'
 import { headers } from 'next/headers';
 
-// 修改这个配置，改为动态渲染
-export const dynamic = 'force-dynamic'  // 从 'force-static' 改为 'force-dynamic'
+// 1. 确保动态渲染
+export const dynamic = 'force-dynamic'
 
-// 如果需要的话，也可以添加这个配置来处理不同的域名
+// 2. 启用动态路由参数
 export const dynamicParams = true
 
-// 移除或注释掉 revalidate 配置
-// export const revalidate = 3600;
+// 3. 完全禁用缓存
+export const fetchCache = 'force-no-store'
+
+// 4. 设置零秒缓存
+export const revalidate = 0
 
 // 添加支持的语言列表
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
