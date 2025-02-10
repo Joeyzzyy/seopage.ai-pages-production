@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ClientWrapper } from '../../../components/layouts/client-wrapper';
 import CommonLayout from '../../../components/layouts/layout';
 import Script from 'next/script'
+import { headers } from 'next/headers';
 
 // 添加这个配置来启用动态路由
 export const dynamic = 'force-static'
@@ -19,14 +20,18 @@ const SUPPORTED_LANGUAGES = ['en', 'zh'];
 // 主页面组件
 export default async function ArticlePage({ params }) {
   try {
+    const headersList = headers();
+    const host = headersList.get('host');
+    // 从请求头获取域名，移除端口号（如果有）
+    const domain = host?.split(':')[0] || 'websitelm.com';
+    
     const resolvedParams = await Promise.resolve(params);
     const { lang, slug } = resolvedParams;
     
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
     
-    // 使用环境变量中的域名，如果没有则使用默认值
-    const domain = process.env.NEXT_PUBLIC_HOST?.replace(/^https?:\/\//, '');
+    console.log('Current domain:', domain); // 添加日志以便调试
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
     // 检查文章是否存在且状态为已发布
