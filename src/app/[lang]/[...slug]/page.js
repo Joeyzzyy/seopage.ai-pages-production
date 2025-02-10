@@ -22,11 +22,12 @@ export default async function ArticlePage({ params }) {
     const resolvedParams = await Promise.resolve(params);
     const { lang, slug } = resolvedParams;
     
-    // 检查是否为支持的语言，如果不是则使用默认语言
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
-    
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
+    
+    // 使用环境变量中的域名，如果没有则使用默认值
+    const domain = process.env.NEXT_PUBLIC_HOST?.replace(/^https?:\/\//, '');
+    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
     // 检查文章是否存在且状态为已发布
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
