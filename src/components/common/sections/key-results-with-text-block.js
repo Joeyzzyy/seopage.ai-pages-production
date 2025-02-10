@@ -2,15 +2,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
 
-// 修改提取标题的函数，使用正则表达式替代 DOMParser
+// 修改提取标题的函数，先转换标签再提取
 const extractContentTitle = (contentText) => {
   if (!contentText) return [];
   
-  const subtitleRegex = /<span[^>]*class="content-subtitle"[^>]*>(.*?)<\/span>/g;
+  // 先将 span.content-subtitle 转换为 h2
+  const convertedContent = contentText.replace(
+    /<p><span class="content-subtitle">(.*?)<\/span><\/p>/g, 
+    '<h2>$1</h2>'
+  );
+  
+  const subtitleRegex = /<h2[^>]*>(.*?)<\/h2>/g;
   const titles = [];
   let match;
   
-  while ((match = subtitleRegex.exec(contentText)) !== null) {
+  while ((match = subtitleRegex.exec(convertedContent)) !== null) {
     // 移除可能存在的HTML标签
     const cleanTitle = match[1].replace(/<\/?[^>]+(>|$)/g, '');
     if (cleanTitle.trim()) {
@@ -25,10 +31,17 @@ const extractContentTitle = (contentText) => {
 const parseContent = (content) => {
   if (!content) return [];
   
+  // 首先将 span.content-subtitle 转换为 h2
+  content = content.replace(
+    /<p><span class="content-subtitle">(.*?)<\/span><\/p>/g, 
+    '<h2>$1</h2>'
+  );
+  
   const cleanContent = content.replace(/\r\n/g, '\n');
   
   const result = [];
   let currentIndex = 0;
+  let isFirstParagraph = true;
   
   const tagRegex = /<(\/?)(\w+)(?:\s+[^>]*)?>/g;
   let match;
@@ -39,7 +52,7 @@ const parseContent = (content) => {
     
     if (match.index > currentIndex) {
       const text = cleanContent.slice(currentIndex, match.index);
-      if (text.trim()) {  // 只添加非空文本
+      if (text.trim()) {
         result.push({
           type: 'text',
           content: text.trim()
@@ -51,15 +64,28 @@ const parseContent = (content) => {
     if (!isClosing) {
       switch (tag) {
         case 'p':
-          // 只在段落之间添加一个换行
-          if (result.length > 0) {
+          if (!isFirstParagraph) {
             result.push({
               type: 'text',
               content: '\n'
             });
           }
+          isFirstParagraph = false;
           stack.push({
             type: 'p',
+            startIndex: result.length
+          });
+          break;
+          
+        case 'h2':
+          if (!isFirstParagraph) {
+            result.push({
+              type: 'text',
+              content: '\n\n'
+            });
+          }
+          stack.push({
+            type: 'h2',
             startIndex: result.length
           });
           break;
@@ -84,6 +110,15 @@ const parseContent = (content) => {
         case 'span':
           const classMatch = fullMatch.match(/class="([^"]*)"/);
           const className = classMatch ? classMatch[1] : '';
+          if (className === 'content-subtitle') {
+            // 子标题前添加额外的换行
+            if (!isFirstParagraph) {
+              result.push({
+                type: 'text',
+                content: '\n'
+              });
+            }
+          }
           stack.push({
             type: 'span',
             className,
@@ -165,6 +200,14 @@ const parseContent = (content) => {
         switch (tag) {
           case 'p':
             result.push(...content);
+            break;
+            
+          case 'h2':
+            result.push({
+              type: 'text',
+              content: content.map(item => item.content).join(''),
+              className: 'content-subtitle'
+            });
             break;
             
           case 'span':
@@ -304,10 +347,6 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
     }
   };
 
-  const isChineseContent = (content) => {
-    return /[\u4e00-\u9fa5]/.test(content[0]?.contentTitle);
-  };
-
   // 添加检查是否显示 Key Results 模块的函数
   const shouldShowKeyResults = () => {
     if (!leftContent || !Array.isArray(leftContent)) {
@@ -364,16 +403,20 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
 
   // 修改 renderContent 函数以支持链接渲染
   const renderContent = (content) => {
+    let sectionIndex = -1;  // 用于追踪标题序号
+
     return content.map((part, index) => {
       if (part.type === 'text') {
         if (part.className === 'content-subtitle') {
+          sectionIndex++;  // 每遇到标题就增加序号
           return (
-            <span 
+            <h2 
               key={index}
-              className="content-subtitle text-xl font-bold text-gray-900 block mb-4"
+              id={`section-${sectionIndex}`}  // 添加 id 用于导航
+              className="text-xl font-bold text-gray-900 block mb-4"
             >
               {part.content}
-            </span>
+            </h2>
           );
         }
         return (
@@ -459,29 +502,26 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
               <div ref={stickyRef} className="sticky top-128 inline-block" style={{ width: '350px' }}>
                 <div className="bg-white shadow rounded-lg p-8 mb-4 border border-gray-100">
                   <h3 className="text-xl font-bold mb-4 text-gray-800 border-b border-gray-100 pb-4">
-                    {isChineseContent(rightContent) ? '目录' : 'Table of Contents'}
+                    Table of Contents
                   </h3>
                   <ul className="space-y-2">
-                    {rightContent.map((content, index) => {
-                      const titles = extractContentTitle(content.contentText);
-                      return titles.map((title, titleIndex) => (
-                        <li key={`toc-${index}-${titleIndex}`}>
-                          <button
-                            onClick={() => scrollToSection(`section-${index}`)}
-                            className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 text-sm text-left py-2 px-3 w-full rounded-md transition-all duration-200"
-                          >
-                            {title}
-                          </button>
-                        </li>
-                      ));
-                    })}
+                    {extractContentTitle(rightContent).map((title, index) => (
+                      <li key={`toc-${index}`}>
+                        <button
+                          onClick={() => scrollToSection(`section-${index}`)}
+                          className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 text-sm text-left py-2 px-3 w-full rounded-md transition-all duration-200"
+                        >
+                          {title}
+                        </button>
+                      </li>
+                    ))}
                   </ul>
                 </div>
 
                 {shouldShowKeyResults() && (
                   <div className="bg-white shadow rounded-lg p-8 border border-gray-100">
                     <h3 className="text-xl font-bold mb-6 text-gray-800 border-b border-gray-100 pb-4">
-                      {isChineseContent(rightContent) ? '关键指标' : 'Key Results'}
+                      Key Results
                     </h3>
                     {leftContent
                       .filter(result => result.display)
@@ -503,17 +543,9 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
             <div>
               <main className="main-content">
                 <article className="article max-w-[800px] pr-4">
-                  {rightContent.map((content, index) => (
-                    <div 
-                      key={`section-${index}`} 
-                      className="mb-10 last:mb-0" 
-                      id={`section-${index}`}
-                    >
-                      <div className="text-lg md:text-xl leading-[1.8] text-gray-700 space-y-1">
-                        {renderContent(parseContent(content.contentText))}
-                      </div>
-                    </div>
-                  ))}
+                  <div className="text-lg md:text-xl leading-[1.8] text-gray-700 space-y-1">
+                    {renderContent(parseContent(rightContent))}
+                  </div>
                 </article>            
               </main>
             </div>

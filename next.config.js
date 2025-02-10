@@ -42,7 +42,7 @@ const nextConfig = {
   images: {
     domains: [
       'strapi.sheet2email.com',
-      'websitelm.com'  // 添加新的域名
+      'websitelm.com'
     ],
   },
   async rewrites() {
