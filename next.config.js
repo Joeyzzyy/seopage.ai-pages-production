@@ -54,16 +54,16 @@ const nextConfig = {
         source: '/',
         destination: '/en/home',
       },
+      // 直接处理不带语言前缀的路径
+      {
+        source: '/:path*',
+        destination: '/en/:path*',
+      },
       // 为每个有效语言添加一个规则
       ...VALID_LANGS.map(lang => ({
         source: `/${lang}/:path*`,
         destination: `/${lang}/:path*`,
-      })),
-      {
-        // 处理所有其他路径
-        source: '/:path*',
-        destination: '/en/:path*',
-      }
+      }))
     ]
   },
 };
