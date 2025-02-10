@@ -20,13 +20,33 @@ export const revalidate = 0
 // 添加支持的语言列表
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
 
+// 添加一个新的辅助函数来处理域名
+function extractMainDomain(host) {
+  // 移除端口号（如果有）
+  const domainWithoutPort = host?.split(':')[0] || '';
+  
+  // 将域名按点分割
+  const parts = domainWithoutPort.split('.');
+  
+  // 如果域名部分少于2个，直接返回原始域名
+  if (parts.length < 2) {
+    return domainWithoutPort;
+  }
+  
+  // 如果是三级及以上域名，返回主域名（最后两部分）
+  // 例如：blog.zhuyuejoey.com -> zhuyuejoey.com
+  return parts.slice(-2).join('.');
+}
+
 // 主页面组件
 export default async function ArticlePage({ params }) {
   try {
     const headersList = headers();
     const host = headersList.get('host');
-    // 从请求头获取域名，移除端口号（如果有）
-    const domain = host?.split(':')[0] || 'websitelm.com';
+    // 使用新的辅助函数处理域名
+    const domain = extractMainDomain(host) || 'websitelm.com';
+    
+    console.log('Current domain:', domain); // 保留调试日志
     
     const resolvedParams = await Promise.resolve(params);
     const { lang, slug } = resolvedParams;
@@ -34,7 +54,6 @@ export default async function ArticlePage({ params }) {
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
     
-    console.log('Current domain:', domain); // 添加日志以便调试
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
     // 检查文章是否存在且状态为已发布
