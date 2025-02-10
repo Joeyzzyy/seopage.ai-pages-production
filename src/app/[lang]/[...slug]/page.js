@@ -123,14 +123,14 @@ function getCanonicalUrl(host, lang, fullSlug) {
 
 export async function generateMetadata({ params }) {
   try {
+    const headersList = headers();
+    const host = headersList.get('host');
+    const domain = extractMainDomain(host) || 'websitelm.com';
     const resolvedParams = await Promise.resolve(params);
     const { lang, slug } = resolvedParams;
-    
-    // 检查是否为支持的语言，如果不是则使用默认语言
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
-    
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
+    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
     
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
@@ -141,7 +141,6 @@ export async function generateMetadata({ params }) {
     }
 
     const article = articleData.data;
-    const host = process.env.NEXT_PUBLIC_HOST || 'https://websitelm.com';
     
     const metadataBaseUrl = host ? new URL(host) : null;
 
