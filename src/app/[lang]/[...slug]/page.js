@@ -38,13 +38,17 @@ function extractMainDomain(host) {
   return parts.slice(-2).join('.');
 }
 
+// 添加一个新的辅助函数来获取当前域名
+function getCurrentDomain() {
+  const headersList = headers();
+  const host = headersList.get('host');
+  return extractMainDomain(host);
+}
+
 // 主页面组件
 export default async function ArticlePage({ params }) {
   try {
-    const headersList = headers();
-    const host = headersList.get('host');
-    // 使用新的辅助函数处理域名
-    const domain = extractMainDomain(host) || 'websitelm.com';
+    const domain = getCurrentDomain();
     
     console.log('Current domain:', domain); // 保留调试日志
     
@@ -123,14 +127,12 @@ function getCanonicalUrl(host, lang, fullSlug) {
 
 export async function generateMetadata({ params }) {
   try {
+    const domain = getCurrentDomain();
     const resolvedParams = await Promise.resolve(params);
     const { lang, slug } = resolvedParams;
-    
-    // 检查是否为支持的语言，如果不是则使用默认语言
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
-    
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
+    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
     
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
