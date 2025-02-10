@@ -186,27 +186,27 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export async function generateStaticParams() {
-  try {
-    const response = await getArticles(process.env.CUSTOMER_ID, process.env.TOKEN);
+// export async function generateStaticParams() {
+//   try {
+//     const response = await getArticles(process.env.CUSTOMER_ID, process.env.TOKEN);
     
-    if (!response?.data) {
-      console.warn('No articles data received');
-      return [];
-    }
+//     if (!response?.data) {
+//       console.warn('No articles data received');
+//       return [];
+//     }
 
-    const validArticles = response.data.filter(article => 
-      article && 
-      typeof article.lang === 'string' && 
-      typeof article.pageLangId === 'string'
-    );
+//     const validArticles = response.data.filter(article => 
+//       article && 
+//       typeof article.lang === 'string' && 
+//       typeof article.pageLangId === 'string'
+//     );
 
-    return validArticles.map((article) => ({
-      lang: article.lang,
-      slug: article.pageLangId
-    }));
-  } catch (error) {
-    console.error('Error generating static params:', error);
-    return []; 
-  }
-}
+//     return validArticles.map((article) => ({
+//       lang: article.lang,
+//       slug: article.pageLangId
+//     }));
+//   } catch (error) {
+//     console.error('Error generating static params:', error);
+//     return []; 
+//   }
+// }
