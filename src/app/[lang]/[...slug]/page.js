@@ -1,43 +1,34 @@
-import { getPageBySlug, getArticles, getCustomRecommendations } from '../../../lib/api/index';
+import { getPageBySlug } from '../../../lib/api/index';
 import { notFound } from 'next/navigation';
 import { ClientWrapper } from '../../../components/layouts/client-wrapper';
+import { headers } from 'next/headers';
 import CommonLayout from '../../../components/layouts/layout';
 import Script from 'next/script'
-import { headers } from 'next/headers';
 
 // 1. 确保动态渲染
 export const dynamic = 'force-dynamic'
-
 // 2. 启用动态路由参数
 export const dynamicParams = true
-
 // 3. 完全禁用缓存
 export const fetchCache = 'force-no-store'
-
 // 4. 设置零秒缓存
 export const revalidate = 0
-
 // 添加支持的语言列表
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
-
 // 添加一个新的辅助函数来处理域名
 function extractMainDomain(host) {
   // 移除端口号（如果有）
   const domainWithoutPort = host?.split(':')[0] || '';
-  
   // 将域名按点分割
   const parts = domainWithoutPort.split('.');
-  
   // 如果域名部分少于2个，直接返回原始域名
   if (parts.length < 2) {
     return domainWithoutPort;
   }
-  
   // 如果是三级及以上域名，返回主域名（最后两部分）
   // 例如：blog.zhuyuejoey.com -> zhuyuejoey.com
   return parts.slice(-2).join('.');
 }
-
 // 添加一个新的辅助函数来获取当前域名
 function getCurrentDomain() {
   const headersList = headers();
@@ -49,15 +40,10 @@ function getCurrentDomain() {
 export default async function ArticlePage({ params }) {
   try {
     const domain = getCurrentDomain();
-    
-    console.log('Current domain:', domain); // 保留调试日志
-    
     const resolvedParams = await Promise.resolve(params);
     const { lang, slug } = resolvedParams;
-    
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
     // 检查文章是否存在且状态为已发布
@@ -84,7 +70,12 @@ export default async function ArticlePage({ params }) {
       },
       mainEntityOfPage: {
         '@type': 'WebPage',
-      }
+      },
+      image: article.coverImage,
+      articleBody: article.content,
+      keywords: article.pageStats?.genKeywords,
+      articleSection: article.category,
+      timeRequired: `PT${article.readingTime}M`
     };
 
     return (
@@ -93,7 +84,7 @@ export default async function ArticlePage({ params }) {
           {JSON.stringify(articleSchema)}
         </Script>
         <ClientWrapper>
-          <main className="flex-grow">
+          <main className="flex-grow" lang={currentLang}>
             <CommonLayout article={article} />
           </main>
         </ClientWrapper>
@@ -105,10 +96,12 @@ export default async function ArticlePage({ params }) {
   }
 }
 
+// 添加一个新的辅助函数来处理数组并返回逗号分隔的字符串
 function joinArrayWithComma(arr) {
   return Array.isArray(arr) ? arr.filter(Boolean).join(',') : '';
 }
 
+// 添加一个新的辅助函数来获取规范链接
 function getCanonicalUrl(host, lang, fullSlug) {
   // 确保 host 没有尾部斜杠
   const baseUrl = host.replace(/\/$/, '');
@@ -133,7 +126,6 @@ export async function generateMetadata({ params }) {
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
-    
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
         title: 'Not Found',
@@ -141,12 +133,9 @@ export async function generateMetadata({ params }) {
         robots: 'noindex, nofollow' 
       };
     }
-
     const article = articleData.data;
-    const host = process.env.NEXT_PUBLIC_HOST || 'https://websitelm.com';
-    
+    const host = process.env.NEXT_PUBLIC_HOST;
     const metadataBaseUrl = host ? new URL(host) : null;
-
     const canonicalUrl = getCanonicalUrl(host, currentLang, fullSlug);
 
     return {
@@ -167,7 +156,12 @@ export async function generateMetadata({ params }) {
           width: 1200,
           height: 630,
           alt: article.title
-        }]
+        }],
+        article: {
+          authors: [article.author],
+          tags: article.pageStats?.genKeywords,
+          section: article.category
+        }
       },
       twitter: { 
         card: 'summary_large_image',
@@ -199,7 +193,13 @@ export async function generateMetadata({ params }) {
       },
       metadataBase: metadataBaseUrl,
       authors: [{ name: article.author }],
-      category: article.category
+      category: article.category,
+      other: {
+        'article:published_time': article.createdAt,
+        'article:modified_time': article.updatedAt,
+        'article:section': article.category,
+        'article:tag': joinArrayWithComma(article.pageStats?.genKeywords)
+      }
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
@@ -209,28 +209,3 @@ export async function generateMetadata({ params }) {
     };
   }
 }
-
-// export async function generateStaticParams() {
-//   try {
-//     const response = await getArticles(process.env.CUSTOMER_ID, process.env.TOKEN);
-    
-//     if (!response?.data) {
-//       console.warn('No articles data received');
-//       return [];
-//     }
-
-//     const validArticles = response.data.filter(article => 
-//       article && 
-//       typeof article.lang === 'string' && 
-//       typeof article.pageLangId === 'string'
-//     );
-
-//     return validArticles.map((article) => ({
-//       lang: article.lang,
-//       slug: article.pageLangId
-//     }));
-//   } catch (error) {
-//     console.error('Error generating static params:', error);
-//     return []; 
-//   }
-// }
