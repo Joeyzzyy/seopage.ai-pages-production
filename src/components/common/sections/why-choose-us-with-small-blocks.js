@@ -13,6 +13,7 @@ const WhyChooseUsWithSmallBlocks = ({ data, theme = 'normal' }) => {
       w-[95%] mx-auto
       bg-[#f5f6f7]
       rounded-2xl
+      mb-10
       ${currentTheme.section.padding.base}
     `}>
       <div className="max-w-6xl mx-auto px-4">
