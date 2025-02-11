@@ -79,7 +79,7 @@ const parseContent = (content) => {
           if (!isFirstParagraph) {
             result.push({
               type: 'text',
-              content: '\n'
+              content: ''
             });
           }
           isFirstParagraph = false;
@@ -180,10 +180,6 @@ const parseContent = (content) => {
           break;
           
         case 'li':
-          result.push({
-            type: 'text',
-            content: '\n• ' // 添加列表项标记
-          });
           break;
           
         case 'h1':
@@ -276,6 +272,10 @@ const parseContent = (content) => {
               type: 'text',
               content: '\n\n'
             });
+            break;
+          
+          case 'li':
+            result.push(...content);
             break;
         }
       }
@@ -477,26 +477,30 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
             </div>
           );
         
-        case 'italic':
-          return part.nested ? (
-            <i key={`italic-${index}`} className="italic">
-              {part.children.map((child, childIndex) => renderContent([child])[0])}
-            </i>
-          ) : (
-            <i key={`italic-${index}`} className="italic">
-              {part.content}
-            </i>
+        case 'bold':
+          return (
+            <React.Fragment key={`bold-wrapper-${index}`}>
+              {' '}
+              <b key={`bold-${index}`} className="font-bold">
+                {part.nested ? 
+                  part.children.map((child, childIndex) => renderContent([child])[0]) : 
+                  part.content}
+              </b>
+              {' '}
+            </React.Fragment>
           );
         
-        case 'bold':
-          return part.nested ? (
-            <b key={`bold-${index}`} className="font-bold">
-              {part.children.map((child, childIndex) => renderContent([child])[0])}
-            </b>
-          ) : (
-            <b key={`bold-${index}`} className="font-bold">
-              {part.content}
-            </b>
+        case 'italic':
+          return (
+            <React.Fragment key={`italic-wrapper-${index}`}>
+              {' '}
+              <i key={`italic-${index}`} className="italic">
+                {part.nested ? 
+                  part.children.map((child, childIndex) => renderContent([child])[0]) : 
+                  part.content}
+              </i>
+              {' '}
+            </React.Fragment>
           );
         
         default:
