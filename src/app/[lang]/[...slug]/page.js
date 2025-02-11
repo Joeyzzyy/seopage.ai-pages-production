@@ -130,8 +130,6 @@ export async function generateMetadata({ params }) {
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
-    console.log('articledata from generateMetadata', articleData)
-    console.log('fullSlug', fullSlug)
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
         title: 'Not Found',

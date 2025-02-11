@@ -1,5 +1,6 @@
 import './globals.css'
 import { headers } from 'next/headers';
+import { getDomainFavicon } from '../lib/api/index';
 
 // 复用相同的域名处理函数
 function extractMainDomain(host) {
@@ -12,6 +13,11 @@ function extractMainDomain(host) {
 }
 
 function getCurrentDomain() {
+  // 判断是否为测试环境
+  if (process.env.NODE_ENV === 'development') {
+    return 'websitelm.com';
+  }
+  
   const headersList = headers();
   const host = headersList.get('host');
   return extractMainDomain(host) || 'websitelm.com';
@@ -19,11 +25,9 @@ function getCurrentDomain() {
 
 async function getSiteConfig(domain) {
   try {
-    // 使用与文章相同的API获取站点配置
-    const response = await fetch(`https://api.${domain}/v1/site-config`);
-    if (!response.ok) throw new Error('Failed to fetch site config');
-    const data = await response.json();
-    return data;
+    const response = await getDomainFavicon(domain);
+    // 直接返回response数据，因为它已经包含了所需的结构
+    return response;
   } catch (error) {
     console.error('Error fetching site config:', error);
     return null;
@@ -34,14 +38,15 @@ export default async function RootLayout({ children, keywords, robots }) {
   const domain = getCurrentDomain();
   let faviconUrl = '/default-favicon.ico';  // 默认favicon
   
-  // try {
-  //   const siteConfig = await getSiteConfig(domain);
-  //   if (siteConfig?.data?.favicon) {
-  //     faviconUrl = siteConfig.data.favicon;
-  //   }
-  // } catch (error) {
-  //   console.error('Error in RootLayout:', error);
-  // }
+  try {
+    const siteConfig = await getSiteConfig(domain);
+    // 检查返回的数据结构中的favicon路径
+    if (siteConfig?.code === 200 && siteConfig?.data?.favicon) {
+      faviconUrl = siteConfig.data.favicon;
+    }
+  } catch (error) {
+    console.error('Error in RootLayout:', error);
+  }
 
   return (
     <html lang="en">

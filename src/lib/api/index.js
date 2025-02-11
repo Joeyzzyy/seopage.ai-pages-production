@@ -62,3 +62,16 @@ export async function getCustomRecommendations({ pageId, customerId, title, cate
     return null;
   }
 }
+
+// 获取域名的 favicon
+export async function getDomainFavicon(domainName) {
+  try {
+    const response = await apiClient.get('/domain/favicon', {
+      params: { domainName }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('获取域名 favicon 失败:', error);
+    return null;
+  }
+}
