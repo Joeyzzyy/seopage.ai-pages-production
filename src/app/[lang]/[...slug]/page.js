@@ -33,6 +33,10 @@ function extractMainDomain(host) {
 function getCurrentDomain() {
   const headersList = headers();
   const host = headersList.get('host');
+  // 如果是本地环境，返回默认域名
+  if (process.env.NODE_ENV === 'development') {
+    return 'websitelm.com';
+  }
   return extractMainDomain(host);
 }
 
@@ -44,7 +48,7 @@ export default async function ArticlePage({ params }) {
     const { lang, slug } = resolvedParams;
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
+    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
     // 检查文章是否存在且状态为已发布
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
@@ -125,7 +129,7 @@ export async function generateMetadata({ params }) {
     const { lang, slug } = resolvedParams;
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
+    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
     console.log('articledata from generateMetadata', articleData)
     console.log('fullSlug', fullSlug)
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
