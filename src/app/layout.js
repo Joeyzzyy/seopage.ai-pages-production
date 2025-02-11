@@ -34,14 +34,14 @@ export default async function RootLayout({ children, keywords, robots }) {
   const domain = getCurrentDomain();
   let faviconUrl = '/default-favicon.ico';  // 默认favicon
   
-  try {
-    const siteConfig = await getSiteConfig(domain);
-    if (siteConfig?.data?.favicon) {
-      faviconUrl = siteConfig.data.favicon;
-    }
-  } catch (error) {
-    console.error('Error in RootLayout:', error);
-  }
+  // try {
+  //   const siteConfig = await getSiteConfig(domain);
+  //   if (siteConfig?.data?.favicon) {
+  //     faviconUrl = siteConfig.data.favicon;
+  //   }
+  // } catch (error) {
+  //   console.error('Error in RootLayout:', error);
+  // }
 
   return (
     <html lang="en">

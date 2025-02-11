@@ -44,7 +44,7 @@ export default async function ArticlePage({ params }) {
     const { lang, slug } = resolvedParams;
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
+    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
 
     // 检查文章是否存在且状态为已发布
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
@@ -125,7 +125,9 @@ export async function generateMetadata({ params }) {
     const { lang, slug } = resolvedParams;
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
+    const articleData = await getPageBySlug(fullSlug, currentLang, 'websitelm.com');
+    console.log('articledata from generateMetadata', articleData)
+    console.log('fullSlug', fullSlug)
     if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
       return {
         title: 'Not Found',
@@ -134,7 +136,13 @@ export async function generateMetadata({ params }) {
       };
     }
     const article = articleData.data;
-    const host = process.env.NEXT_PUBLIC_HOST;
+    // 获取当前环境的域名
+    const currentDomain = getCurrentDomain();
+    // 根据环境确定合适的 host
+    const host = process.env.NODE_ENV === 'development' 
+      ? `http://localhost:3001`  // 开发环境使用 localhost
+      : (process.env.NEXT_PUBLIC_HOST || `https://${currentDomain}`); // 生产环境
+    
     const metadataBaseUrl = host ? new URL(host) : null;
     const canonicalUrl = getCanonicalUrl(host, currentLang, fullSlug);
 
