@@ -2,15 +2,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
 
-// 修改提取标题的函数，先转换标签再提取
+// 修改提取标题的函数，处理被 strong 标签包裹的情况
 const extractContentTitle = (contentText) => {
   if (!contentText) return [];
   
-  // 先将 span.content-subtitle 转换为 h2
-  const convertedContent = contentText.replace(
-    /<p><span class="content-subtitle">(.*?)<\/span><\/p>/g, 
-    '<h2>$1</h2>'
-  );
+  // 先将各种形式的 content-subtitle 转换为 h2
+  let convertedContent = contentText
+    // 处理普通的 content-subtitle
+    .replace(
+      /<p><span class="content-subtitle">(.*?)<\/span><\/p>/g, 
+      '<h2>$1</h2>'
+    )
+    // 处理被 strong 包裹的 content-subtitle
+    .replace(
+      /<p>\s*<strong>\s*<span class="content-subtitle">(.*?)<\/span>\s*<\/strong>\s*<\/p>/g,
+      '<h2>$1</h2>'
+    );
   
   const subtitleRegex = /<h2[^>]*>(.*?)<\/h2>/g;
   const titles = [];
@@ -31,11 +38,16 @@ const extractContentTitle = (contentText) => {
 const parseContent = (content) => {
   if (!content) return [];
   
-  // 首先将 span.content-subtitle 转换为 h2
-  content = content.replace(
-    /<p><span class="content-subtitle">(.*?)<\/span><\/p>/g, 
-    '<h2>$1</h2>'
-  );
+  // 更新转换逻辑，处理被 strong 包裹的情况
+  content = content
+    .replace(
+      /<p><span class="content-subtitle">(.*?)<\/span><\/p>/g, 
+      '<h2>$1</h2>'
+    )
+    .replace(
+      /<p>\s*<strong>\s*<span class="content-subtitle">(.*?)<\/span>\s*<\/strong>\s*<\/p>/g,
+      '<h2>$1</h2>'
+    );
   
   const cleanContent = content.replace(/\r\n/g, '\n');
   
@@ -443,7 +455,7 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
               {' '}
               <a
                 href={part.href}
-                className="text-blue-500 hover:text-blue-700 hover:underline font-bold"
+                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
                 target="_blank"
                 rel="noopener noreferrer"
               >
