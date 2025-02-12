@@ -40,10 +40,21 @@ const nextConfig = {
     buildActivity: false
   },
   images: {
-    domains: [
-      'strapi.sheet2email.com',
-      'websitelm.com'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'websitelm-us-east-2.s3.us-west-2.amazonaws.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'websitelm.com'
+      },
+      {
+        protocol: 'https',
+        hostname: '*',
+      }
     ],
+    domains: ['websitelm-us-east-2.s3.us-west-2.amazonaws.com'],
   },
   async rewrites() {
     const VALID_LANGS = ['zh', 'es', 'fr', 'de', 'ja', 'en']
