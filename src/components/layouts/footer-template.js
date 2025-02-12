@@ -43,7 +43,7 @@ export default function Footer({ data }) {
         : data.styles.backgroundColor
     }}>
       <div className="w-[80%] mx-auto py-12">
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-8 mb-8">
           <div className="px-4">
             <h3 style={{ color: data.colors.companyName }} className="text-xl font-semibold mb-4">
               {data.companyName}
@@ -53,26 +53,31 @@ export default function Footer({ data }) {
             </p>
           </div>
           
-          {/* <div className="px-4">
-            <h4 style={{ color: data.colors.featuresTitle }} className="text-base font-semibold mb-4">
-              {data.features.title}
-            </h4>
-            <ul className="space-y-2">
-              {data.features.items.map((feature, index) => (
-                <li key={index}>
-                  <a 
-                    href={feature.href} 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: data.colors.featureLinks }}
-                    className="text-sm hover:text-white transition-colors"
-                  >
-                    {feature.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div> */}
+          {data.sections?.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="px-4">
+              <h4 
+                style={{ color: section.colors.title }} 
+                className="text-base font-semibold mb-4"
+              >
+                {section.title}
+              </h4>
+              <ul className="space-y-2">
+                {section.links.map((link, linkIndex) => (
+                  <li key={linkIndex}>
+                    <a 
+                      href={link.url} 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: section.colors.links }}
+                      className="text-sm hover:opacity-80 transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         <div className="mt-20 flex flex-col md:flex-row justify-between items-center gap-6">
