@@ -53,7 +53,7 @@ export default function Footer({ data }) {
             </p>
           </div>
           
-          <div className="px-4">
+          {/* <div className="px-4">
             <h4 style={{ color: data.colors.featuresTitle }} className="text-base font-semibold mb-4">
               {data.features.title}
             </h4>
@@ -72,7 +72,7 @@ export default function Footer({ data }) {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-20 flex flex-col md:flex-row justify-between items-center gap-6">
