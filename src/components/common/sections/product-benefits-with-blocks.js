@@ -34,11 +34,11 @@ const ProductBenefitsWithFourBlocks = ({ data }) => {
               className="bg-white rounded-lg p-6 border border-gray-200"
             >
               {module.icon && (
-                <div className="w-10 h-10 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                   <Icon 
                     icon={module.icon}
-                    width="20"
-                    height="20"
+                    width="16"
+                    height="16"
                     className="text-gray-600"
                   />
                 </div>
@@ -46,7 +46,7 @@ const ProductBenefitsWithFourBlocks = ({ data }) => {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 {module.title}
               </h3>
-              <p className="text-base text-gray-600 whitespace-pre-line">
+              <p className="text-sm text-gray-600 whitespace-pre-line">
                 {module.content}
               </p>
             </div>

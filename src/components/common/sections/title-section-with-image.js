@@ -1,92 +1,60 @@
 'use client';
+
 import React from 'react';
-import themeConfig from '../../../styles/themeConfig';
-import Image from 'next/image';
+import { Icon } from '@iconify/react';
 
-const TitleSectionWithImage = ({ data, author, theme = 'normal' }) => {
-  const containsChinese = (text) => {
-    return /[\u4e00-\u9fa5]/.test(text);
-  };
-
-  const styles = themeConfig[theme];
-
-  const getImageContainerStyle = () => {
-    return theme === 'tech'
-      ? `relative w-full pt-[75%] rounded-lg overflow-hidden ${styles.card.variants.primary}`
-      : `relative w-full pt-[75%] rounded-lg overflow-hidden ${styles.card.variants.primary}`;
-  };
-
-  const isChineseTitle = containsChinese(data?.title || '');
-  const authorLabel = isChineseTitle ? '作者' : 'WRITTEN BY';
-  const dateLabel = isChineseTitle ? '发布日期' : 'PUBLISHED ON';
-
+const ProductBenefitsWithFourBlocks = ({ data }) => {
   return (
-    <div className={`
-      relative z-10 
-      ${styles.section.background.primary} 
-      ${styles.section.padding.base} 
-      flex items-center
-    `}>
-      <header className="w-full">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
-            <div className="w-full md:w-1/2">
-              <div className="max-w-xl">
-                {data?.title && (
-                  <h1 className={`${styles.typography.h1.fontSize} ${styles.typography.h1.fontWeight} ${styles.typography.h1.color} mb-4`}>
-                    {data.title}
-                  </h1>
-                )}
-                
-                {data?.subTitle && (
-                  <h2 className={`${styles.typography.h3.fontSize} ${styles.typography.h3.fontWeight} ${styles.typography.h3.color} mb-6`}>
-                    {data.subTitle}
-                  </h2>
-                )}
-                
-                <div className="flex gap-8">
-                  {data?.leftContent.author && (
-                    <div>
-                      <span className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} block mb-1 font-medium`}>
-                        {authorLabel}
-                      </span>
-                      <span className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color}`}>
-                        {data.leftContent.author}
-                      </span>
-                    </div>
-                  )}
-                  {data?.leftContent.publishDate && (
-                    <div>
-                      <span className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color} block mb-1 font-medium`}>
-                        {dateLabel}
-                      </span>
-                      <span className={`${styles.typography.paragraph.fontSize} ${styles.typography.paragraph.color}`}>
-                        {data.leftContent.publishDate}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="w-full md:w-1/2">
-              <div className={getImageContainerStyle()}>
-                {data?.rightContent?.imageUrl && (
-                  <Image 
-                    src={data.rightContent.imageUrl}
-                    alt={data.rightContent.imageAlt || ''}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                )}
-              </div>  
-            </div>
-          </div>
+    <div className="bg-white py-16">
+      <div className="w-[85%] mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            {data.leftContent.title}
+          </h2>
+          <p className="text-lg text-gray-600 mb-6 whitespace-pre-line max-w-3xl mx-auto">
+            {data.leftContent.description}
+          </p>
+          <a 
+            href={data.leftContent.buttonLink?.startsWith('http') 
+            ? data.leftContent.buttonLink 
+            : `https://${data.leftContent.buttonLink}` || '#'}
+            className="px-6 py-3 rounded-full bg-[#3374FF] text-white font-medium
+              hover:bg-blue-700 transition-colors duration-300 inline-block"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {data.leftContent.buttonText}
+          </a>
         </div>
-      </header>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {data.rightContent.map((module, index) => (
+            <div 
+              key={index} 
+              className="bg-white rounded-lg p-6 border border-gray-200"
+            >
+              {module.icon && (
+                <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                  <Icon 
+                    icon={module.icon}
+                    width="16"
+                    height="16"
+                    className="text-gray-600"
+                  />
+                </div>
+              )}
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {module.title}
+              </h3>
+              <p className="text-sm text-gray-600 whitespace-pre-line">
+                {module.content}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
 
-export default TitleSectionWithImage;
+export default ProductBenefitsWithFourBlocks;

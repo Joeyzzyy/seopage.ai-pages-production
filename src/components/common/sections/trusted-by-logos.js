@@ -9,7 +9,7 @@ const TrustedByLogos = ({ data, themeName = 'normal' }) => {
   const [position, setPosition] = useState(0);
   
   useEffect(() => {
-    const itemWidth = 128;
+    const itemWidth = 288;
     const totalWidth = itemWidth * logos.length;
     
     const interval = setInterval(() => {
@@ -29,7 +29,7 @@ const TrustedByLogos = ({ data, themeName = 'normal' }) => {
 
   return (
     <div className={`${theme.section.background.primary} ${theme.section.padding.base} relative overflow-hidden`}>
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="w-[95%] mx-auto px-4">
         <div className="overflow-hidden relative">
           <div
             className="flex gap-8"
@@ -41,14 +41,14 @@ const TrustedByLogos = ({ data, themeName = 'normal' }) => {
             {tripleLogos.map((logo, index) => (
               <div
                 key={`${logo.imageUrl}-${index}`}
-                className={`${theme.card.variants.primary} flex-shrink-0 w-24 h-24 flex items-center justify-center`}
+                className={`${theme.card.variants.primary} flex-shrink-0 w-64 h-24 flex items-center justify-center`}
               >
                 {logo.imageUrl && (
                   <Image
                     src={logo.imageUrl}
                     alt={`Logo ${index}`}
-                    width={96}
-                    height={96}
+                    width={72}
+                    height={72}
                     className="object-contain p-2"
                   />
                 )}
