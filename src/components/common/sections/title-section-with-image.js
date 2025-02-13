@@ -1,60 +1,104 @@
 'use client';
-
 import React from 'react';
-import { Icon } from '@iconify/react';
+import Image from 'next/image';
 
-const ProductBenefitsWithFourBlocks = ({ data }) => {
+const TitleSectionWithImage = ({ data }) => {
   return (
-    <div className="bg-white py-16">
-      <div className="w-[85%] mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            {data.leftContent.title}
-          </h2>
-          <p className="text-lg text-gray-600 mb-6 whitespace-pre-line max-w-3xl mx-auto">
-            {data.leftContent.description}
-          </p>
-          <a 
-            href={data.leftContent.buttonLink?.startsWith('http') 
-            ? data.leftContent.buttonLink 
-            : `https://${data.leftContent.buttonLink}` || '#'}
-            className="px-6 py-3 rounded-full bg-[#3374FF] text-white font-medium
-              hover:bg-blue-700 transition-colors duration-300 inline-block"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {data.leftContent.buttonText}
-          </a>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {data.rightContent.map((module, index) => (
-            <div 
-              key={index} 
-              className="bg-white rounded-lg p-6 border border-gray-200"
-            >
-              {module.icon && (
-                <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                  <Icon 
-                    icon={module.icon}
-                    width="16"
-                    height="16"
-                    className="text-gray-600"
-                  />
+    <div className="relative z-10 bg-[#E6EEFF] py-16 flex items-center">
+      <header className="w-full">
+        <div className="w-[85%] mx-auto">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+            <div className="w-full md:w-1/2 flex items-center">
+              <div className="max-w-[90%]">
+                <div className="mb-6">
+                  <nav className="flex" aria-label="Breadcrumb">
+                    <ol className="flex items-center space-x-2">
+                      {data?.leftContent?.breadcrumbs?.map((item, index) => (
+                        <React.Fragment key={index}>
+                          <li>
+                            <a 
+                              href={item.link} 
+                              className="text-xs text-gray-400 hover:text-blue-600"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {item.text}
+                            </a>
+                          </li>
+                          {index < data.leftContent.breadcrumbs.length - 1 && (
+                            <span className="text-xs text-gray-400">&gt;</span>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </ol>
+                  </nav>
                 </div>
-              )}
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                {module.title}
-              </h3>
-              <p className="text-sm text-gray-600 whitespace-pre-line">
-                {module.content}
-              </p>
+
+                {data?.title && (
+                  <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    {data.title}
+                  </h1>
+                )}
+                
+                {data?.subTitle && (
+                  <h2 className="text-xl text-normal text-gray-700 mb-16">
+                    {data.subTitle}
+                  </h2>
+                )}
+                
+                <div className="flex items-center">
+                  {data?.leftContent.author && (
+                    <div>
+                      <span className="text-sm text-gray-600 block mb-1 font-medium">
+                        Written by
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        {data.leftContent.author}
+                      </span>
+                    </div>
+                  )}
+                  <span className="mx-6 text-gray-300 h-8 w-[1px] bg-gray-300"></span>
+                  {data?.leftContent.publishDate && (
+                    <div>
+                      <span className="text-sm text-gray-600 block mb-1 font-medium">
+                        Published on
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        {data.leftContent.publishDate}
+                      </span>
+                    </div>
+                  )}
+                  <span className="mx-6 text-gray-300 h-8 w-[1px] bg-gray-300"></span>
+                  <div>
+                    <span className="text-sm text-gray-600 block mb-1 font-medium">
+                      Time to read
+                    </span>
+                    <span className="text-sm text-gray-600">
+                      4 mins
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
+            
+            <div className="w-full md:w-1/2 flex items-center">
+              <div className="relative w-full pt-[56.25%] rounded-lg overflow-hidden bg-white">
+                {data?.rightContent?.imageUrl && (
+                  <Image 
+                    src={data.rightContent.imageUrl}
+                    alt={data.rightContent.imageAlt || ''}
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                )}
+              </div>  
+            </div>
+          </div>
         </div>
-      </div>
+      </header>
     </div>
   );
 };
 
-export default ProductBenefitsWithFourBlocks;
+export default TitleSectionWithImage;
