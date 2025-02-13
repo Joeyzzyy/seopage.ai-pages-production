@@ -76,6 +76,18 @@ const parseContent = (content) => {
     if (!isClosing) {
       switch (tag) {
         case 'p':
+          // 检查是否是空段落（即紧跟着就是结束标签）
+          const nextMatch = cleanContent.slice(match.index + fullMatch.length).match(/^\s*<\/p>/);
+          if (nextMatch) {
+            console.log('Empty paragraph content:', '\n'.split('').map(c => c.charCodeAt(0))); // 这会显示换行符的 ASCII 码
+            result.push({
+              type: 'text',
+              content: '\n\n'
+            });
+            currentIndex = match.index + fullMatch.length + nextMatch[0].length;
+            continue;
+          }
+          
           if (!isFirstParagraph) {
             result.push({
               type: 'text',
@@ -90,12 +102,6 @@ const parseContent = (content) => {
           break;
           
         case 'h2':
-          if (!isFirstParagraph) {
-            result.push({
-              type: 'text',
-              content: '\n\n'
-            });
-          }
           stack.push({
             type: 'h2',
             startIndex: result.length

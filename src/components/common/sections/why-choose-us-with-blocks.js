@@ -1,59 +1,39 @@
 'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import themeConfig from '../../../styles/themeConfig';
 
-const WhyChooseUsWithBlocks = ({ data, author, theme = 'normal' }) => {
+const WhyChooseUsWithBlocks = ({ data, author }) => {
   const router = useRouter();
-
-  const handleRedirect = (e) => {
-    e.preventDefault();
-    router.push('https://app.websitelm.com');
-  };
-
-  const getBgColor = () => {
-    return themeConfig[theme].section.background.primary;
-  };
-
-  const getImageStyle = () => {
-    return theme === 'tech'
-      ? 'w-auto h-auto object-contain rounded-xl border border-blue-100'
-      : 'w-auto h-auto object-contain rounded-lg border border-gray-100';
-  };
-
-  const getButtonLink = () => {
-    return buttonLinks.workbench || '#';
-  };
 
   const { topContent, bottomContent } = data;
   return (
-    <div className={`${getBgColor()} py-12 md:py-16`}>
-      <div className="max-w-[80%] mx-auto px-4">
+    <div className="bg-white py-12 md:py-16">
+      <div className="max-w-[85%] mx-auto px-4">
         <div className="text-center mb-12 md:mb-16">
-          <h2 className={`${themeConfig[theme].typography.h2.fontSize} ${themeConfig[theme].typography.h2.fontWeight} ${themeConfig[theme].typography.h2.color} mb-4`}>
+          <h2 className="text-3xl font-semibold text-gray-900 mb-4">
             {topContent.title}
           </h2>
-          <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color} max-w-2xl mx-auto`}>
+          <p className="text-base text-[#2f3337] max-w-2xl mx-auto">
             {topContent.description}
           </p>
         </div>
 
         {bottomContent.map((content, index) => (
-          <div key={index} className="flex flex-col md:flex-row gap-8 md:gap-12 mb-12 last:mb-0 items-center">
+          <div key={index} className="flex flex-col md:flex-row gap-8 md:gap-24 mb-16 md:mb-24 last:mb-0 items-center">
             {index % 2 === 0 ? (
               <>
                 <div className="w-full md:w-1/2 flex flex-col h-full justify-between">
                   <div>
-                    <h3 className={`${themeConfig[theme].typography.h3.fontSize} ${themeConfig[theme].typography.h3.fontWeight} ${themeConfig[theme].typography.h3.color} mb-4`}>
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-4">
                       {content.title}
                     </h3>
-                    <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`}>
+                    <p className="text-base text-[#2f3337] mb-24">
                       {content.content}
                     </p>
                   </div>
                   <button 
                     onClick={() => window.open(content.buttonLink, '_blank')}
-                    className={`w-fit ${themeConfig[theme].button.base} ${themeConfig[theme].button.variants.primary} ${themeConfig[theme].button.hover} mt-24`}
+                    className="w-fit px-6 py-3 rounded-full bg-[#3374FF] text-white font-medium hover:bg-blue-700 transition-colors duration-300"
                   >
                     {content.buttonText}
                   </button>
@@ -62,7 +42,7 @@ const WhyChooseUsWithBlocks = ({ data, author, theme = 'normal' }) => {
                   <img 
                     src={content.imageUrl || '/images/placeholder.png'}
                     alt={content.imageAlt || content.title}
-                    className={getImageStyle()}
+                    className="w-auto h-auto object-contain rounded-xl"
                   />
                 </div>
               </>
@@ -72,21 +52,21 @@ const WhyChooseUsWithBlocks = ({ data, author, theme = 'normal' }) => {
                   <img 
                     src={content.imageUrl || '/images/placeholder.png'}
                     alt={content.imageAlt || content.title}
-                    className={getImageStyle()}
+                    className="w-auto h-auto object-contain rounded-xl"
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col h-full justify-between">
                   <div>
-                    <h3 className={`${themeConfig[theme].typography.h3.fontSize} ${themeConfig[theme].typography.h3.fontWeight} ${themeConfig[theme].typography.h3.color} mb-4`}>
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-4">
                       {content.title}
                     </h3>
-                    <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`}>
+                    <p className="text-base text-[#2f3337] mb-24">
                       {content.content}
                     </p>
                   </div>
                   <button 
                     onClick={() => window.open(content.buttonLink, '_blank')}
-                    className={`w-fit ${themeConfig[theme].button.base} ${themeConfig[theme].button.variants.primary} ${themeConfig[theme].button.hover} mt-24`}
+                    className="w-fit px-6 py-3 rounded-full bg-[#3374FF] text-white font-medium hover:bg-blue-700 transition-colors duration-300"
                   >
                     {content.buttonText}
                   </button>

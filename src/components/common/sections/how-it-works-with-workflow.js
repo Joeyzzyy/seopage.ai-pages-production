@@ -1,47 +1,25 @@
 'use client';
 import React from 'react';
-import themeConfig from '../../../styles/themeConfig';
 
-const HowItWorksWithWorkflow = ({ data, theme = 'normal' }) => {
+const HowItWorksWithWorkflow = ({ data }) => {
   const { bottomContent, topContent } = data;
   
-  const commonStyles = {
-    heading: `${themeConfig[theme].typography.h2.fontSize} ${themeConfig[theme].typography.h2.fontWeight} ${themeConfig[theme].typography.h2.color}`,
-    paragraph: `${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`,
-    accent: themeConfig[theme].text.color.accent
-  };
-
-  const getBgColor = () => {
-    return theme === 'tech' 
-      ? themeConfig[theme].section.background.secondary
-      : themeConfig[theme].section.background.primary;
-  };
-  
   return (
-    <div className={`
-      bg-[#e6eeff]
-      ${themeConfig[theme].section.padding.base}
-      py-16 md:py-24
-    `}>
-      <div className="w-[80%] mx-auto">
-        <div className="flex flex-col md:flex-row gap-12">
+    <div className="bg-[#e6eeff] py-16 md:py-24">
+      <div className="w-[85%] mx-auto">
+        <div className="flex flex-col md:flex-row gap-16 items-center">
           {/* Left Section */}
           <div className="w-full md:w-1/2">
-            <h2 className={`${commonStyles.heading} mb-2`}>
+            <h2 className="text-3xl font-semibold text-gray-900 mb-4">
               {topContent.title}
             </h2>
-            {topContent.description && (
-              <p className="text-gray-500 text-lg mb-8">
-                {topContent.description}
-              </p>
-            )}
             {topContent.subTitle && (
-              <h3 className="text-xl text-gray-600 leading-relaxed mb-6">
+              <h3 className="text-xl text-gray-600 leading-relaxed mb-8">
                 {topContent.subTitle}
               </h3>
             )}
             {/* Example Image */}
-            <div className="mb-8 aspect-[4/3] overflow-hidden rounded-xl">
+            <div className="mb-12 aspect-[4/3] overflow-hidden rounded-xl">
               <img 
                 src={topContent.imageUrl}
                 alt={topContent.imageAlt}
@@ -49,24 +27,24 @@ const HowItWorksWithWorkflow = ({ data, theme = 'normal' }) => {
               />
             </div>
             {/* Button Group */}
-            {(topContent.showButton || topContent.showCtaButton) && (
+            {(topContent.buttonText || topContent.ctaButtonText) && (
               <div className="flex flex-col sm:flex-row gap-4">
-                {topContent.showButton && (
+                {topContent.buttonText && (
                   <a
                     href={topContent.buttonLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-3 rounded-full bg-blue-600 text-white font-medium
+                    className="px-6 py-3 rounded-full bg-[#3374FF] text-white font-medium
                       hover:bg-blue-700 transition-colors duration-300 text-center">
                     {topContent.buttonText}
                   </a>
                 )}
-                {topContent.showCtaButton && (
+                {topContent.ctaButtonText && (
                   <a
                     href={topContent.ctaButtonLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-3 text-blue-600 font-medium hover:text-blue-700 
+                    className="px-6 py-3 text-[#3374FF] font-medium hover:text-blue-700 
                       transition-colors duration-300 flex items-center">
                     {topContent.ctaButtonText}
                     <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,8 +58,8 @@ const HowItWorksWithWorkflow = ({ data, theme = 'normal' }) => {
 
           {/* Right Section */}
           <div className="w-full md:w-1/2 md:flex md:items-center">
-            <div className="flex flex-col divide-y divide-gray-200">
-              {bottomContent.map((block, index) => (
+            <div className="flex flex-col divide-y divide-[#dfdfdf]">
+              {bottomContent.map((block) => (
                 <div key={block.number} 
                   className="flex gap-6 py-8 first:pt-0 last:pb-0">
                   <div className="text-lg font-medium text-gray-900 shrink-0 w-12">
@@ -98,8 +76,7 @@ const HowItWorksWithWorkflow = ({ data, theme = 'normal' }) => {
                         {block.subTitle}
                       </h5>
                     )}
-                    <p className={`${commonStyles.paragraph} leading-relaxed 
-                      whitespace-pre-line`}>
+                    <p className="text-base text-gray-600 leading-relaxed whitespace-pre-line">
                       {block.content}
                     </p>
                   </div>

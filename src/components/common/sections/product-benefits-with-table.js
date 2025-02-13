@@ -1,64 +1,73 @@
 'use client';
 
 import React from 'react';
-import themeConfig from '../../../styles/themeConfig';
+import { Icon } from '@iconify/react';
 
-const ProductBenefitsWithATable = ({ data, theme = 'normal' }) => {
-  const getBgColor = () => {
-    return themeConfig[theme].section.background.primary;
-  };
-
-  const getButtonStyle = () => {
-    return `${themeConfig[theme].button.base} ${themeConfig[theme].button.variants.secondary}`;
-  };
-
+const ProductBenefitsWithATable = ({ data }) => {
   return (
-    <div className={`${getBgColor()} py-12 md:py-16`}>
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+    <div className="bg-white py-16 md:py-24">
+      <div className="w-[85%] mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-semibold text-gray-900 mb-4">
+            {data.topContent.title}
+          </h2>
+          <p className="text-xl text-gray-600 leading-relaxed mb-4">
+            {data.topContent.description}
+          </p>
+          <a 
+            href={data.topContent.buttonLink?.startsWith('http') 
+              ? data.topContent.buttonLink 
+              : `https://${data.topContent.buttonLink}` || '#'}
+            className="px-6 py-3 rounded-full bg-[#3374FF] text-white font-medium
+              hover:bg-blue-700 transition-colors duration-300 inline-block"
+          >
+            {data.topContent.buttonText}
+          </a>
+        </div>
+
+        {/* Content Section */}
+        <div className="flex flex-col md:flex-row gap-16 items-center">
+          {/* Left Section - Image */}
           <div className="w-full md:w-1/2">
-            <div className="grid border border-gray-200 rounded-lg">
-              {data.leftContent.map((item, index) => (
+            <div className="aspect-[4/3] overflow-hidden rounded-xl">
+              <img 
+                src={data.leftContent.imageUrl}
+                alt={data.leftContent.imageAlt}
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          </div>
+          
+          {/* Right Section - Table */}
+          <div className="w-full md:w-1/2">
+            <div className="grid bg-white">
+              {data.rightContent.map((item, index) => (
                 <div 
                   key={index}
-                  className={`flex items-center gap-4 p-4 border-b last:border-b-0 ${
-                    theme === 'tech' 
-                      ? `${themeConfig.tech.card.background} hover:bg-gray-50/80 transition-colors` 
-                      : `${themeConfig.normal.card.background} hover:bg-gray-50/80 transition-colors`
-                  }`}
+                  className="flex items-center gap-4 p-4 hover:bg-gray-50/80 transition-colors"
                 >
-                  <div className={`w-16 py-2 flex-shrink-0 text-center border-r ${themeConfig[theme].text.icon}`}>
-                    {item.icon}
+                  <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gray-100 flex items-center justify-center">
+                    {/* 添加调试信息 */}
+                    {console.log('Icon identifier:', item.icon)}
+                    <Icon 
+                      icon={item.icon}
+                      width="24"
+                      height="24"
+                      className="text-gray-600"
+                    />
                   </div>
                   <div className="flex-1 pl-4">
-                    <h3 className={`${themeConfig[theme].typography.h3.fontSize} ${themeConfig[theme].typography.h3.fontWeight} ${themeConfig[theme].typography.h3.color}`}>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       {item.contentTitle}
                     </h3>
-                    <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`}>
+                    <p className="text-base text-gray-600">
                       {item.content}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-          
-          <div className="w-full md:w-1/2">
-            <div className={`text-3xl mb-4 ${themeConfig[theme].text.icon}`}>{data.rightContent.icon}</div>
-            <h2 className={`${themeConfig[theme].typography.h2.fontSize} ${themeConfig[theme].typography.h2.fontWeight} ${themeConfig[theme].typography.h2.color}`}>
-              {data.rightContent.title}
-            </h2>
-            <p className={`${themeConfig[theme].text.paragraph} ${themeConfig[theme].text.secondary} mb-6`}>
-              {data.rightContent.subTitle}
-            </p>
-            <a 
-              href={data.rightContent.buttonLink?.startsWith('http') 
-                ? data.rightContent.buttonLink 
-                : `https://${data.rightContent.buttonLink}` || '#'}
-              className={getButtonStyle()}
-            >
-              {data.rightContent.buttonText}
-            </a>
           </div>
         </div>
       </div>
