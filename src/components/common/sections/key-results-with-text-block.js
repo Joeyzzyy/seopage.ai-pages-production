@@ -305,7 +305,7 @@ const parseContent = (content) => {
 };
 
 const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
-  const { leftContent, rightContent } = data;
+  const { rightContent } = data;
   const containerRef = useRef(null);
   const stickyRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -363,14 +363,6 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
         behavior: 'smooth'
       });
     }
-  };
-
-  // 添加检查是否显示 Key Results 模块的函数
-  const shouldShowKeyResults = () => {
-    if (!leftContent || !Array.isArray(leftContent)) {
-      return false;
-    }
-    return leftContent.some(result => result.display === true);
   };
 
   const getBgColor = () => {
@@ -539,26 +531,6 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
                     ))}
                   </ul>
                 </div>
-
-                {shouldShowKeyResults() && (
-                  <div className="bg-white shadow rounded-lg p-8 border border-gray-100">
-                    <h3 className="text-xl font-bold mb-6 text-gray-800 border-b border-gray-100 pb-4">
-                      Key Results
-                    </h3>
-                    {leftContent
-                      .filter(result => result.display)
-                      .map((result, index) => (
-                        <div key={index} className="mb-8 last:mb-0 hover:bg-gray-50 p-4 rounded-md transition-all duration-200">
-                          <div className="text-6xl font-bold mb-2 text-blue-600">
-                            {result.percentage}%
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            {result.description}
-                          </p>
-                        </div>
-                      ))}
-                  </div>
-                )}
               </div>
             </div>
 
