@@ -43,7 +43,7 @@ export default function Footer({ data }) {
         : data.styles.backgroundColor
     }}>
       <div className="w-[80%] mx-auto py-12">
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-8 mb-8">
+        <div className={`grid grid-cols-1 md:grid-cols-[1fr${data.sections?.map(() => '_0.8fr').join('')}] gap-8 mb-8`}>
           <div className="px-4">
             <h3 style={{ color: data.colors.companyName }} className="text-xl font-semibold mb-4">
               {data.companyName}
