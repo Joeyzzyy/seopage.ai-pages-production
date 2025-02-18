@@ -116,13 +116,29 @@ const parseContent = (content) => {
           break;
           
         case 'img':
-          const src = fullMatch.match(/src="([^"]*)"/)?.[1] || '';
+          const src = (fullMatch.match(/src="([^"]*)"/)?.[1] || '')
+            .replace(/&amp;/g, '&');
           const alt = fullMatch.match(/alt="([^"]*)"/)?.[1] || '';
+          
+          // 检查图片后是否紧跟着 </p> 标签
+          const isLastInParagraph = cleanContent
+            .slice(match.index + fullMatch.length)
+            .trim()
+            .startsWith('</p>');
+            
           result.push({
             type: 'image',
             src,
             alt
           });
+          
+          // 如果图片是段落的最后一个元素，添加额外的换行
+          if (isLastInParagraph) {
+            result.push({
+              type: 'text',
+              content: '\n\n'
+            });
+          }
           break;
           
         case 'span':
@@ -442,7 +458,7 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
               key={`image-${index}`}
               src={part.src}
               alt={part.alt}
-              className="max-w-full h-auto my-4 rounded-lg shadow-sm"
+              className="max-w-full h-auto my-6 rounded-lg shadow-sm"
               onClick={() => setSelectedImage({ src: part.src, alt: part.alt })}
             />
           );
