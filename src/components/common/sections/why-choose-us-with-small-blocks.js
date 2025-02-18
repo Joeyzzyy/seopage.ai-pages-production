@@ -12,6 +12,7 @@ const WhyChooseUsWithSmallBlocks = ({ data }) => {
       bg-[#f5f6f7]
       rounded-2xl
       mb-10
+      mt-10
       py-12 md:py-16
     ">
       <div className="max-w-6xl mx-auto px-4">
@@ -27,7 +28,7 @@ const WhyChooseUsWithSmallBlocks = ({ data }) => {
         <div className="flex flex-col md:flex-row justify-between items-center md:items-center">
           {bottomContent.map((module, index) => (
             <React.Fragment key={index}>
-              <div className="flex-1 text-center flex flex-col mb-8 md:mb-0">
+              <div className="flex-1 text-center flex flex-col mb-8 mt-8 md:mb-0 md:mt-0">
                 {/* 上层 - 标题 */}
                 <div className="mb-3 md:mb-4">
                   <p className="text-gray-500 text-sm md:text-base">{module.topText}</p>

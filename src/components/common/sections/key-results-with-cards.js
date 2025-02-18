@@ -16,66 +16,65 @@ const KeyResultsWithThreeCards = ({ data, theme = 'normal' }) => {
     return themeConfig[theme].section.background.primary;
   };
 
-  const getCardStyle = () => {
-    return `${themeConfig[theme].card.variants.primary} ${themeConfig[theme].card.padding.lg} flex flex-col h-full`;
-  };
-
-  const getButtonStyle = () => {
-    return `mt-auto flex items-center ${themeConfig[theme].text.color.accent} font-medium`;
-  };
-
-  const getIconStyle = () => {
-    return `w-4 h-4 ml-2 ${themeConfig[theme].text.color.accent}`;
-  };
-  
   return (
-    <div className={`${getBgColor()} ${themeConfig[theme].section.padding.base}`}>
-      <div className="max-w-6xl mx-auto px-4">
-        {title && (
-          <h2 className={`${themeConfig[theme].typography.h2.fontSize} ${themeConfig[theme].typography.h2.fontWeight} ${themeConfig[theme].typography.h2.color} text-center mb-16`}>
+    <div className={`w-full ${getBgColor()} ${themeConfig[theme].section.padding.base}`}>
+      <div className="max-w-6xl mx-auto px-8">
+        <div className="flex justify-between items-center mb-12 min-h-[40px]">
+          <h2 className={`text-2xl font-bold ${themeConfig[theme].typography.h2.color}`}>
             {title}
           </h2>
-        )}
+          {data.subTitle && (
+            <p className="text-base text-[#2f3337]">{data.subTitle}</p>
+          )}
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-x divide-gray-200">
           {comparisons.map((comparison, index) => (
-            <div key={index} className={getCardStyle()}>
-              <div className="mb-6 text-left">
-                {comparison.competitorLogo && (
+            <div 
+              key={index} 
+              className={`flex flex-col px-6 ${
+                index === 0 ? 'pl-0' : ''
+              } ${
+                index === comparisons.length - 1 ? 'pr-0' : ''
+              }`}
+            >
+              {comparison.competitorName && (
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 min-h-[28px]">
+                  {comparison.competitorName}
+                </h4>
+              )}
+
+              <div className="mb-4 min-h-[80px]">
+                <div className="text-3xl font-bold text-blue-600 mb-2">
+                  {comparison.percentage}%
+                </div>
+                <div className="text-base text-gray-700">
+                  {comparison.metric}
+                </div>
+              </div>
+
+              <p className="text-base text-gray-600 mb-4 leading-6 h-12 line-clamp-2 overflow-hidden">
+                {comparison.description}
+              </p>
+
+              {comparison.competitorLogo && (
+                <div className="w-full aspect-square mb-4">
                   <img 
                     src={comparison.competitorLogo} 
                     alt={comparison.competitorLogoAlt || ''} 
-                    className="h-12 w-auto mb-4 mr-auto"
+                    className="w-full h-full object-contain"
                   />
-                )}
-                {comparison.competitorName && (
-                  <h4 className={`${themeConfig[theme].typography.h4.fontSize} ${themeConfig[theme].typography.h4.fontWeight} ${themeConfig[theme].typography.h4.color} mb-2`}>
-                    {comparison.competitorName}
-                  </h4>
-                )}
-              </div>
-              
-              <div className="mb-6">
-                <div className={`text-4xl font-bold ${themeConfig[theme].text.color.accent} mb-2`}>
-                  {comparison.percentage}%
                 </div>
-                <div className={`${themeConfig[theme].typography.h5.fontSize} ${themeConfig[theme].typography.h5.color} mb-4`}>
-                  {comparison.metric}
-                </div>
-                <p className={`${themeConfig[theme].typography.paragraph.fontSize} ${themeConfig[theme].typography.paragraph.color}`}>
-                  {comparison.description}
-                </p>
-              </div>
+              )}
 
-              <button 
-                className={getButtonStyle()}
-                onClick={() => comparison.buttonLink && window.open(comparison.buttonLink, '_blank')}
-              >
-                {comparison.buttonText}
-                <svg className={getIconStyle()} viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+              {comparison.buttonText && comparison.buttonLink && (
+                <a
+                  href={comparison.buttonLink}
+                  className="text-base text-blue-600 hover:text-blue-700 font-medium min-h-[24px]"
+                >
+                  {comparison.buttonText}
+                </a>
+              )}
             </div>
           ))}
         </div>

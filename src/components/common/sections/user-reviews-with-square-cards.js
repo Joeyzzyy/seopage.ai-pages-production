@@ -53,7 +53,9 @@ const UserReviewsWithSquareCards = ({ data, theme = 'normal' }) => {
                     alt={review.avatarAlt || ''}
                     width={48}
                     height={48}
-                    className="rounded-full object-contain"
+                    className="rounded-full object-contain p-1"
+                    priority={false}
+                    unoptimized={true}
                   />
                 )}
                 <div className="ml-4">
