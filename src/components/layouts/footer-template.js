@@ -34,20 +34,20 @@ export default function Footer({ data }) {
 
   const footerStyles = {
     container: {
-      width: '80%',
+      width: '90%',
       margin: '0 auto',
       padding: '3rem 0'
     },
     grid: {
       display: 'grid',
       gridTemplateColumns: data?.sections 
-        ? `1fr ${data.sections.map(() => '0.8fr').join(' ')}`
+        ? `repeat(auto-fit, minmax(250px, 1fr))`
         : '1fr',
       gap: '2rem',
       marginBottom: '2rem'
     },
     section: {
-      padding: '0 1rem'
+      padding: '0.5rem'
     }
   };
 
