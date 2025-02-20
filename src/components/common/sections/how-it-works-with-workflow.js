@@ -19,11 +19,11 @@ const HowItWorksWithWorkflow = ({ data }) => {
               </h3>
             )}
             {/* Example Image */}
-            <div className="mb-12 aspect-[4/3] overflow-hidden rounded-xl">
+            <div className="mb-12 overflow-hidden rounded-xl">
               <img 
                 src={topContent.imageUrl}
                 alt={topContent.imageAlt}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                className="w-full object-contain hover:scale-105 transition-transform duration-300"
               />
             </div>
             {/* Button Group */}
