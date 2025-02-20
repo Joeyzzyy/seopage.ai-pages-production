@@ -15,12 +15,12 @@ const CallToActionWithInput = ({ data, theme = 'normal' }) => {
               {data.title}
             </h2>
             <div className="flex items-center justify-center">
-              <div className="relative w-[480px]">
+              <div className="relative w-full max-w-[480px] flex flex-col sm:block">
                 <Input 
                   placeholder={data?.bottomContent?.inputPlaceholder || 'Enter your email address'}
                   className="w-full bg-white border-none text-sm h-[52px] px-6 rounded-[26px] placeholder-gray-400"
                 />
-                <button className="absolute right-1 top-1/2 -translate-y-1/2 bg-black text-white px-6 py-3 rounded-[22px] hover:bg-gray-800 transition-colors">
+                <button className="sm:absolute sm:right-1 sm:top-1/2 sm:-translate-y-1/2 bg-black text-white px-6 py-3 rounded-[22px] hover:bg-gray-800 transition-colors w-full mt-4 sm:mt-0 sm:w-auto">
                   {data?.buttonText || 'Get Started'}
                 </button>
               </div>
