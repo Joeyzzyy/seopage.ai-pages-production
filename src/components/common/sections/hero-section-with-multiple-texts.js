@@ -60,11 +60,11 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
       <section className={`
         bg-gradient-to-b from-[#3374FF] to-[#1F4699]
         ${currentTheme.section.padding.large}
-        w-[95%] mx-auto rounded-2xl
+        w-[98%] mx-auto rounded-2xl
       `}>
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-[90%] mx-auto px-4">
           <div className="relative z-10 pt-8 md:pt-12">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-[90%] mx-auto">
               <div className="flex flex-col items-center gap-4">
                 <h1 className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
                   {data.topContent.title}
@@ -138,23 +138,25 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
                     target="_blank"
                     className="w-full md:w-auto flex justify-center transition-transform duration-200 hover:scale-105"
                   >
-                    {isMainlandChina ? (
-                      <div className="h-[54px] px-6 flex items-center gap-2 rounded-lg bg-white border border-[#EA532A] hover:bg-[#EA532A]/5">
-                        <img 
-                          src="/images/product-hunt-logo.png" 
-                          alt="Product Hunt Logo" 
-                          className="w-8 h-8"
-                        />
-                        <span className="text-[#EA532A] font-medium">Featured on Product Hunt</span>
-                      </div>
-                    ) : (
+                    {/* 默认显示大陆版本的按钮 */}
+                    {(!isMainlandChina && (
                       <img 
                         src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=${data.topContent.productHuntId}&theme=light`}
                         alt={`${data.topContent.productHuntId} - Featured on Product Hunt`}
                         style={{ maxWidth: '250px', height: '54px' }}
                         width="250"
                         height="54"
+                        className="hidden md:block"
                       />
+                    )) || (
+                      <div className="h-[54px] px-8 flex items-center gap-3 rounded-full bg-white border-2 border-[#EA532A] hover:bg-[#EA532A]/5 transition-all duration-300 shadow-sm hover:shadow-md">
+                        <img 
+                          src="/images/product-hunt-logo.png" 
+                          alt="Product Hunt Logo" 
+                          className="w-8 h-8"
+                        />
+                        <span className="text-[#EA532A] font-semibold">Featured on Product Hunt</span>
+                      </div>
                     )}
                   </a>
                 )}
@@ -162,7 +164,7 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
             </div>
 
             <div className="mt-16 w-full flex justify-center">
-              <div className="max-w-10xl w-full">
+              <div className="w-[80vw] mx-auto">
                 <img 
                   src={data.topContent.bannerImage}
                   alt="Banner"
