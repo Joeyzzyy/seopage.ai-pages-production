@@ -4,6 +4,14 @@ import themeConfig from '../../../styles/themeConfig';
 
 const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
   const currentTheme = themeConfig[theme];
+  const [isMainlandChina, setIsMainlandChina] = React.useState(false);
+
+  React.useEffect(() => {
+    const isZhCN = navigator.language === 'zh-CN';
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const isAsiaShanghai = timeZone === 'Asia/Shanghai';
+    setIsMainlandChina(isZhCN && isAsiaShanghai);
+  }, []);
 
   const handleButtonClick = (type) => (e) => {
     e.preventDefault();
@@ -93,17 +101,28 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
                 {/* Product Hunt Widget */}
                 {data.topContent.enableProductHunt && data.topContent.productHuntId && (
                   <a 
-                    href={`https://www.producthunt.com/posts/${data.topContent.productHuntId}?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-${data.topContent.productHuntId}`}
+                    href={`https://www.producthunt.com/posts/${data.topContent.productHuntId}`}
                     target="_blank"
                     className="w-full md:w-auto flex justify-center transition-transform duration-200 hover:scale-105"
                   >
-                    <img 
-                      src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=${data.topContent.productHuntId}&theme=light`}
-                      alt={`${data.topContent.productHuntId} - Featured on Product Hunt`}
-                      style={{ maxWidth: '250px', height: '54px' }}
-                      width="250"
-                      height="54"
-                    />
+                    {isMainlandChina ? (
+                      <div className="h-[54px] px-6 flex items-center gap-2 rounded-lg bg-white border border-[#EA532A] hover:bg-[#EA532A]/5">
+                        <img 
+                          src="/images/product-hunt-logo.png" 
+                          alt="Product Hunt Logo" 
+                          className="w-8 h-8"
+                        />
+                        <span className="text-[#EA532A] font-medium">Featured on Product Hunt</span>
+                      </div>
+                    ) : (
+                      <img 
+                        src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=${data.topContent.productHuntId}&theme=light`}
+                        alt={`${data.topContent.productHuntId} - Featured on Product Hunt`}
+                        style={{ maxWidth: '250px', height: '54px' }}
+                        width="250"
+                        height="54"
+                      />
+                    )}
                   </a>
                 )}
               </div>
