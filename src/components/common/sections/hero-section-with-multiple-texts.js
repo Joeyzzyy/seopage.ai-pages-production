@@ -138,8 +138,8 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
                     target="_blank"
                     className="w-full md:w-auto flex justify-center transition-transform duration-200 hover:scale-105"
                   >
-                    {/* 默认显示大陆版本的按钮 */}
-                    {(!isMainlandChina && (
+                    {/* 默认显示大陆版本按钮，仅在确认非大陆地区时显示 PH 官方按钮 */}
+                    {isMainlandChina === false ? (
                       <img 
                         src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=${data.topContent.productHuntId}&theme=light`}
                         alt={`${data.topContent.productHuntId} - Featured on Product Hunt`}
@@ -148,7 +148,7 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
                         height="54"
                         className="hidden md:block"
                       />
-                    )) || (
+                    ) : (
                       <div className="h-[54px] px-8 flex items-center gap-3 rounded-full bg-white border-2 border-[#EA532A] hover:bg-[#EA532A]/5 transition-all duration-300 shadow-sm hover:shadow-md">
                         <img 
                           src="/images/product-hunt-logo.png" 
