@@ -7,10 +7,43 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
   const [isMainlandChina, setIsMainlandChina] = React.useState(false);
 
   React.useEffect(() => {
-    const isZhCN = navigator.language === 'zh-CN';
+    // 检测语言
+    const isZhCN = navigator.language === 'zh-CN' || 
+                   navigator.language === 'zh' || 
+                   navigator.language.toLowerCase().startsWith('zh-hans');
+
+    // 检测中国大陆常用时区
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const isAsiaShanghai = timeZone === 'Asia/Shanghai';
-    setIsMainlandChina(isZhCN && isAsiaShanghai);
+    const chinaPossibleTimezones = [
+      'Asia/Shanghai',
+      'Asia/Urumqi',
+      'Asia/Chongqing',
+      'Asia/Harbin',
+      'Asia/Beijing'
+    ];
+    const isChineseTimezone = chinaPossibleTimezones.includes(timeZone);
+
+    // 额外检测方法：尝试访问 Google 服务
+    const checkGoogleAccess = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3秒超时
+        
+        const response = await fetch('https://www.google.com/generate_204', {
+          mode: 'no-cors',
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        // 如果能访问 Google，很可能不是在中国大陆
+        setIsMainlandChina(isZhCN && isChineseTimezone && !response.ok);
+      } catch (error) {
+        // 如果访问超时或失败，配合语言和时区判断
+        setIsMainlandChina(isZhCN && isChineseTimezone);
+      }
+    };
+
+    checkGoogleAccess();
   }, []);
 
   const handleButtonClick = (type) => (e) => {
