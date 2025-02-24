@@ -71,26 +71,6 @@ const COMPONENT_MAP = {
   FeatureComparisonTable: FeatureComparisonTable,
 };
 
-const generateSchemaMarkup = (article) => {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: article.title,
-    description: article.description,
-    author: {
-      '@type': 'Person',
-      name: article.author
-    },
-    datePublished: article.publishDate,
-    image: article.ogImage,
-    dateModified: article.updateDate,
-    publisher: {
-      '@type': 'Organization',
-      name: 'WebsiteLM'
-    }
-  };
-};
-
 const CommonLayout = ({ article, keywords }) => {
   const headerData = useMemo(() => {
     return article?.pageLayout?.pageHeaders;
@@ -123,6 +103,10 @@ const CommonLayout = ({ article, keywords }) => {
         {sections.map((section, index) => {
           const Component = COMPONENT_MAP[section.componentName];
           if (!Component) return null;
+          
+          if (article.pageType === 'Landing Page' && section.componentName === 'TitleSection') {
+            return null;
+          }
           
           return (
             <div 
