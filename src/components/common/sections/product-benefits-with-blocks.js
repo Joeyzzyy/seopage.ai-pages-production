@@ -27,7 +27,12 @@ const ProductBenefitsWithFourBlocks = ({ data }) => {
           </a>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className={`grid gap-6 mb-8 max-w-screen-lg mx-auto ${
+          data.rightContent.length === 1 ? 'grid-cols-1' :
+          data.rightContent.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
+          data.rightContent.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+          'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+        }`}>
           {data.rightContent.map((module, index) => (
             <div 
               key={index} 
