@@ -11,77 +11,81 @@ const MeetOurTeam = ({ data, theme = 'normal' }) => {
       ${section.background.primary} 
       ${section.padding.base}
     `}>
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-[90%] mx-auto px-4">
         <div className="text-center mb-12">
-          <p className={`${typography.caption.color} ${typography.caption.fontSize} mb-2`}>
-            {data.topContent.subtitle}
-          </p>
-          <h1 className={`${typography.h1.fontSize} ${typography.h1.fontWeight} ${typography.h1.color} mb-4`}>
+          <h2 className={`text-sm text-primary font-semibold mb-4 text-blue-600`}>
+            Our Team
+          </h2>
+          <h3 className={`text-3xl font-bold text-gray-900 mb-4`}>
             {data.topContent.title}
-          </h1>
-          <p className={`${typography.paragraph.color} text-xl max-w-2xl mx-auto`}>
+          </h3>
+          <p className={`text-base text-gray-600 max-w-2xl mx-auto`}>
             {data.topContent.description}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-3 mt-12">
-          {data.bottomContent.map((member, index) => (
-            <div 
-              key={index} 
-              className={`${section.background.secondary} rounded-lg shadow-sm overflow-hidden hover:bg-blue-50/50 transition-colors duration-200`}
-            >
-              <div className="aspect-w-1 aspect-h-1 relative">
-                <img
-                  src={member.avatarUrl}
-                  alt={member.avatarAlt}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6 text-center">
-                <h3 className={`${typography.h3.fontSize} ${typography.h3.fontWeight} ${typography.h3.color} mb-2 hover:text-primary`}>
-                  {member.name}
-                </h3>
-                <p className={`${typography.caption.fontSize} ${typography.caption.color} mb-4`}>
-                  {member.title}
-                </p>
-                <p className={`${typography.paragraph.color} mb-6 text-sm leading-relaxed whitespace-pre-line text-left`}>
-                  {member.description}
-                </p>
-                <div className="flex justify-center space-x-6">
-                  {member.socials.linkedin && (
-                    <a
-                      href={member.socials.linkedin}
-                      className={`${typography.link.color} hover:${typography.link.hoverColor} transition-colors`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <LinkedinOutlined className="text-xl" />
-                    </a>
-                  )}
-                  {member.socials.twitter && (
-                    <a
-                      href={member.socials.twitter}
-                      className={`${typography.link.color} hover:${typography.link.hoverColor} transition-colors`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <TwitterOutlined className="text-xl" />
-                    </a>
-                  )}
-                  {member.socials.website && (
-                    <a
-                      href={member.socials.website}
-                      className={`${typography.link.color} hover:${typography.link.hoverColor} transition-colors`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <GlobalOutlined className="text-xl" />
-                    </a>
-                  )}
+        <div className="w-full mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 justify-items-center">
+            {data.bottomContent.map((member, index) => (
+              <div 
+                key={index} 
+                className={`${section.background.secondary} rounded-lg shadow-sm overflow-hidden hover:bg-blue-50/50 hover:border-blue-200 border border-transparent transition-colors duration-200 min-w-[320px] w-full cursor-pointer ${data.bottomContent.length === 3 ? 'lg:col-span-1' : ''}`}
+              >
+                <div className="w-full h-[250px] relative pt-4">
+                  <img
+                    src={member.imageUrl}
+                    alt={member.imageAlt}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="p-6 flex flex-col h-[280px]">
+                  <div className="flex-grow">
+                    <h3 className={`${typography.h3.fontSize} ${typography.h3.fontWeight} ${typography.h3.color} mb-2 hover:text-primary text-left`}>
+                      {member.name}
+                    </h3>
+                    <p className={`${typography.caption.fontSize} ${typography.caption.color} mb-4 text-left`}>
+                      {member.title}
+                    </p>
+                    <p className={`${typography.paragraph.color} mb-6 text-sm leading-relaxed whitespace-pre-line text-left line-clamp-4`}>
+                      {member.description}
+                    </p>
+                  </div>
+                  <div className="flex space-x-6">
+                    {member.socials.linkedin && (
+                      <a
+                        href={member.socials.linkedin}
+                        className="text-black hover:text-gray-700 transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <LinkedinOutlined className="text-lg" />
+                      </a>
+                    )}
+                    {member.socials.twitter && (
+                      <a
+                        href={member.socials.twitter}
+                        className="text-black hover:text-gray-700 transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <TwitterOutlined className="text-lg" />
+                      </a>
+                    )}
+                    {member.socials.website && (
+                      <a
+                        href={member.socials.website}
+                        className="text-black hover:text-gray-700 transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <GlobalOutlined className="text-lg" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
