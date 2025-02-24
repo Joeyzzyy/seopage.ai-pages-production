@@ -33,8 +33,8 @@ const MeetOurTeam = ({ data, theme = 'normal' }) => {
               >
                 <div className="w-full h-[250px] relative pt-4">
                   <img
-                    src={member.imageUrl}
-                    alt={member.imageAlt}
+                    src={member.avatarUrl}
+                    alt={member.avatarAlt}
                     className="w-full h-full object-contain"
                   />
                 </div>
