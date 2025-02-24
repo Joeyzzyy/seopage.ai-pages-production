@@ -4,8 +4,6 @@ const path = require('path');
 
 const domains = [
   'https://websitelm.com',
-  'http://localhost:3000',
-  'http://localhost:3001'
 ];
 
 domains.forEach(domain => {
