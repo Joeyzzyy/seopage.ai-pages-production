@@ -27,9 +27,9 @@ const HowItWorksWithWorkflow = ({ data }) => {
               />
             </div>
             {/* Button Group */}
-            {(topContent.buttonText || topContent.ctaButtonText) && (
+            {(topContent.showButton || topContent.showCtaButton) && (
               <div className="flex flex-col sm:flex-row gap-4">
-                {topContent.buttonText && (
+                {topContent.showButton && topContent.buttonText && (
                   <a
                     href={topContent.buttonLink}
                     target="_blank"
@@ -39,7 +39,7 @@ const HowItWorksWithWorkflow = ({ data }) => {
                     {topContent.buttonText}
                   </a>
                 )}
-                {topContent.ctaButtonText && (
+                {topContent.showCtaButton && topContent.ctaButtonText && (
                   <a
                     href={topContent.ctaButtonLink}
                     target="_blank"
