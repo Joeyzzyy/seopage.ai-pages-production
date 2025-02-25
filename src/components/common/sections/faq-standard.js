@@ -43,6 +43,8 @@ const FAQTwoColumnsWithSmallTitle = ({ data, theme = 'normal' }) => {
           <div className="flex justify-center mt-12">
             <a 
               href={data.bottomContent.buttonLink}
+              target="_blank"
+              rel="noopener noreferrer"
               className={`
                 ${styles.typography.paragraph.fontSize}
                 text-[#0066FF]
