@@ -165,11 +165,25 @@ const HeroSectionWithMultipleTexts = ({ data, theme = 'normal' }) => {
 
             <div className="mt-16 w-full flex justify-center">
               <div className="w-[80vw] mx-auto">
-                <img 
-                  src={data.topContent.bannerImage}
-                  alt="Banner"
-                  className="w-full h-auto object-cover rounded-2xl shadow-lg"
-                />
+                {data.topContent.bannerMediaType === 'video' ? (
+                  <video 
+                    src={data.topContent.bannerMedia}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    controls
+                    className="w-full h-auto object-cover rounded-2xl shadow-lg"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <img 
+                    src={data.topContent.bannerMedia}
+                    alt="Banner"
+                    className="w-full h-auto object-cover rounded-2xl shadow-lg"
+                  />
+                )}
               </div>
             </div>
           </div>
