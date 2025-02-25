@@ -37,7 +37,12 @@ const HeroSectionWithVideo = ({ data, theme = 'normal', buttonLink = '#' }) => {
 
           {/* Overlay content - 从顶部20%开始，高度为40% */}
           {!isPlaying && (
-            <div className="absolute top-[20%] left-0 right-0 h-[40%] z-20 bg-gradient-to-b from-black/70 to-transparent flex items-center justify-center">
+            <div 
+              className="absolute top-[20%] left-0 right-0 h-[40%] z-20 flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(to top, transparent 0%, rgba(0,0,0,0.3) 50%, transparent 100%)'
+              }}
+            >
               <div className="text-center p-6 max-w-2xl">
                 {topContent.title && (
                   <h1 className="text-white text-4xl font-bold mb-4">
