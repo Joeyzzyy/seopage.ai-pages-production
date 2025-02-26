@@ -6,7 +6,7 @@ import { Icon } from '@iconify/react';
 const ProductBenefitsWithFourBlocks = ({ data }) => {
   return (
     <div className="bg-white py-16">
-      <div className="w-[85%] mx-auto">
+      <div className="w-[90%] mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             {data.leftContent.title}
@@ -27,7 +27,7 @@ const ProductBenefitsWithFourBlocks = ({ data }) => {
           </a>
         </div>
 
-        <div className={`grid gap-6 mb-8 max-w-screen-lg mx-auto ${
+        <div className={`grid gap-6 mb-8 mx-auto ${
           data.rightContent.length === 1 ? 'grid-cols-1' :
           data.rightContent.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
           data.rightContent.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
