@@ -4,7 +4,7 @@ import themeConfig from '../../../styles/themeConfig';
 
 // 简化提取标题的函数
 const extractContentTitle = (content) => {
-  if (!content) return [];
+  if (!content || typeof window === 'undefined') return [];
   
   // 使用 DOMParser 直接解析 HTML
   const parser = new DOMParser();
@@ -16,7 +16,7 @@ const extractContentTitle = (content) => {
 
 // 处理HTML内容，为content-subtitle添加ID
 const processHtml = (html) => {
-  if (!html) return '';
+  if (!html || typeof window === 'undefined') return html || '';
   
   // 替换空段落为带有非断行空格的段落
   let processedHtml = html.replace(/<p><\/p>/g, '<p>&nbsp;</p>');
@@ -40,10 +40,13 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
   const stickyRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [processedContent, setProcessedContent] = useState('');
+  const [titles, setTitles] = useState([]);
   
   useEffect(() => {
     // 在客户端处理HTML内容
     setProcessedContent(processHtml(rightContent));
+    // 在客户端提取标题
+    setTitles(extractContentTitle(rightContent));
   }, [rightContent]);
 
   useEffect(() => {
@@ -163,7 +166,7 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
                     Table of Contents
                   </h3>
                   <ul className="space-y-2">
-                    {extractContentTitle(rightContent).map((title, index) => (
+                    {titles.map((title, index) => (
                       <li key={`toc-${index}`}>
                         <button
                           onClick={() => scrollToSection(`section-${index}`)}
