@@ -42,6 +42,8 @@ import PageListCard from '../common/sections/page-list-card';
 import SubscriptionCard from '../common/sections/subscription-card';
 /* divider */
 import FeatureComparisonTable from '../common/sections/feature-comparison-table';
+/* divider */
+import ProductComparisonTable from '../common/sections/product-comparison-table';
 
 const COMPONENT_MAP = {
   TitleSection: TitleSection,
@@ -69,6 +71,7 @@ const COMPONENT_MAP = {
   PageListCard: PageListCard,
   SubscriptionCard: SubscriptionCard,
   FeatureComparisonTable: FeatureComparisonTable,
+  ProductComparison: ProductComparisonTable,
 };
 
 const CommonLayout = ({ article, keywords }) => {
