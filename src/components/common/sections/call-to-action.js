@@ -30,6 +30,8 @@ const CallToAction = ({ data, theme = 'normal' }) => {
         <a 
           href={data.bottomContent.buttonLink}
           className={getButtonStyle()}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {data.bottomContent.buttonText}
         </a>
