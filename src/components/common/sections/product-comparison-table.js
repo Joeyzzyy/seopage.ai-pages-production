@@ -6,20 +6,20 @@ import { FaRocket, FaShieldAlt, FaRobot, FaTools,
   FaUsersCog, FaVial, FaMobile, FaHeadset, FaEdit, FaPencilAlt, FaDesktop, FaWindowMaximize, FaDollarSign, FaMoneyBill, FaPriceTag
 } from 'react-icons/fa';
 import { 
-  IoCheckmarkCircle,  // 带圆圈的绿色对勾
-  IoCloseCircle       // 带圆圈的红色叉号
+  IoCheckmarkCircle,  // Green checkmark with circle
+  IoCloseCircle       // Red cross with circle
 } from "react-icons/io5";
 import themeConfig from '../../../styles/themeConfig';
 import PropTypes from 'prop-types';
 
-// 创建一个图标映射对象
+// Create an icon mapping object
 const iconMap = {
-  // AI & 机器人相关
+  // AI & Robot related
   FaRobot: FaRobot,
   FaAi: FaRobot,
   FaAndroid: FaRobot,
 
-  // 用户相关
+  // User related
   FaUserFriends: FaUsers,
   FaUserCircle: FaUsers,
   FaUserGroup: FaUsers,
@@ -27,82 +27,82 @@ const iconMap = {
   FaPeopleGroup: FaUsers,
   FaUserEdit: FaUsers,
   
-  // 全球化 & 语言
+  // Globalization & Language
   FaGlobe: FaLanguage,
   FaGlobeAmericas: FaLanguage,
   FaGlobeAsia: FaLanguage,
   FaTranslate: FaLanguage,
   
-  // 媒体相关
+  // Media related
   FaVideo: FaMobile,
   FaVideoCamera: FaMobile,
   FaPlay: FaMobile,
   
-  // 云服务相关
+  // Cloud services related
   FaCloud: FaCloud,
   FaCloudUpload: FaCloud,
   FaCloudDownload: FaCloud,
   FaServer: FaCloud,
   
-  // 文件相关
+  // File related
   FaFolderOpen: FaFileAlt,
   FaFolder: FaFileAlt,
   FaFile: FaFileAlt,
   FaFiles: FaFileAlt,
   
-  // 数据 & 分析
+  // Data & Analytics
   FaChartLine: FaChartLine,
   FaChart: FaChartBar,
   FaChartBar: FaChartBar,
   FaChartPie: FaChartLine,
   FaAnalytics: FaChartLine,
   
-  // 安全相关
+  // Security related
   FaLock: FaLock,
   FaShield: FaShieldAlt,
   FaSecurity: FaShieldAlt,
   FaKey: FaLock,
   
-  // 开发相关
+  // Development related
   FaCode: FaCodeBranch,
   FaGit: FaCodeBranch,
   FaBranch: FaCodeBranch,
   
-  // 数据库
+  // Database
   FaDatabase: FaDatabase,
   FaStorage: FaDatabase,
   
-  // 搜索
+  // Search
   FaSearch: FaSearch,
   FaMagnifyingGlass: FaSearch,
   
-  // 工具
+  // Tools
   FaTools: FaTools,
   FaWrench: FaTools,
   FaCog: FaTools,
   FaGear: FaTools,
   
-  // 连接性
+  // Connectivity
   FaWifi: FaWifi,
   FaPlug: FaPlug,
   FaConnection: FaWifi,
   
-  // 测试
+  // Testing
   FaVial: FaVial,
   FaFlask: FaVial,
   FaTest: FaVial,
   
-  // 客服
+  // Customer Service
   FaHeadset: FaHeadset,
   FaSupport: FaHeadset,
   FaCustomerService: FaHeadset,
   
-  // 性能
+  // Performance
   FaRocket: FaRocket,
   FaSpeed: FaRocket,
   FaPerformance: FaRocket,
   
-  // 设备相关
+  // Device related
   FaDesktop: FaTools,
   FaUserInterface: FaTools,
   FaWindowMaximize: FaTools,
@@ -114,7 +114,7 @@ const iconMap = {
 };
 
 const getIconByFeatureName = (featureName) => {
-  // 定义特征组及其关键词
+  // Define feature groups and their keywords
   const featureGroups = {
     AI: {
       icon: FaRobot,
@@ -166,18 +166,18 @@ const getIconByFeatureName = (featureName) => {
     }
   };
 
-  // 将特征名称转换为小写并分词
+  // Convert feature name to lowercase and tokenize
   const words = featureName.toLowerCase().split(/[\s-]+/);
   
-  // 计算每个特征组的匹配分数
+  // Calculate match score for each feature group
   const scores = Object.entries(featureGroups).map(([group, { icon, keywords }]) => {
     let score = 0;
     words.forEach(word => {
-      // 完全匹配得3分
+      // Full match gets 3 points
       if (keywords.includes(word)) {
         score += 3;
       } else {
-        // 部分匹配得1分（如果关键词包含当前词或当前词包含关键词
+        // Partial match gets 1 point (if keyword contains current word or current word contains keyword)
         keywords.forEach(keyword => {
           if (keyword.includes(word) || word.includes(keyword)) {
             score += 1;
@@ -188,12 +188,12 @@ const getIconByFeatureName = (featureName) => {
     return { group, icon, score };
   });
 
-  // 获取得分最高的特征组
+  // Get the feature group with the highest score
   const bestMatch = scores.reduce((best, current) => 
     current.score > best.score ? current : best
   , { score: -1 });
 
-  // 如果没有任何匹配（得分为0），返回默认图标
+  // If no match (score is 0), return default icon
   return bestMatch.score > 0 ? bestMatch.icon : FaTools;
 };
 
@@ -280,7 +280,7 @@ const ProductComparisonTable = ({ data, theme = 'normal' }) => {
           
           <div className="table-footer flex justify-center py-6 bg-gray-50 border-t border-gray-200">
             <button className="action-button bg-[#3374FF] text-white font-medium py-3 px-8 rounded-md hover:bg-[#2361e6] transition-colors text-base shadow-md hover:shadow-lg">
-              {data.buttonText || '了解更多'}
+              {data.buttonText || 'Learn More'}
             </button>
           </div>
         </div>
