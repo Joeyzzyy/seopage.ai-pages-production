@@ -252,16 +252,24 @@ const ProductComparisonTable = ({ data, theme = 'normal' }) => {
                         </td>
                         <td className="py-4 px-3 text-center border-t border-x border-gray-100">
                           {!feature.isEmpty && (
-                            feature.competitor ? 
-                              <IoCheckmarkCircle className="inline text-green-500 text-2xl" /> : 
-                              <IoCloseCircle className="inline text-red-500 text-2xl" />
+                            feature.type === 'text' ? (
+                              <span className="text-gray-700">{feature.competitorText || '-'}</span>
+                            ) : (
+                              feature.competitor ? 
+                                <IoCheckmarkCircle className="inline text-green-500 text-2xl" /> : 
+                                <IoCloseCircle className="inline text-red-500 text-2xl" />
+                            )
                           )}
                         </td>
                         <td className="py-4 px-3 text-center border-t border-gray-100 bg-blue-50/30">
                           {!feature.isEmpty && (
-                            feature.us ? 
-                              <IoCheckmarkCircle className="inline text-green-600 text-2xl drop-shadow-sm" /> : 
-                              <IoCloseCircle className="inline text-red-500 text-2xl" />
+                            feature.type === 'text' ? (
+                              <span className="text-gray-700 font-medium">{feature.usText || '-'}</span>
+                            ) : (
+                              feature.us ? 
+                                <IoCheckmarkCircle className="inline text-green-600 text-2xl drop-shadow-sm" /> : 
+                                <IoCloseCircle className="inline text-red-500 text-2xl" />
+                            )
                           )}
                         </td>
                       </tr>
