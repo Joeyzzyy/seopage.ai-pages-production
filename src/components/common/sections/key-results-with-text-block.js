@@ -2,322 +2,36 @@
 import React, { useEffect, useRef, useState } from 'react';
 import themeConfig from '../../../styles/themeConfig';
 
-// 修改提取标题的函数，处理被 strong 标签包裹的情况
-const extractContentTitle = (contentText) => {
-  if (!contentText) return [];
-  
-  // 先将各种形式的 content-subtitle 转换为 h2
-  let convertedContent = contentText
-    // 处理普通的 content-subtitle
-    .replace(
-      /<p><span class="content-subtitle">(.*?)<\/span><\/p>/g, 
-      '<h2>$1</h2>'
-    )
-    // 处理被 strong 包裹的 content-subtitle
-    .replace(
-      /<p>\s*<strong>\s*<span class="content-subtitle">(.*?)<\/span>\s*<\/strong>\s*<\/p>/g,
-      '<h2>$1</h2>'
-    );
-  
-  const subtitleRegex = /<h2[^>]*>(.*?)<\/h2>/g;
-  const titles = [];
-  let match;
-  
-  while ((match = subtitleRegex.exec(convertedContent)) !== null) {
-    // 移除可能存在的HTML标签
-    const cleanTitle = match[1].replace(/<\/?[^>]+(>|$)/g, '');
-    if (cleanTitle.trim()) {
-      titles.push(cleanTitle.trim());
-    }
-  }
-  
-  return titles;
-};
-
-// 修改 parseHtmlContent 函数以支持链接标签
-const parseContent = (content) => {
+// 简化提取标题的函数
+const extractContentTitle = (content) => {
   if (!content) return [];
   
-  // 更新转换逻辑，处理被 strong 包裹的情况
-  content = content
-    .replace(
-      /<p><span class="content-subtitle">(.*?)<\/span><\/p>/g, 
-      '<h2>$1</h2>'
-    )
-    .replace(
-      /<p>\s*<strong>\s*<span class="content-subtitle">(.*?)<\/span>\s*<\/strong>\s*<\/p>/g,
-      '<h2>$1</h2>'
-    );
+  // 使用 DOMParser 直接解析 HTML
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, 'text/html');
+  const subtitleSpans = doc.querySelectorAll('span.content-subtitle');
   
-  const cleanContent = content.replace(/\r\n/g, '\n');
+  return Array.from(subtitleSpans).map(span => span.textContent);
+};
+
+// 处理HTML内容，为content-subtitle添加ID
+const processHtml = (html) => {
+  if (!html) return '';
   
-  const result = [];
-  let currentIndex = 0;
-  let isFirstParagraph = true;
+  // 替换空段落为带有非断行空格的段落
+  let processedHtml = html.replace(/<p><\/p>/g, '<p>&nbsp;</p>');
   
-  const tagRegex = /<(\/?)(\w+)(?:\s+[^>]*)?>/g;
-  let match;
-  let stack = [];
+  // 为content-subtitle添加ID
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(processedHtml, 'text/html');
+  const subtitleSpans = doc.querySelectorAll('span.content-subtitle');
   
-  while ((match = tagRegex.exec(cleanContent)) !== null) {
-    const [fullMatch, isClosing, tagName] = match;
-    
-    if (match.index > currentIndex) {
-      const text = cleanContent.slice(currentIndex, match.index);
-      if (text.trim()) {
-        result.push({
-          type: 'text',
-          content: text.trim()
-        });
-      }
-    }
-    
-    const tag = tagName.toLowerCase();
-    if (!isClosing) {
-      switch (tag) {
-        case 'p':
-          // 检查是否是空段落（即紧跟着就是结束标签）
-          const nextMatch = cleanContent.slice(match.index + fullMatch.length).match(/^\s*<\/p>/);
-          if (nextMatch) {
-            console.log('Empty paragraph content:', '\n'.split('').map(c => c.charCodeAt(0))); // 这会显示换行符的 ASCII 码
-            result.push({
-              type: 'text',
-              content: '\n\n'
-            });
-            currentIndex = match.index + fullMatch.length + nextMatch[0].length;
-            continue;
-          }
-          
-          if (!isFirstParagraph) {
-            result.push({
-              type: 'text',
-              content: ''
-            });
-          }
-          isFirstParagraph = false;
-          stack.push({
-            type: 'p',
-            startIndex: result.length
-          });
-          break;
-          
-        case 'h2':
-          stack.push({
-            type: 'h2',
-            startIndex: result.length
-          });
-          break;
-          
-        case 'br':
-          result.push({
-            type: 'text',
-            content: '\n'
-          });
-          break;
-          
-        case 'img':
-          const src = (fullMatch.match(/src="([^"]*)"/)?.[1] || '')
-            .replace(/&amp;/g, '&');
-          const alt = fullMatch.match(/alt="([^"]*)"/)?.[1] || '';
-          
-          // 检查图片后是否紧跟着 </p> 标签
-          const isLastInParagraph = cleanContent
-            .slice(match.index + fullMatch.length)
-            .trim()
-            .startsWith('</p>');
-            
-          result.push({
-            type: 'image',
-            src,
-            alt
-          });
-          
-          // 如果图片是段落的最后一个元素，添加额外的换行
-          if (isLastInParagraph) {
-            result.push({
-              type: 'text',
-              content: '\n\n'
-            });
-          }
-          break;
-          
-        case 'span':
-          const classMatch = fullMatch.match(/class="([^"]*)"/);
-          const className = classMatch ? classMatch[1] : '';
-          if (className === 'content-subtitle') {
-            // 子标题前添加额外的换行
-            if (!isFirstParagraph) {
-              result.push({
-                type: 'text',
-                content: '\n'
-              });
-            }
-          }
-          stack.push({
-            type: 'span',
-            className,
-            startIndex: result.length
-          });
-          break;
-          
-        case 'video':
-          const videoSrc = fullMatch.match(/src="([^"]*)"/)?.[1] || '';
-          result.push({
-            type: 'video',
-            src: videoSrc,
-            controls: true,
-            preload: 'metadata'
-          });
-          break;
-          
-        case 'a':
-          stack.push({
-            type: 'link',
-            href: fullMatch.match(/href="([^"]*)"/)?.[1] || '',
-            startIndex: result.length
-          });
-          break;
-          
-        case 'strong':
-        case 'b':
-          stack.push({
-            type: 'bold',
-            startIndex: result.length
-          });
-          break;
-          
-        case 'i':
-          stack.push({
-            type: 'italic',
-            startIndex: result.length
-          });
-          break;
-        
-        case 'ul':
-        case 'ol':
-          stack.push({
-            type: 'list',
-            startIndex: result.length
-          });
-          break;
-          
-        case 'li':
-          break;
-          
-        case 'h1':
-        case 'h2':
-        case 'h3':
-        case 'h4':
-        case 'h5':
-        case 'h6':
-          result.push({
-            type: 'text',
-            content: '\n\n'
-          });
-          stack.push({
-            type: 'heading',
-            level: parseInt(tag[1]),
-            startIndex: result.length
-          });
-          break;
-      }
-    } else {
-      const openTag = stack.pop();
-      if (openTag) {
-        const content = result.slice(openTag.startIndex);
-        result.length = openTag.startIndex;
-        
-        switch (tag) {
-          case 'p':
-            result.push(...content);
-            break;
-            
-          case 'h2':
-            result.push({
-              type: 'text',
-              content: content.map(item => item.content).join(''),
-              className: 'content-subtitle'
-            });
-            break;
-            
-          case 'span':
-            const textContent = content.map(item => item.content).join('');
-            result.push({
-              type: 'text',
-              content: textContent,
-              className: openTag.className
-            });
-            break;
-            
-          case 'a':
-            result.push({
-              type: 'link',
-              href: openTag.href,
-              content: content.map(item => item.content).join('')
-            });
-            break;
-            
-          case 'strong':
-          case 'b':
-            result.push({
-              type: 'bold',
-              nested: content.length > 1,
-              children: content,
-              content: content.map(item => item.content).join('')
-            });
-            break;
-            
-          case 'i':
-            result.push({
-              type: 'italic',
-              nested: content.length > 1,
-              children: content,
-              content: content.map(item => item.content).join('')
-            });
-            break;
-          
-          case 'ul':
-          case 'ol':
-            result.push({
-              type: 'text',
-              content: '\n'
-            });
-            break;
-          
-          case 'h1':
-          case 'h2':
-          case 'h3':
-          case 'h4':
-          case 'h5':
-          case 'h6':
-            result.push({
-              type: 'text',
-              content: '\n\n'
-            });
-            break;
-          
-          case 'li':
-            result.push(...content);
-            break;
-        }
-      }
-    }
-    
-    currentIndex = match.index + fullMatch.length;
-  }
+  subtitleSpans.forEach((span, index) => {
+    const sectionId = `section-${index}`;
+    span.setAttribute('id', sectionId);
+  });
   
-  // 处理剩余文本
-  if (currentIndex < cleanContent.length) {
-    const remainingText = cleanContent.slice(currentIndex).trim();
-    if (remainingText) {
-      result.push({
-        type: 'text',
-        content: remainingText
-      });
-    }
-  }
-  
-  return result;
+  return new XMLSerializer().serializeToString(doc);
 };
 
 const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
@@ -325,6 +39,12 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
   const containerRef = useRef(null);
   const stickyRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [processedContent, setProcessedContent] = useState('');
+  
+  useEffect(() => {
+    // 在客户端处理HTML内容
+    setProcessedContent(processHtml(rightContent));
+  }, [rightContent]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -385,20 +105,6 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
     return themeConfig[theme].section.background.primary;
   };
 
-  const getBlockStyle = () => {
-    return theme === 'tech'
-      ? `${themeConfig[theme].card.variants.primary}`
-      : `${themeConfig[theme].card.variants.primary}`;
-  };
-
-  const getHighlightStyle = () => {
-    return themeConfig[theme].text.color.accent;
-  };
-
-  const getListItemStyle = () => {
-    return themeConfig[theme].text.color.primary;
-  };
-
   const ImageModal = ({ src, alt, onClose }) => {
     if (!src) return null;
 
@@ -427,101 +133,23 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
     );
   };
 
-  // 修改 renderContent 函数以支持链接渲染
-  const renderContent = (content) => {
-    let sectionIndex = -1;  // 用于追踪标题序号
-
-    return content.map((part, index) => {
-      if (part.type === 'text') {
-        if (part.className === 'content-subtitle') {
-          sectionIndex++;  // 每遇到标题就增加序号
-          return (
-            <h2 
-              key={index}
-              id={`section-${sectionIndex}`}  // 添加 id 用于导航
-              className="text-xl font-bold text-gray-900 block mb-4"
-            >
-              {part.content}
-            </h2>
-          );
-        }
-        return (
-          <span key={index} className="whitespace-pre-wrap">
-            {part.content}
-          </span>
-        );
+  // 设置图片点击事件
+  useEffect(() => {
+    const handleImageClick = (e) => {
+      if (e.target.tagName === 'IMG') {
+        setSelectedImage({
+          src: e.target.src,
+          alt: e.target.alt
+        });
       }
-      switch (part.type) {
-        case 'image':
-          return (
-            <img
-              key={`image-${index}`}
-              src={part.src}
-              alt={part.alt}
-              className="max-w-full h-auto my-6 rounded-lg shadow-sm"
-              onClick={() => setSelectedImage({ src: part.src, alt: part.alt })}
-            />
-          );
-        
-        case 'link':
-          return (
-            <React.Fragment key={`link-wrapper-${index}`}>
-              {' '}
-              <a
-                href={part.href}
-                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {part.content}
-              </a>
-              {' '}
-            </React.Fragment>
-          );
-        
-        case 'video':
-          return (
-            <div key={`video-${index}`} className="video-container my-4">
-              <video
-                src={part.src}
-                controls={part.controls}
-                preload={part.preload}
-                className="embedded-video w-full rounded-lg"
-              />
-            </div>
-          );
-        
-        case 'bold':
-          return (
-            <React.Fragment key={`bold-wrapper-${index}`}>
-              {' '}
-              <b key={`bold-${index}`} className="font-bold">
-                {part.nested ? 
-                  part.children.map((child, childIndex) => renderContent([child])[0]) : 
-                  part.content}
-              </b>
-              {' '}
-            </React.Fragment>
-          );
-        
-        case 'italic':
-          return (
-            <React.Fragment key={`italic-wrapper-${index}`}>
-              {' '}
-              <i key={`italic-${index}`} className="italic">
-                {part.nested ? 
-                  part.children.map((child, childIndex) => renderContent([child])[0]) : 
-                  part.content}
-              </i>
-              {' '}
-            </React.Fragment>
-          );
-        
-        default:
-          return null;
-      }
-    });
-  };
+    };
+    
+    document.querySelector('.article-content')?.addEventListener('click', handleImageClick);
+    
+    return () => {
+      document.querySelector('.article-content')?.removeEventListener('click', handleImageClick);
+    };
+  }, [processedContent]);
 
   return (
     <>
@@ -553,9 +181,11 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
             <div>
               <main className="main-content">
                 <article className="article max-w-[800px] pr-4">
-                  <div className="text-lg md:text-xl leading-[1.8] text-gray-700 space-y-1">
-                    {renderContent(parseContent(rightContent))}
-                  </div>
+                  {/* 使用处理过的HTML内容 */}
+                  <div 
+                    className="text-lg md:text-xl leading-[1.8] text-gray-700 article-content"
+                    dangerouslySetInnerHTML={{ __html: processedContent }}
+                  />
                 </article>            
               </main>
             </div>
@@ -567,6 +197,85 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
         alt={selectedImage?.alt}
         onClose={() => setSelectedImage(null)}
       />
+      
+      {/* 添加必要的 CSS 样式 */}
+      <style jsx global>{`
+        .article-content p {
+          margin-bottom: 1em;
+        }
+        
+        /* 确保空段落也有高度 */
+        .article-content p:empty {
+          min-height: 1.5em !important;
+          display: block !important;
+          margin-bottom: 1em !important;
+          visibility: visible !important;
+        }
+        
+        .article-content b, 
+        .article-content strong {
+          font-weight: bold;
+        }
+        
+        .article-content i,
+        .article-content em {
+          font-style: italic;
+        }
+        
+        .article-content a {
+          color: #1890ff;
+          text-decoration: none;
+        }
+        
+        .article-content a:hover {
+          text-decoration: underline;
+        }
+        
+        .article-content img {
+          max-width: 100%;
+          height: auto;
+          margin: 1rem 0;
+          border-radius: 0.5rem;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+        }
+        
+        .article-content .video-container {
+          margin: 1rem 0;
+        }
+        
+        .article-content .embedded-video {
+          max-width: 100%;
+          border-radius: 0.5rem;
+        }
+        
+        .article-content .content-subtitle {
+          font-size: 1.25em;
+          font-weight: 600;
+          color: #374151;
+          display: inline-block;
+          line-height: 1.4;
+          margin-top: 1rem;
+          margin-bottom: 0.5rem;
+        }
+        
+        /* 添加标题样式 */
+        .article-content h2, 
+        .article-content h3 {
+          font-weight: 600;
+          margin-top: 1.5em;
+          margin-bottom: 0.5em;
+          color: #111827;
+        }
+        
+        .article-content h2 {
+          font-size: 1.5em;
+        }
+        
+        .article-content h3 {
+          font-size: 1.25em;
+        }
+      `}</style>
     </>
   );
 };
