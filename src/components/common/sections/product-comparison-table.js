@@ -198,6 +198,11 @@ const getIconByFeatureName = (featureName) => {
 };
 
 const ProductComparisonTable = ({ data, theme = 'normal' }) => {
+  // 处理新的数据结构
+  const features = data.bottomContent?.features || data.bottomContent || [];
+  const buttonText = data.bottomContent?.buttonText || data.buttonText || 'Learn More';
+  const buttonLink = data.bottomContent?.buttonLink || '#';
+
   return (
     <div className={`
       ${themeConfig[theme].section.background.primary}
@@ -225,8 +230,8 @@ const ProductComparisonTable = ({ data, theme = 'normal' }) => {
                   </tr>
                 </thead>
                 <tbody className={`divide-y ${themeConfig[theme].table.border}`}>
-                  {data.bottomContent && data.bottomContent.length > 0 ? (
-                    data.bottomContent.map((feature, index) => (
+                  {features && features.length > 0 ? (
+                    features.map((feature, index) => (
                       <tr 
                         key={index} 
                         className={`
@@ -287,9 +292,14 @@ const ProductComparisonTable = ({ data, theme = 'normal' }) => {
           </div>
           
           <div className="table-footer flex justify-center py-6 bg-gray-50 border-t border-gray-200">
-            <button className="action-button bg-[#3374FF] text-white font-medium py-3 px-8 rounded-md hover:bg-[#2361e6] transition-colors text-base shadow-md hover:shadow-lg">
-              {data.buttonText || 'Learn More'}
-            </button>
+            <a 
+              href={buttonLink} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="action-button bg-[#3374FF] text-white font-medium py-3 px-8 rounded-md hover:bg-[#2361e6] transition-colors text-base shadow-md hover:shadow-lg"
+            >
+              {buttonText}
+            </a>
           </div>
         </div>
       </div>
