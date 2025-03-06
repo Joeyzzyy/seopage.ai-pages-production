@@ -18,8 +18,11 @@ const extractContentTitle = (content) => {
 const processHtml = (html) => {
   if (!html || typeof window === 'undefined') return html || '';
   
-  // 替换空段落为带有非断行空格的段落
-  let processedHtml = html.replace(/<p><\/p>/g, '<p>&nbsp;</p>');
+  // 移除开头的空 p 标签
+  let processedHtml = html.replace(/^(<p><\/p>)+/, '');
+  
+  // 替换其他空段落为带有非断行空格的段落
+  processedHtml = processedHtml.replace(/(?!^)<p><\/p>/g, '<p>&nbsp;</p>');
   
   // 为content-subtitle添加ID
   const parser = new DOMParser();
@@ -252,31 +255,72 @@ const KeyResultsWithTextBlock = ({ data, theme = 'normal' }) => {
           border-radius: 0.5rem;
         }
         
-        .article-content .content-subtitle {
-          font-size: 1.25em;
-          font-weight: 600;
-          color: #374151;
-          display: inline-block;
-          line-height: 1.4;
-          margin-top: 1rem;
-          margin-bottom: 0.5rem;
-        }
-        
-        /* 添加标题样式 */
-        .article-content h2, 
-        .article-content h3 {
-          font-weight: 600;
-          margin-top: 1.5em;
-          margin-bottom: 0.5em;
-          color: #111827;
+        /* 恢复 h1-h5 标签的样式 */
+        .article-content h1 {
+          font-size: 2.5rem !important;
+          font-weight: 700 !important;
+          margin: 1.5em 0 0.5em 0 !important;
+          color: #111827 !important;
+          line-height: 1.2 !important;
         }
         
         .article-content h2 {
-          font-size: 1.5em;
+          font-size: 2rem !important;
+          font-weight: 700 !important;
+          margin: 1.5em 0 0.5em 0 !important;
+          color: #1f2937 !important;
+          line-height: 1.3 !important;
         }
         
         .article-content h3 {
-          font-size: 1.25em;
+          font-size: 1.75rem !important;
+          font-weight: 600 !important;
+          margin: 1.5em 0 0.5em 0 !important;
+          color: #374151 !important;
+          line-height: 1.4 !important;
+        }
+        
+        .article-content h4 {
+          font-size: 1.5rem !important;
+          font-weight: 600 !important;
+          margin: 1.5em 0 0.5em 0 !important;
+          color: #4b5563 !important;
+          line-height: 1.4 !important;
+        }
+        
+        .article-content h5 {
+          font-size: 1.25rem !important;
+          font-weight: 600 !important;
+          margin: 1.5em 0 0.5em 0 !important;
+          color: #6b7280 !important;
+          line-height: 1.4 !important;
+        }
+        
+        /* 重置所有可能影响content-subtitle的样式 */
+        .article-content p {
+          margin: 0;
+          padding: 0;
+          font-size: inherit;
+          font-weight: inherit;
+        }
+        
+        /* 为content-subtitle设置统一且具体的样式 */
+        .article-content .content-subtitle {
+          font-size: 24px !important;
+          font-weight: 600 !important;
+          color: #374151 !important;
+          display: block !important;
+          line-height: 1.4 !important;
+          margin: 1.5em 0 0.5em 0 !important;
+        }
+        
+        /* 移除所有特殊情况下的样式覆盖 */
+        .article-content h2 .content-subtitle,
+        .article-content h3 .content-subtitle,
+        .article-content p .content-subtitle {
+          font-size: 24px !important;
+          font-weight: 600 !important;
+          margin: 1.5em 0 0.5em 0 !important;
         }
       `}</style>
     </>
