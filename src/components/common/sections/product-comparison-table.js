@@ -290,7 +290,6 @@ const ProductComparisonTable = ({ data, theme = 'normal' }) => {
               </table>
             </div>
           </div>
-          
           <div className="table-footer flex justify-center py-6 bg-gray-50 border-t border-gray-200">
             <a 
               href={buttonLink} 
