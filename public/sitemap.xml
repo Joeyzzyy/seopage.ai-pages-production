@@ -2,8 +2,8 @@
 <urlset
     xmlns="http://www.sitemaps.org/schemas/sitemaps/0.9"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemalocation="http://www.sitemaps.org/schemas/sitemaps/0.9
-                        http://www.sitemaps.org/schemas/sitemaps/0.9/sitemaps_schema.xml">
+    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemaps/0.9
+                        http://www.sitemaps.org/schemas/sitemaps/sitemap.xsd">
     <!-- 主页面 -->
     <url>
         <loc>https://websitelm.com/</loc>
