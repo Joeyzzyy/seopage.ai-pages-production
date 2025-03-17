@@ -4,7 +4,6 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-    <!-- 主页面 -->
     <url>
         <loc>https://websitelm.com/</loc>
         <lastmod>2025-03-14T14:39:48+00:00</lastmod>
@@ -47,7 +46,7 @@
         <priority>0.80</priority>
     </url>
 
-    <!-- 教程 -->
+    <!-- Tutorials -->
     <url>
         <loc>https://websitelm.com/tutorials/websitelm-tutorial-choose-plan</loc>
         <lastmod>2025-03-14T14:39:48+00:00</lastmod>
@@ -109,7 +108,7 @@
         <priority>0.80</priority>
     </url>
 
-    <!-- 替代方案 -->
+    <!-- Alternatives -->
     <url>
         <loc>https://websitelm.com/alternatives/best-ai-seo-alternative-websitelm</loc>
         <lastmod>2025-03-14T14:39:48+00:00</lastmod>
@@ -117,7 +116,7 @@
         <priority>0.80</priority>
     </url>
 
-    <!-- 博客 -->
+    <!-- Blog -->
     <url>
         <loc>https://websitelm.com/blog/best-seo-blogs-writing-guide</loc>
         <lastmod>2025-03-14T14:39:48+00:00</lastmod>
