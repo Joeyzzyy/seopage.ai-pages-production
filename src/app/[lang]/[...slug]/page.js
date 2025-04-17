@@ -45,9 +45,18 @@ export default async function ArticlePage({ params }) {
   try {
     const domain = getCurrentDomain();
     const resolvedParams = await Promise.resolve(params);
-    const { lang, slug } = resolvedParams;
+
+    // 新增：从 slug 数组中提取 lang 和 slug
+    let lang, fullSlug;
+    if (Array.isArray(resolvedParams.slug) && resolvedParams.slug.length >= 2) {
+      lang = resolvedParams.slug[resolvedParams.slug.length - 2];
+      fullSlug = resolvedParams.slug[resolvedParams.slug.length - 1];
+    } else {
+      lang = resolvedParams.lang || 'en';
+      fullSlug = Array.isArray(resolvedParams.slug) ? resolvedParams.slug[0] : resolvedParams.slug;
+    }
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
-    const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
+
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
     // 检查文章是否存在且状态为已发布
