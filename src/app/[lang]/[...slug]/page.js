@@ -50,8 +50,13 @@ export default async function ArticlePage({ params }) {
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
-    // 检查文章是否存在且状态为已发布
-    if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
+    if (
+      !articleData?.data ||
+      (
+        articleData.data.publishStatus !== 'publish' &&
+        articleData.data.deploymentStatus !== 'publish'
+      )
+    ) {
       console.error(`Article not found or not published for slug: ${slug}`);
       return notFound();
     }
@@ -130,7 +135,13 @@ export async function generateMetadata({ params }) {
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
-    if (!articleData?.data || articleData.data.publishStatus !== 'publish') {
+    if (
+      !articleData?.data ||
+      (
+        articleData.data.publishStatus !== 'publish' &&
+        articleData.data.deploymentStatus !== 'publish'
+      )
+    ) {
       return {
         title: 'Not Found',
         description: 'The page you are looking for does not exist.',
