@@ -10,6 +10,10 @@ export default function Header({ data }) {
     activeDropdown: null
   });
 
+  if (!data) {
+    // return <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow h-[4.2rem]" />;
+  }
+
   const router = useRouter();
   
   const handleRedirect = (url, e) => {
