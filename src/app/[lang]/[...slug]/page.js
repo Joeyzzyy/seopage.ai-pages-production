@@ -92,11 +92,9 @@ export default async function ArticlePage({ params }) {
         <Script id="article-schema" type="application/ld+json">
           {JSON.stringify(articleSchema)}
         </Script>
-        <ClientWrapper>
           <main className="flex-grow" lang={currentLang}>
             <CommonLayout article={article} />
           </main>
-        </ClientWrapper>
       </>
     );
   } catch (error) {

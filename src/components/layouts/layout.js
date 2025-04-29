@@ -199,21 +199,20 @@ const CommonLayout = ({ article }) => {
   }, [article?.pageLayout?.pageFooters]);
 
   // 确定内容是否为完整HTML - 改进版
-  const isHtmlContent = article.html?.trim().startsWith('<!DOCTYPE html>') ||
+  const isHtmlContent = article.html?.trim().startsWith('<!DOCTYPE html>') || 
                        article.html?.trim().startsWith('<html');
 
   return (
     <div suppressHydrationWarning className="min-h-screen flex flex-col">
       {/* 仅在非HTML模式下渲染header */}
       {!isHtmlContent && headerData && (
-        <Header
-          data={headerData}
+        <Header 
+          data={headerData} 
           memo={() => JSON.stringify(headerData)}
         />
       )}
 
       {/* Main content area */}
-      {/* 注意：这里的 pt-[60px] 可能需要根据 header 是否渲染来动态调整 */}
       <div className={`flex-1 w-full max-w-[100vw] overflow-x-hidden ${!isHtmlContent ? 'pt-[60px]' : ''}`}>
         {isHtmlContent ? (
           // HTML content rendering mode
@@ -223,18 +222,18 @@ const CommonLayout = ({ article }) => {
           article.sections?.map((section, index) => {
             const Component = COMPONENT_MAP[section.componentName];
             if (!Component) return null;
-
+            
             // Special handling for Landing Page type pages
             if (article.pageType === 'Landing Page' && section.componentName === 'TitleSection') {
               return null;
             }
-
+            
             return (
-              <div
+              <div 
                 key={`${section.componentName}-${section.sectionId}`}
                 className="w-full bg-white"
               >
-                <Component
+                <Component 
                   data={section}
                   author={article.author}
                   date={article.createdAt}
@@ -247,7 +246,7 @@ const CommonLayout = ({ article }) => {
 
       {/* 仅在非HTML模式下渲染footer */}
       {!isHtmlContent && footerData && (
-        <Footer
+        <Footer 
           data={footerData}
           memo={() => JSON.stringify(footerData)}
         />
