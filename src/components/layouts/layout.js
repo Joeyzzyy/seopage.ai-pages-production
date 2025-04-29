@@ -47,8 +47,6 @@ import FeatureComparisonTable from '../common/sections/feature-comparison-table'
 /* divider */
 import ProductComparisonTable from '../common/sections/product-comparison-table';
 
-const { Paragraph, Text } = Typography;
-
 /**
  * HTML Content Renderer Component
  * Handles and renders HTML content with editable tags
@@ -56,20 +54,16 @@ const { Paragraph, Text } = Typography;
  * @param {string} props.content - HTML string content
  */
 const HtmlRenderer = ({ content }) => {
-  // 提取body和style内容（修改后的逻辑）
-  const { bodyContent, extractedStyle } = useMemo(() => {
-    console.log('[bodyContent] 原始内容:', content);
-    
-    if (!content) return { bodyContent: '', extractedStyle: '' };
+  // 提取body、style和title内容（修改后的逻辑）
+  const { bodyContent, extractedStyle, extractedTitle } = useMemo(() => {
+    if (!content) return { bodyContent: '', extractedStyle: '', extractedTitle: null };
     const decoded = content;
-    console.log('[bodyContent] 初次解码后:', decoded);
-
-    // 匹配body和style标签内容
     const bodyMatch = decoded.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
     const styleMatch = decoded.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-    
-    const rawBody = bodyMatch ? bodyMatch[1] : decoded;
+    const titleMatch = decoded.match(/<title[^>]*>([\s\S]*?)<\/title>/i); // 新增：匹配 title 标签
+    const rawBody = bodyMatch ? bodyMatch[1] : decoded; // 如果没有body，则假定整个内容是body
     const rawStyle = styleMatch ? styleMatch[1] : '';
+    const rawTitle = titleMatch ? titleMatch[1] : null; // 新增：提取 title 内容
 
     // 公共转义处理
     const commonUnescape = (str) => str
@@ -82,27 +76,45 @@ const HtmlRenderer = ({ content }) => {
 
     return {
       bodyContent: commonUnescape(rawBody),
-      extractedStyle: commonUnescape(rawStyle)
+      extractedStyle: commonUnescape(rawStyle),
+      extractedTitle: rawTitle ? commonUnescape(rawTitle) : null // 新增：处理并返回 title
     };
   }, [content]);
 
-  // 动态插入样式（新增效果）
+  // 动态插入样式（现有效果）
   useEffect(() => {
     if (extractedStyle) {
       const styleTag = document.createElement('style');
       styleTag.innerHTML = extractedStyle;
       document.head.appendChild(styleTag);
-      
+
       // 清理函数
       return () => {
-        document.head.removeChild(styleTag);
+        // 检查 styleTag 是否仍然是 document.head 的子节点
+        if (styleTag.parentNode === document.head) {
+          document.head.removeChild(styleTag);
+        }
       };
     }
   }, [extractedStyle]);
 
+  // 新增：动态更新文档标题
+  useEffect(() => {
+    if (extractedTitle) {
+      document.title = extractedTitle;
+    }
+    // 注意：这里没有添加清理函数来恢复原始标题，
+    // 因为通常我们希望这个组件设置的标题在组件卸载前一直保持。
+    // 如果需要恢复，可以在返回的清理函数中设置回之前的标题。
+  }, [extractedTitle]);
+
+
   // 简化后的解析配置
   const parseOptions = useMemo(() => ({
     replace: (domNode) => {
+      // 可以在这里添加更复杂的节点替换逻辑，如果需要的话
+      // 例如，处理特定的自定义标签或属性
+      // 目前保持原样，直接返回节点
       return domNode;
     }
   }), []);
@@ -113,9 +125,11 @@ const HtmlRenderer = ({ content }) => {
       console.groupCollapsed('HTML处理全流程调试');
       console.log('原始HTML:', content);
       console.log('body内容提取结果:', bodyContent);
+      console.log('style内容提取结果:', extractedStyle);
+      console.log('title内容提取结果:', extractedTitle); // 新增日志
       console.groupEnd();
     }
-  }, [content, bodyContent]);
+  }, [content, bodyContent, extractedStyle, extractedTitle]); // 更新依赖
 
   // 动态加载 JSDOM（仅服务端）
   const createDOMPurify = () => {
@@ -133,7 +147,7 @@ const HtmlRenderer = ({ content }) => {
 
   return (
     <div className="html-content w-full relative">
-      {/* 原有渲染逻辑 */}
+      {/* 样式注入 */}
       {extractedStyle && (
         <style
           dangerouslySetInnerHTML={{
@@ -144,6 +158,7 @@ const HtmlRenderer = ({ content }) => {
           }}
         />
       )}
+      {/* Body 内容渲染 */}
       {parse(bodyContent || '', parseOptions)}
     </div>
   );
@@ -199,54 +214,53 @@ const CommonLayout = ({ article }) => {
   }, [article?.pageLayout?.pageFooters]);
 
   // 确定内容是否为完整HTML - 改进版
-  const isHtmlContent = article.html?.trim().startsWith('<!DOCTYPE html>') || 
+  const isHtmlContent = article.html?.trim().startsWith('<!DOCTYPE html>') ||
                        article.html?.trim().startsWith('<html');
 
+  // --- 添加调试日志 ---
+  // console.log('[CommonLayout] isHtmlContent:', isHtmlContent); // 可以保留或移除
+  // --- 结束调试日志 ---
+
+  // 当是 HTML 内容时，直接渲染 HtmlRenderer。
+  // HtmlRenderer 内部会处理 body、style 和 title。
+  if (isHtmlContent) {
+    return (
+        <HtmlRenderer content={article.html} />
+    );
+  }
+
+  // 非 HTML 内容模式保持不变
   return (
     <div suppressHydrationWarning className="min-h-screen flex flex-col">
-      {/* 仅在非HTML模式下渲染header */}
-      {!isHtmlContent && headerData && (
-        <Header 
-          data={headerData} 
+      {headerData && (
+        <Header
+          data={headerData}
           memo={() => JSON.stringify(headerData)}
         />
       )}
-
-      {/* Main content area */}
-      <div className={`flex-1 w-full max-w-[100vw] overflow-x-hidden ${!isHtmlContent ? 'pt-[60px]' : ''}`}>
-        {isHtmlContent ? (
-          // HTML content rendering mode
-          <HtmlRenderer content={article.html} />
-        ) : (
-          // Component concatenation rendering mode
-          article.sections?.map((section, index) => {
-            const Component = COMPONENT_MAP[section.componentName];
-            if (!Component) return null;
-            
-            // Special handling for Landing Page type pages
-            if (article.pageType === 'Landing Page' && section.componentName === 'TitleSection') {
-              return null;
-            }
-            
-            return (
-              <div 
-                key={`${section.componentName}-${section.sectionId}`}
-                className="w-full bg-white"
-              >
-                <Component 
-                  data={section}
-                  author={article.author}
-                  date={article.createdAt}
-                />
-              </div>
-            );
-          })
-        )}
+      <div className={`flex-1 w-full max-w-[100vw] overflow-x-hidden ${headerData ? 'pt-[60px]' : ''}`}>
+        {article.sections?.map((section, index) => {
+          const Component = COMPONENT_MAP[section.componentName];
+          if (!Component) return null;
+          if (article.pageType === 'Landing Page' && section.componentName === 'TitleSection') {
+            return null;
+          }
+          return (
+            <div
+              key={`${section.componentName}-${section.sectionId}`}
+              className="w-full bg-white"
+            >
+              <Component
+                data={section}
+                author={article.author}
+                date={article.createdAt}
+              />
+            </div>
+          );
+        })}
       </div>
-
-      {/* 仅在非HTML模式下渲染footer */}
-      {!isHtmlContent && footerData && (
-        <Footer 
+      {footerData && (
+        <Footer
           data={footerData}
           memo={() => JSON.stringify(footerData)}
         />
