@@ -39,7 +39,7 @@ function getSubfolderCanonicalUrl(protocol, host, subfolder, lang, slugParts) {
 
 // 主页面组件 (子目录)
 export default async function ArticlePageSubfolder({ params }) {
-  // subfoldername 来自路径，现在可能只是路径的一部分，真正的标识符需要结合 host
+  // subfoldername 来自路径
   const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
 
   // --- 获取 Host ---
@@ -51,14 +51,13 @@ export default async function ArticlePageSubfolder({ params }) {
      return notFound(); // 没有 host 无法确定 identifier
   }
 
-  // --- 构造新的 Identifier ---
-  // 根据你的需求 "整个根域名+子目录名"
-  // 注意：host 可能包含端口，根据你的 API 要求决定是否需要移除端口
-  // const cleanHost = host.split(':')[0]; // 如果需要移除端口
-  // const identifier = `${cleanHost}/${pathSubfolder}`;
-  const identifier = `${host}/${pathSubfolder}`; // 使用包含端口的 host (如果 API 需要)
+  // --- 构造新的 Identifier (仅根域名) ---
+  // 根据你的 API 要求决定是否需要移除端口
+  const cleanHost = host.split(':')[0]; // 移除端口
+  const identifier = cleanHost; // 使用清理后的 host 作为 identifier
+  // 或者如果 API 可以处理带端口的域名: const identifier = host;
 
-  if (!pathSubfolder) { // 确保路径中的 subfolder 也存在
+  if (!pathSubfolder) { // 路径中的 subfolder 仍然是需要的，用于路由和 URL 构建
      console.error('[Subfolder Page] Path subfolder segment is missing.');
      return notFound();
   }
@@ -73,7 +72,7 @@ export default async function ArticlePageSubfolder({ params }) {
   const fullSlug = slugArray.join('/');
 
   try {
-    // 使用新的 identifier 调用 API
+    // 使用新的 identifier (仅根域名) 调用 API
     console.log(`[Subfolder Page] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`);
     const articleData = await getPageBySlug(fullSlug, currentLang, identifier); // <--- 使用新的 identifier
 
@@ -92,14 +91,13 @@ export default async function ArticlePageSubfolder({ params }) {
 
     // --- 生成 Schema ---
     // 需要计算规范链接
-    // 注意：getCurrentHostAndProtocol 已经获取了 host 和 protocol，可以直接复用
     const { protocol, hostHeader } = getCurrentHostAndProtocol(); // hostHeader 包含端口 (如果存在)
-    if (!hostHeader && !host) { // 检查 hostHeader 或 host 是否存在
+    if (!hostHeader) { // 检查 hostHeader 是否存在
         console.error('[Subfolder Page] Could not determine host for schema.');
         // 无法生成 schema 或返回错误
     }
     // 使用 pathSubfolder 构建规范 URL 路径部分
-    const canonicalUrl = (hostHeader || host) ? getSubfolderCanonicalUrl(protocol, hostHeader || host, pathSubfolder, currentLang, slugArray) : '';
+    const canonicalUrl = hostHeader ? getSubfolderCanonicalUrl(protocol, hostHeader, pathSubfolder, currentLang, slugArray) : '';
 
     const articleSchema = {
       '@context': 'https://schema.org',
@@ -159,13 +157,13 @@ export async function generateMetadata({ params }) {
      return { title: 'Error', description: 'Invalid request', robots: 'noindex, nofollow' };
   }
 
-  // --- 构造新的 Identifier ---
+  // --- 构造新的 Identifier (仅根域名) ---
   // 保持与页面组件逻辑一致
-  // const cleanHost = host.split(':')[0];
-  // const identifier = `${cleanHost}/${pathSubfolder}`;
-  const identifier = `${host}/${pathSubfolder}`;
+  const cleanHost = host.split(':')[0]; // 移除端口
+  const identifier = cleanHost;
+  // 或者: const identifier = host;
 
-  if (!pathSubfolder) {
+  if (!pathSubfolder) { // 路径中的 subfolder 仍然需要
      console.error('[Subfolder Metadata] Path subfolder segment is missing.');
      return { title: 'Error', description: 'Invalid request', robots: 'noindex, nofollow' };
   }
@@ -180,7 +178,7 @@ export async function generateMetadata({ params }) {
   const fullSlug = slugArray.join('/');
 
   try {
-    // 使用新的 identifier 调用 API
+    // 使用新的 identifier (仅根域名) 调用 API
     console.log(`[Subfolder Metadata] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`);
     const articleData = await getPageBySlug(fullSlug, currentLang, identifier); // <--- 使用新的 identifier
 
@@ -201,7 +199,6 @@ export async function generateMetadata({ params }) {
     const article = articleData.data;
 
     // --- 获取 Host 和 Protocol 用于生成 URL ---
-    // 注意：getCurrentHostAndProtocol 内部也调用了 headers()，这里可以直接用上面获取的 host
     const protocol = headersList.get('x-forwarded-proto') || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
     const hostHeader = host; // host 变量已经包含了 host 信息 (可能带端口)
 
