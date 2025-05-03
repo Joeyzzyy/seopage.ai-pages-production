@@ -39,11 +39,27 @@ function getSubfolderCanonicalUrl(protocol, host, subfolder, lang, slugParts) {
 
 // 主页面组件 (子目录)
 export default async function ArticlePageSubfolder({ params }) {
-  // subfoldername 是标识符
-  const { subfoldername: identifier, lang: rawLang, slug: rawSlug } = params;
+  // subfoldername 来自路径，现在可能只是路径的一部分，真正的标识符需要结合 host
+  const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
 
-  if (!identifier) {
-     console.error('[Subfolder Page] Subfoldername (identifier) is missing.');
+  // --- 获取 Host ---
+  const headersList = headers();
+  const host = headersList.get('host'); // 例如: mongodb.websitelm.com:3000 或 mongodb.websitelm.com
+
+  if (!host) {
+     console.error('[Subfolder Page] Host header is missing.');
+     return notFound(); // 没有 host 无法确定 identifier
+  }
+
+  // --- 构造新的 Identifier ---
+  // 根据你的需求 "整个根域名+子目录名"
+  // 注意：host 可能包含端口，根据你的 API 要求决定是否需要移除端口
+  // const cleanHost = host.split(':')[0]; // 如果需要移除端口
+  // const identifier = `${cleanHost}/${pathSubfolder}`;
+  const identifier = `${host}/${pathSubfolder}`; // 使用包含端口的 host (如果 API 需要)
+
+  if (!pathSubfolder) { // 确保路径中的 subfolder 也存在
+     console.error('[Subfolder Page] Path subfolder segment is missing.');
      return notFound();
   }
 
@@ -57,8 +73,9 @@ export default async function ArticlePageSubfolder({ params }) {
   const fullSlug = slugArray.join('/');
 
   try {
+    // 使用新的 identifier 调用 API
     console.log(`[Subfolder Page] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`);
-    const articleData = await getPageBySlug(fullSlug, currentLang, identifier);
+    const articleData = await getPageBySlug(fullSlug, currentLang, identifier); // <--- 使用新的 identifier
 
     if (
       !articleData?.data ||
@@ -75,12 +92,14 @@ export default async function ArticlePageSubfolder({ params }) {
 
     // --- 生成 Schema ---
     // 需要计算规范链接
-    const { host, protocol, hostHeader } = getCurrentHostAndProtocol();
-    if (!host) {
+    // 注意：getCurrentHostAndProtocol 已经获取了 host 和 protocol，可以直接复用
+    const { protocol, hostHeader } = getCurrentHostAndProtocol(); // hostHeader 包含端口 (如果存在)
+    if (!hostHeader && !host) { // 检查 hostHeader 或 host 是否存在
         console.error('[Subfolder Page] Could not determine host for schema.');
         // 无法生成 schema 或返回错误
     }
-    const canonicalUrl = host ? getSubfolderCanonicalUrl(protocol, hostHeader || host, identifier, currentLang, slugArray) : '';
+    // 使用 pathSubfolder 构建规范 URL 路径部分
+    const canonicalUrl = (hostHeader || host) ? getSubfolderCanonicalUrl(protocol, hostHeader || host, pathSubfolder, currentLang, slugArray) : '';
 
     const articleSchema = {
       '@context': 'https://schema.org',
@@ -121,6 +140,7 @@ export default async function ArticlePageSubfolder({ params }) {
     );
 
   } catch (error) {
+    // 在错误日志中包含新的 identifier
     console.error(`Error in Subfolder ArticlePage (Identifier: ${identifier}, Params: ${JSON.stringify(params)}):`, error);
     return notFound();
   }
@@ -128,10 +148,25 @@ export default async function ArticlePageSubfolder({ params }) {
 
 // 元数据生成 (子目录)
 export async function generateMetadata({ params }) {
-  const { subfoldername: identifier, lang: rawLang, slug: rawSlug } = params; // subfoldername 是标识符
+  const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
 
-  if (!identifier) {
-     console.error('[Subfolder Metadata] Subfoldername (identifier) is missing.');
+  // --- 获取 Host ---
+  const headersList = headers();
+  const host = headersList.get('host');
+
+  if (!host) {
+     console.error('[Subfolder Metadata] Host header is missing.');
+     return { title: 'Error', description: 'Invalid request', robots: 'noindex, nofollow' };
+  }
+
+  // --- 构造新的 Identifier ---
+  // 保持与页面组件逻辑一致
+  // const cleanHost = host.split(':')[0];
+  // const identifier = `${cleanHost}/${pathSubfolder}`;
+  const identifier = `${host}/${pathSubfolder}`;
+
+  if (!pathSubfolder) {
+     console.error('[Subfolder Metadata] Path subfolder segment is missing.');
      return { title: 'Error', description: 'Invalid request', robots: 'noindex, nofollow' };
   }
 
@@ -145,8 +180,9 @@ export async function generateMetadata({ params }) {
   const fullSlug = slugArray.join('/');
 
   try {
+    // 使用新的 identifier 调用 API
     console.log(`[Subfolder Metadata] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`);
-    const articleData = await getPageBySlug(fullSlug, currentLang, identifier);
+    const articleData = await getPageBySlug(fullSlug, currentLang, identifier); // <--- 使用新的 identifier
 
     if (
       !articleData?.data ||
@@ -164,13 +200,17 @@ export async function generateMetadata({ params }) {
     }
     const article = articleData.data;
 
-    const { host, protocol, hostHeader } = getCurrentHostAndProtocol();
-    if (!host) {
+    // --- 获取 Host 和 Protocol 用于生成 URL ---
+    // 注意：getCurrentHostAndProtocol 内部也调用了 headers()，这里可以直接用上面获取的 host
+    const protocol = headersList.get('x-forwarded-proto') || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
+    const hostHeader = host; // host 变量已经包含了 host 信息 (可能带端口)
+
+    if (!hostHeader) { // 检查 host 是否成功获取
        console.error('[Subfolder Metadata] Could not determine host.');
        return { title: 'Error', description: 'Could not determine host.', robots: 'noindex, nofollow' };
     }
 
-    const baseUrl = `${protocol}://${hostHeader || host}`; // 使用包含端口的 host (如果存在)
+    const baseUrl = `${protocol}://${hostHeader}`; // 使用包含端口的 host (如果存在)
     const metadataBaseUrl = new URL(baseUrl);
 
     // --- 生成规范链接和 Hreflang ---
@@ -178,8 +218,8 @@ export async function generateMetadata({ params }) {
     let canonicalUrl = '';
 
     SUPPORTED_LANGUAGES.forEach(altLang => {
-      // 使用辅助函数生成 URL
-      const href = getSubfolderCanonicalUrl(protocol, hostHeader || host, identifier, altLang, slugArray);
+      // 使用 pathSubfolder 构建 URL
+      const href = getSubfolderCanonicalUrl(protocol, hostHeader, pathSubfolder, altLang, slugArray);
       alternates.languages[altLang] = href;
       alternates.hreflang.push({ href, hrefLang: altLang });
 
@@ -189,10 +229,12 @@ export async function generateMetadata({ params }) {
     });
 
     // 添加 x-default (指向英文版)
-    const xDefaultHref = getSubfolderCanonicalUrl(protocol, hostHeader || host, identifier, 'en', slugArray);
+    // 使用 pathSubfolder 构建 URL
+    const xDefaultHref = getSubfolderCanonicalUrl(protocol, hostHeader, pathSubfolder, 'en', slugArray);
     alternates.hreflang.push({ href: xDefaultHref, hrefLang: 'x-default' });
     alternates.canonical = canonicalUrl; // 添加 canonical 属性
 
+    // 在日志中包含新的 identifier
     console.log(`[Subfolder Metadata] Identifier: ${identifier}, Canonical: ${canonicalUrl}`);
     console.log(`[Subfolder Metadata] Alternates:`, alternates);
 
@@ -236,6 +278,7 @@ export async function generateMetadata({ params }) {
       }
     };
   } catch (error) {
+    // 在错误日志中包含新的 identifier
     console.error(`Error in Subfolder generateMetadata (Identifier: ${identifier}, Params: ${JSON.stringify(params)}):`, error);
     return {
       title: 'Error',
