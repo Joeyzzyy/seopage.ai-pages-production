@@ -33,30 +33,50 @@ function extractMainDomain(host) {
 // 获取当前请求的主域名作为 identifier
 function getCurrentDomain() {
   const headersList = headers();
+  const forwardedHost = headersList.get('x-forwarded-host');
+  const host = headersList.get('host');
+  console.log(`[Debug Headers] X-Forwarded-Host: ${forwardedHost}, Host: ${host}`); // <-- 新增日志
+
   // 优先读取 X-Forwarded-Host，然后回退到 Host
-  const originalHost = headersList.get('x-forwarded-host') || headersList.get('host');
+  const originalHost = forwardedHost || host;
+  console.log(`[Debug getCurrentDomain] Using originalHost: ${originalHost}`); // <-- 新增日志
 
   // 如果是本地环境，返回默认域名或根据需要调整
   if (process.env.NODE_ENV === 'development') {
     // 本地开发时，可能没有 x-forwarded-host，直接用 host 提取或返回默认值
-    const devHost = headersList.get('host');
+    const devHost = host; // 使用从 headers 获取的 host
+    console.log(`[Debug getCurrentDomain] Development mode, using devHost: ${devHost}`); // <-- 新增日志
     // return 'websitelm.com'; // 或者根据本地 host 提取
-    return extractMainDomain(devHost);
+    const devIdentifier = extractMainDomain(devHost);
+    console.log(`[Debug getCurrentDomain] Development identifier: ${devIdentifier}`); // <-- 新增日志
+    return devIdentifier;
   }
   // 生产环境基于原始 Host (或转发的 Host) 提取主域名
-  return extractMainDomain(originalHost);
+  const identifier = extractMainDomain(originalHost);
+  console.log(`[Debug getCurrentDomain] Production identifier: ${identifier}`); // <-- 新增日志
+  return identifier;
 }
 // --- 结束添加新的辅助函数 ---
 
 // 辅助函数：获取当前请求的 Host (保留端口) 和协议 (用于 URL 构建)
 function getCurrentHostAndProtocol() {
   const headersList = headers();
+  const forwardedHost = headersList.get('x-forwarded-host');
+  const hostFromHeader = headersList.get('host');
+  // 再次打印，虽然 getCurrentDomain 也打了，但这里明确是用于 URL 构建的 host
+  console.log(`[Debug Headers for URL] X-Forwarded-Host: ${forwardedHost}, Host: ${hostFromHeader}`); // <-- 新增日志
+
   // 优先读取 X-Forwarded-Host 获取原始 host (带端口)，用于构建 URL
-  const hostHeader = headersList.get('x-forwarded-host') || headersList.get('host');
+  const hostHeader = forwardedHost || hostFromHeader;
+  console.log(`[Debug getCurrentHostAndProtocol] Using hostHeader for URL: ${hostHeader}`); // <-- 新增日志
+
   // host 变量现在意义不大，因为 identifier 由 getCurrentDomain 获取
   const host = hostHeader?.split(':')[0] || null;
   // 协议仍然优先读取 X-Forwarded-Proto
-  const protocol = headersList.get('x-forwarded-proto') || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
+  const forwardedProto = headersList.get('x-forwarded-proto');
+  const protocol = forwardedProto || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
+  console.log(`[Debug getCurrentHostAndProtocol] X-Forwarded-Proto: ${forwardedProto}, Using protocol: ${protocol}`); // <-- 新增日志
+
   return { host, protocol, hostHeader }; // 返回原始 hostHeader 用于 URL
 }
 
@@ -77,9 +97,11 @@ function getSubfolderCanonicalUrl(protocol, host, subfolder, lang, slugParts) {
 export default async function ArticlePageSubfolder({ params }) {
   // subfoldername 来自路径
   const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
+  console.log(`[Subfolder Page Start] Params: ${JSON.stringify(params)}`); // <-- 新增日志
 
   // --- 获取 Identifier (主域名) ---
-  const identifier = getCurrentDomain(); // <--- 现在会优先使用 x-forwarded-host
+  const identifier = getCurrentDomain(); // 函数内部已有日志
+  console.log(`[Subfolder Page] Determined Identifier: ${identifier}`); // <-- 新增日志
 
   if (!identifier) {
      console.error('[Subfolder Page] Could not determine identifier (main domain).');
@@ -88,7 +110,9 @@ export default async function ArticlePageSubfolder({ params }) {
 
   // --- 获取 Host 和 Protocol (用于 Schema URL) ---
   // 注意：这里获取的是原始的、带端口的 hostHeader，用于构建规范 URL
-  const { protocol, hostHeader } = getCurrentHostAndProtocol(); // <--- 现在会优先使用 x-forwarded-host
+  const { protocol, hostHeader } = getCurrentHostAndProtocol(); // 函数内部已有日志
+  console.log(`[Subfolder Page] Determined Protocol: ${protocol}, Host Header for URL: ${hostHeader}`); // <-- 新增日志
+
   if (!hostHeader) {
       console.error('[Subfolder Page] Could not determine host for schema URL.');
       // 考虑是否在无法生成 schema URL 时也返回 notFound() 或提供默认值
@@ -112,8 +136,8 @@ export default async function ArticlePageSubfolder({ params }) {
 
   try {
     // 使用新的 identifier (主域名) 调用 API
-    console.log(`[Subfolder Page] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`); // <--- 使用主域名 identifier
-    const articleData = await getPageBySlug(fullSlug, currentLang, identifier); // <--- 使用主域名 identifier
+    console.log(`[Subfolder Page] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`); // 日志已包含 identifier
+    const articleData = await getPageBySlug(fullSlug, currentLang, identifier);
 
     if (
       !articleData?.data ||
@@ -130,7 +154,8 @@ export default async function ArticlePageSubfolder({ params }) {
 
     // --- 生成 Schema ---
     // 使用 pathSubfolder 和 hostHeader (带端口) 构建规范 URL 路径部分
-    const canonicalUrl = hostHeader ? getSubfolderCanonicalUrl(protocol, hostHeader, pathSubfolder, currentLang, slugArray) : ''; // <--- 使用 hostHeader (带端口)
+    const canonicalUrl = hostHeader ? getSubfolderCanonicalUrl(protocol, hostHeader, pathSubfolder, currentLang, slugArray) : '';
+    console.log(`[Subfolder Page] Generated Canonical URL for Schema: ${canonicalUrl}`); // <-- 新增日志
 
     const articleSchema = {
       '@context': 'https://schema.org',
@@ -173,7 +198,7 @@ export default async function ArticlePageSubfolder({ params }) {
 
   } catch (error) {
     // 在错误日志中包含新的 identifier (主域名)
-    console.error(`Error in Subfolder ArticlePage (Identifier: ${identifier}, Params: ${JSON.stringify(params)}):`, error); // <--- 使用主域名 identifier
+    console.error(`Error in Subfolder ArticlePage (Identifier: ${identifier}, Params: ${JSON.stringify(params)}):`, error); // 日志已包含 identifier
     return notFound();
   }
 }
@@ -181,9 +206,11 @@ export default async function ArticlePageSubfolder({ params }) {
 // 元数据生成 (子目录)
 export async function generateMetadata({ params }) {
   const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
+  console.log(`[Subfolder Metadata Start] Params: ${JSON.stringify(params)}`); // <-- 新增日志
 
   // --- 获取 Identifier (主域名) ---
-  const identifier = getCurrentDomain(); // <--- 现在会优先使用 x-forwarded-host
+  const identifier = getCurrentDomain(); // 函数内部已有日志
+  console.log(`[Subfolder Metadata] Determined Identifier: ${identifier}`); // <-- 新增日志
 
   if (!identifier) {
      console.error('[Subfolder Metadata] Could not determine identifier (main domain).');
@@ -191,10 +218,17 @@ export async function generateMetadata({ params }) {
   }
 
   // --- 获取 Host 和 Protocol (用于元数据 URL 构建) ---
+  const headersList = headers(); // 重新获取 headersList 以便获取 protocol
+  const forwardedHost = headersList.get('x-forwarded-host');
+  const hostFromHeader = headersList.get('host');
+  // 再次打印，确保 metadata 函数的上下文清晰
+  console.log(`[Debug Headers for Metadata URL] X-Forwarded-Host: ${forwardedHost}, Host: ${hostFromHeader}`); // <-- 新增日志
+
   // 优先读取 X-Forwarded-Host 获取原始 host (带端口)，用于构建 URL
-  const headersList = headers();
-  const hostHeader = headersList.get('x-forwarded-host') || headersList.get('host'); // <--- 优先 x-forwarded-host
-  const protocol = headersList.get('x-forwarded-proto') || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
+  const hostHeader = forwardedHost || hostFromHeader;
+  const forwardedProto = headersList.get('x-forwarded-proto');
+  const protocol = forwardedProto || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
+  console.log(`[Subfolder Metadata] Determined Protocol: ${protocol}, Host Header for URL: ${hostHeader}`); // <-- 新增日志
 
   if (!hostHeader) {
      console.error('[Subfolder Metadata] Could not determine host for URL generation.');
@@ -218,8 +252,8 @@ export async function generateMetadata({ params }) {
 
   try {
     // 使用新的 identifier (主域名) 调用 API
-    console.log(`[Subfolder Metadata] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`); // <--- 使用主域名 identifier
-    const articleData = await getPageBySlug(fullSlug, currentLang, identifier); // <--- 使用主域名 identifier
+    console.log(`[Subfolder Metadata] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`); // 日志已包含 identifier
+    const articleData = await getPageBySlug(fullSlug, currentLang, identifier);
 
     if (
       !articleData?.data ||
@@ -240,6 +274,7 @@ export async function generateMetadata({ params }) {
     // --- 构建元数据 URL ---
     // 使用 hostHeader (带端口) 构建基础 URL
     const baseUrl = `${protocol}://${hostHeader}`;
+    console.log(`[Subfolder Metadata] Base URL for Metadata: ${baseUrl}`); // <-- 新增日志
     const metadataBaseUrl = new URL(baseUrl);
 
     // --- 生成规范链接和 Hreflang ---
@@ -265,8 +300,9 @@ export async function generateMetadata({ params }) {
     alternates.canonical = canonicalUrl; // 添加 canonical 属性
 
     // 在日志中包含新的 identifier (主域名)
-    console.log(`[Subfolder Metadata] Identifier: ${identifier}, Canonical: ${canonicalUrl}`); // <--- 使用主域名 identifier
+    console.log(`[Subfolder Metadata] Final Identifier: ${identifier}, Canonical: ${canonicalUrl}`); // 日志已包含 identifier
     console.log(`[Subfolder Metadata] Alternates:`, alternates);
+    console.log(`[Subfolder Metadata] Generated Canonical URL for Metadata: ${canonicalUrl}`); // <-- 新增日志
 
     return {
       title: article.title,
@@ -309,7 +345,7 @@ export async function generateMetadata({ params }) {
     };
   } catch (error) {
     // 在错误日志中包含新的 identifier (主域名)
-    console.error(`Error in Subfolder generateMetadata (Identifier: ${identifier}, Params: ${JSON.stringify(params)}):`, error); // <--- 使用主域名 identifier
+    console.error(`Error in Subfolder generateMetadata (Identifier: ${identifier}, Params: ${JSON.stringify(params)}):`, error); // 日志已包含 identifier
     return {
       title: 'Error',
       description: 'An error occurred while generating metadata.',
