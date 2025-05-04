@@ -28,8 +28,7 @@ export async function getPageBySlug(slug, lang, domain) {
   try {
     // 确保 slug 是正确的路径格式，并进行编码
     const encodedSlug = encodeURIComponent(slug);
-    console.log('编码前的 slug:', slug);
-    console.log('编码后的 slug:', encodedSlug);
+    console.log('Slug:', encodedSlug);
     
     const response = await axios.get(`${API_URL}/pages/view/${encodedSlug}`, { 
       params: { lang, domain }

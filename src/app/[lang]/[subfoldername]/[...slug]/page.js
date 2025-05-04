@@ -33,13 +33,14 @@ function extractMainDomain(host) {
 // 获取当前请求的主域名作为 identifier
 function getCurrentDomain() {
   const headersList = headers();
-  const forwardedHost = headersList.get('x-forwarded-host');
+  const customHost = headersList.get('x-alterpage-host'); // <--- 读取自定义 Header X-AlterPage-Host
+  const forwardedHost = headersList.get('x-forwarded-host'); // 仍然可以读取，作为备选或调试
   const host = headersList.get('host');
-  console.log(`[Debug Headers] X-Forwarded-Host: ${forwardedHost}, Host: ${host}`); // <-- 新增日志
+  console.log(`[Debug Headers] X-AlterPage-Host: ${customHost}, X-Forwarded-Host: ${forwardedHost}, Host: ${host}`); // 更新日志
 
-  // 优先读取 X-Forwarded-Host，然后回退到 Host
-  const originalHost = forwardedHost || host;
-  console.log(`[Debug getCurrentDomain] Using originalHost: ${originalHost}`); // <-- 新增日志
+  // --- 优先使用自定义 Header ---
+  const originalHost = customHost || forwardedHost || host; // 优先自定义 X-AlterPage-Host
+  console.log(`[Debug getCurrentDomain] Using originalHost: ${originalHost}`);
 
   // 如果是本地环境，返回默认域名或根据需要调整
   if (process.env.NODE_ENV === 'development') {
@@ -61,14 +62,14 @@ function getCurrentDomain() {
 // 辅助函数：获取当前请求的 Host (保留端口) 和协议 (用于 URL 构建)
 function getCurrentHostAndProtocol() {
   const headersList = headers();
+  const customHost = headersList.get('x-alterpage-host'); // <--- 读取自定义 Header X-AlterPage-Host
   const forwardedHost = headersList.get('x-forwarded-host');
   const hostFromHeader = headersList.get('host');
-  // 再次打印，虽然 getCurrentDomain 也打了，但这里明确是用于 URL 构建的 host
-  console.log(`[Debug Headers for URL] X-Forwarded-Host: ${forwardedHost}, Host: ${hostFromHeader}`); // <-- 新增日志
+  console.log(`[Debug Headers for URL] X-AlterPage-Host: ${customHost}, X-Forwarded-Host: ${forwardedHost}, Host: ${hostFromHeader}`); // 更新日志
 
-  // 优先读取 X-Forwarded-Host 获取原始 host (带端口)，用于构建 URL
-  const hostHeader = forwardedHost || hostFromHeader;
-  console.log(`[Debug getCurrentHostAndProtocol] Using hostHeader for URL: ${hostHeader}`); // <-- 新增日志
+  // --- 优先使用自定义 Header ---
+  const hostHeader = customHost || forwardedHost || hostFromHeader; // 优先自定义 X-AlterPage-Host
+  console.log(`[Debug getCurrentHostAndProtocol] Using hostHeader for URL: ${hostHeader}`);
 
   // host 变量现在意义不大，因为 identifier 由 getCurrentDomain 获取
   const host = hostHeader?.split(':')[0] || null;
@@ -219,13 +220,13 @@ export async function generateMetadata({ params }) {
 
   // --- 获取 Host 和 Protocol (用于元数据 URL 构建) ---
   const headersList = headers(); // 重新获取 headersList 以便获取 protocol
+  const customHost = headersList.get('x-alterpage-host'); // <--- 读取自定义 Header
   const forwardedHost = headersList.get('x-forwarded-host');
   const hostFromHeader = headersList.get('host');
-  // 再次打印，确保 metadata 函数的上下文清晰
-  console.log(`[Debug Headers for Metadata URL] X-Forwarded-Host: ${forwardedHost}, Host: ${hostFromHeader}`); // <-- 新增日志
+  console.log(`[Debug Headers for Metadata URL] X-AlterPage-Host: ${customHost}, X-Forwarded-Host: ${forwardedHost}, Host: ${hostFromHeader}`); // 更新日志
 
-  // 优先读取 X-Forwarded-Host 获取原始 host (带端口)，用于构建 URL
-  const hostHeader = forwardedHost || hostFromHeader;
+  // 优先读取自定义 Header 获取原始 host (带端口)，用于构建 URL
+  const hostHeader = customHost || forwardedHost || hostFromHeader; // <--- 优先 X-AlterPage-Host
   const forwardedProto = headersList.get('x-forwarded-proto');
   const protocol = forwardedProto || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
   console.log(`[Subfolder Metadata] Determined Protocol: ${protocol}, Host Header for URL: ${hostHeader}`); // <-- 新增日志
