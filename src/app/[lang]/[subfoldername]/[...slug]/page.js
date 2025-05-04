@@ -33,28 +33,31 @@ function extractMainDomain(host) {
 // 获取当前请求的主域名作为 identifier
 function getCurrentDomain() {
   const headersList = headers();
-  const host = headersList.get('host');
+  // 优先读取 X-Forwarded-Host，然后回退到 Host
+  const originalHost = headersList.get('x-forwarded-host') || headersList.get('host');
+
   // 如果是本地环境，返回默认域名或根据需要调整
   if (process.env.NODE_ENV === 'development') {
-    // 注意：这里可能需要根据你的本地设置调整默认值
-    // 如果你的 API 在本地开发时期望特定的 identifier，请在此处设置
-    // 例如，如果 API 期望 'websitelm.com'
-    // return 'websitelm.com';
-    // 或者，如果 API 可以处理本地的 host (移除端口后)
-    return extractMainDomain(host); // 或者直接返回移除端口的 host
+    // 本地开发时，可能没有 x-forwarded-host，直接用 host 提取或返回默认值
+    const devHost = headersList.get('host');
+    // return 'websitelm.com'; // 或者根据本地 host 提取
+    return extractMainDomain(devHost);
   }
-  // 生产环境提取主域名
-  return extractMainDomain(host);
+  // 生产环境基于原始 Host (或转发的 Host) 提取主域名
+  return extractMainDomain(originalHost);
 }
 // --- 结束添加新的辅助函数 ---
 
 // 辅助函数：获取当前请求的 Host (保留端口) 和协议 (用于 URL 构建)
 function getCurrentHostAndProtocol() {
   const headersList = headers();
-  const hostHeader = headersList.get('host'); // 保留端口, 用于构建 URL
-  const host = hostHeader?.split(':')[0] || null; // 仅用于可能的日志或旧逻辑，identifier 现在由 getCurrentDomain 获取
+  // 优先读取 X-Forwarded-Host 获取原始 host (带端口)，用于构建 URL
+  const hostHeader = headersList.get('x-forwarded-host') || headersList.get('host');
+  // host 变量现在意义不大，因为 identifier 由 getCurrentDomain 获取
+  const host = hostHeader?.split(':')[0] || null;
+  // 协议仍然优先读取 X-Forwarded-Proto
   const protocol = headersList.get('x-forwarded-proto') || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
-  return { host, protocol, hostHeader }; // 返回 hostHeader 用于 URL
+  return { host, protocol, hostHeader }; // 返回原始 hostHeader 用于 URL
 }
 
 // 辅助函数：处理数组并返回逗号分隔的字符串
@@ -76,7 +79,7 @@ export default async function ArticlePageSubfolder({ params }) {
   const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
 
   // --- 获取 Identifier (主域名) ---
-  const identifier = getCurrentDomain(); // <--- 使用新的辅助函数获取主域名
+  const identifier = getCurrentDomain(); // <--- 现在会优先使用 x-forwarded-host
 
   if (!identifier) {
      console.error('[Subfolder Page] Could not determine identifier (main domain).');
@@ -84,8 +87,8 @@ export default async function ArticlePageSubfolder({ params }) {
   }
 
   // --- 获取 Host 和 Protocol (用于 Schema URL) ---
-  // 注意：这里获取的是带端口的 hostHeader，用于构建规范 URL
-  const { protocol, hostHeader } = getCurrentHostAndProtocol();
+  // 注意：这里获取的是原始的、带端口的 hostHeader，用于构建规范 URL
+  const { protocol, hostHeader } = getCurrentHostAndProtocol(); // <--- 现在会优先使用 x-forwarded-host
   if (!hostHeader) {
       console.error('[Subfolder Page] Could not determine host for schema URL.');
       // 考虑是否在无法生成 schema URL 时也返回 notFound() 或提供默认值
@@ -180,7 +183,7 @@ export async function generateMetadata({ params }) {
   const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
 
   // --- 获取 Identifier (主域名) ---
-  const identifier = getCurrentDomain(); // <--- 使用新的辅助函数获取主域名
+  const identifier = getCurrentDomain(); // <--- 现在会优先使用 x-forwarded-host
 
   if (!identifier) {
      console.error('[Subfolder Metadata] Could not determine identifier (main domain).');
@@ -188,8 +191,9 @@ export async function generateMetadata({ params }) {
   }
 
   // --- 获取 Host 和 Protocol (用于元数据 URL 构建) ---
+  // 优先读取 X-Forwarded-Host 获取原始 host (带端口)，用于构建 URL
   const headersList = headers();
-  const hostHeader = headersList.get('host'); // <--- 获取完整 host (带端口) 用于 URL
+  const hostHeader = headersList.get('x-forwarded-host') || headersList.get('host'); // <--- 优先 x-forwarded-host
   const protocol = headersList.get('x-forwarded-proto') || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
 
   if (!hostHeader) {
