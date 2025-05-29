@@ -35,7 +35,7 @@ function getCurrentDomain() {
   const host = headersList.get('host');
   // 如果是本地环境，返回默认域名
   if (process.env.NODE_ENV === 'development') {
-    return 'websitelm.com';
+    return 'altpage.ai';
   }
   return extractMainDomain(host);
 }
@@ -50,12 +50,11 @@ export default async function ArticlePage({ params }) {
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
+    console.log('current articleData', articleData)
+
     if (
-      !articleData?.data ||
-      (
-        articleData.data.publishStatus !== 'publish' &&
-        articleData.data.deploymentStatus !== 'publish'
-      )
+      !articleData?.data &&
+      articleData.data.deploymentStatus !== 'publish'
     ) {
       console.error(`Article not found or not published for slug: ${slug}`);
       return notFound();
@@ -135,10 +134,7 @@ export async function generateMetadata({ params }) {
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
     if (
       !articleData?.data ||
-      (
-        articleData.data.publishStatus !== 'publish' &&
-        articleData.data.deploymentStatus !== 'publish'
-      )
+      articleData.data.deploymentStatus !== 'publish'
     ) {
       return {
         title: 'Not Found',
@@ -161,7 +157,7 @@ export async function generateMetadata({ params }) {
       title: article.title, 
       description: article.description,
       keywords: joinArrayWithComma(article.pageStats?.genKeywords) ,
-      robots: article.publishStatus === 'publish' ? 'index, follow' : 'noindex, nofollow',
+      robots: article.deploymentStatus === 'publish' ? 'index, follow' : 'noindex, nofollow',
       openGraph: { 
         title: article.title,
         description: article.description,

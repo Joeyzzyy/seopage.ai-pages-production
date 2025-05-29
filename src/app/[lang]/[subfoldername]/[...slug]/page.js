@@ -45,7 +45,7 @@ function getCurrentDomain() {
   // 如果是本地环境，返回默认域名或根据需要调整
   if (process.env.NODE_ENV === 'development') {
     // 本地开发时，可能没有 x-forwarded-host，直接用 host 提取或返回默认值
-    const devHost = host; // 使用从 headers 获取的 host
+    const devHost = host; // 使用从 headers3 获取的 host
     console.log(`[Debug getCurrentDomain] Development mode, using devHost: ${devHost}`); // <-- 新增日志
     // return 'websitelm.com'; // 或者根据本地 host 提取
     const devIdentifier = extractMainDomain(devHost);
@@ -142,10 +142,7 @@ export default async function ArticlePageSubfolder({ params }) {
 
     if (
       !articleData?.data ||
-      (
-        articleData.data.publishStatus !== 'publish' &&
-        articleData.data.deploymentStatus !== 'publish'
-      )
+      articleData.data.deploymentStatus !== 'publish'
     ) {
       console.error(`[Subfolder Page] Article not found/published. Slug: ${fullSlug}, Identifier: ${identifier}`);
       return notFound();
@@ -258,10 +255,7 @@ export async function generateMetadata({ params }) {
 
     if (
       !articleData?.data ||
-      (
-        articleData.data.publishStatus !== 'publish' &&
-        articleData.data.deploymentStatus !== 'publish'
-      )
+      articleData.data.deploymentStatus !== 'publish'
     ) {
       console.log(`[Subfolder Metadata] Article not found/published. Slug: ${fullSlug}, Identifier: ${identifier}`);
       return {

@@ -15,12 +15,12 @@ function extractMainDomain(host) {
 function getCurrentDomain() {
   // 判断是否为测试环境
   if (process.env.NODE_ENV === 'development') {
-    return 'websitelm.com';
+    return 'altpage.ai';
   }
   
   const headersList = headers();
   const host = headersList.get('host');
-  return extractMainDomain(host) || 'websitelm.com';
+  return extractMainDomain(host) || 'altpage.ai';
 }
 
 async function getSiteConfig(domain) {

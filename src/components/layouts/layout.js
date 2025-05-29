@@ -52,18 +52,19 @@ import ProductComparisonTable from '../common/sections/product-comparison-table'
  * Handles and renders HTML content with editable tags
  * @param {Object} props
  * @param {string} props.content - HTML string content
+ * @param {Object} props.article - Article data object (新增)
  */
-const HtmlRenderer = ({ content }) => {
+const HtmlRenderer = ({ content, article }) => {
   // 提取body、style和title内容（修改后的逻辑）
   const { bodyContent, extractedStyle, extractedTitle } = useMemo(() => {
     if (!content) return { bodyContent: '', extractedStyle: '', extractedTitle: null };
     const decoded = content;
     const bodyMatch = decoded.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
     const styleMatch = decoded.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-    const titleMatch = decoded.match(/<title[^>]*>([\s\S]*?)<\/title>/i); // 新增：匹配 title 标签
-    const rawBody = bodyMatch ? bodyMatch[1] : decoded; // 如果没有body，则假定整个内容是body
+    const titleMatch = decoded.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const rawBody = bodyMatch ? bodyMatch[1] : decoded;
     const rawStyle = styleMatch ? styleMatch[1] : '';
-    const rawTitle = titleMatch ? titleMatch[1] : null; // 新增：提取 title 内容
+    const rawTitle = titleMatch ? titleMatch[1] : null;
 
     // 公共转义处理
     const commonUnescape = (str) => str
@@ -74,12 +75,25 @@ const HtmlRenderer = ({ content }) => {
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>');
 
+    let processedBody = commonUnescape(rawBody);
+
+    // 如果需要移除水印，处理HTML内容
+    if (article?.removeWatermark === true) {
+      // 移除水印的正则表达式 - 匹配 | Independently Generated via ... 部分
+      const watermarkPattern = /\s*\|\s*Independently Generated via\s*<a[^>]*href="https:\/\/www\.altpage\.ai"[^>]*>.*?<\/a>/gi;
+      processedBody = processedBody.replace(watermarkPattern, '');
+      
+      // 也处理可能的变体（防止HTML编码等情况）
+      const watermarkPatternEncoded = /\s*\|\s*Independently Generated via\s*&lt;a[^&]*href=&quot;https:\/\/www\.altpage\.ai&quot;[^&]*&gt;.*?&lt;\/a&gt;/gi;
+      processedBody = processedBody.replace(watermarkPatternEncoded, '');
+    }
+
     return {
-      bodyContent: commonUnescape(rawBody),
+      bodyContent: processedBody,
       extractedStyle: commonUnescape(rawStyle),
-      extractedTitle: rawTitle ? commonUnescape(rawTitle) : null // 新增：处理并返回 title
+      extractedTitle: rawTitle ? commonUnescape(rawTitle) : null
     };
-  }, [content]);
+  }, [content, article?.removeWatermark]); // 添加 removeWatermark 到依赖数组
 
   // 动态插入样式（现有效果）
   useEffect(() => {
@@ -124,12 +138,13 @@ const HtmlRenderer = ({ content }) => {
     if (process.env.NODE_ENV === 'development' && content) {
       console.groupCollapsed('HTML处理全流程调试');
       console.log('原始HTML:', content);
+      console.log('removeWatermark:', article?.removeWatermark); // 新增日志
       console.log('body内容提取结果:', bodyContent);
       console.log('style内容提取结果:', extractedStyle);
-      console.log('title内容提取结果:', extractedTitle); // 新增日志
+      console.log('title内容提取结果:', extractedTitle);
       console.groupEnd();
     }
-  }, [content, bodyContent, extractedStyle, extractedTitle]); // 更新依赖
+  }, [content, bodyContent, extractedStyle, extractedTitle, article?.removeWatermark]); // 更新依赖
 
   // 动态加载 JSDOM（仅服务端）
   const createDOMPurify = () => {
@@ -225,7 +240,7 @@ const CommonLayout = ({ article }) => {
   // HtmlRenderer 内部会处理 body、style 和 title。
   if (isHtmlContent) {
     return (
-        <HtmlRenderer content={article.html} />
+        <HtmlRenderer content={article.html} article={article} />
     );
   }
 
