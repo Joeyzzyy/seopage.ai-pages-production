@@ -77,15 +77,20 @@ const HtmlRenderer = ({ content, article }) => {
 
     let processedBody = commonUnescape(rawBody);
 
-    // 如果需要移除水印，处理HTML内容
+    // 如果需要移除水印，处理HTML内容（确保服务端和客户端一致）
     if (article?.removeWatermark === true) {
-      // 移除水印的正则表达式 - 匹配 | Independently Generated via ... 部分
-      const watermarkPattern = /\s*\|\s*Independently Generated via\s*<a[^>]*href="https:\/\/www\.altpage\.ai"[^>]*>.*?<\/a>/gi;
-      processedBody = processedBody.replace(watermarkPattern, '');
+      // 水印移除的正则表达式
+      const watermarkPatterns = [
+        /\s*\|\s*Independently Generated via\s*<a[^>]*href="https:\/\/www\.altpage\.ai"[^>]*>.*?<\/a>/gi,
+        /\s*\|\s*Independently Generated via\s*<a[^>]*altpage\.ai[^>]*>.*?<\/a>/gi,
+        /\s*\|\s*Independently Generated via.*?altpage\.ai.*?(?=\s|$)/gi,
+        /\s*\|\s*Independently Generated via\s*&lt;a[^&]*altpage\.ai[^&]*&gt;.*?&lt;\/a&gt;/gi,
+        /\|\s*Independently Generated via[^<]*<[^>]*altpage\.ai[^>]*>[^<]*<\/a>/gi
+      ];
       
-      // 也处理可能的变体（防止HTML编码等情况）
-      const watermarkPatternEncoded = /\s*\|\s*Independently Generated via\s*&lt;a[^&]*href=&quot;https:\/\/www\.altpage\.ai&quot;[^&]*&gt;.*?&lt;\/a&gt;/gi;
-      processedBody = processedBody.replace(watermarkPatternEncoded, '');
+      watermarkPatterns.forEach((pattern) => {
+        processedBody = processedBody.replace(pattern, '');
+      });
     }
 
     return {
@@ -93,7 +98,7 @@ const HtmlRenderer = ({ content, article }) => {
       extractedStyle: commonUnescape(rawStyle),
       extractedTitle: rawTitle ? commonUnescape(rawTitle) : null
     };
-  }, [content, article?.removeWatermark]); // 添加 removeWatermark 到依赖数组
+  }, [content, article?.removeWatermark]);
 
   // 动态插入样式（现有效果）
   useEffect(() => {
@@ -117,34 +122,14 @@ const HtmlRenderer = ({ content, article }) => {
     if (extractedTitle) {
       document.title = extractedTitle;
     }
-    // 注意：这里没有添加清理函数来恢复原始标题，
-    // 因为通常我们希望这个组件设置的标题在组件卸载前一直保持。
-    // 如果需要恢复，可以在返回的清理函数中设置回之前的标题。
   }, [extractedTitle]);
-
 
   // 简化后的解析配置
   const parseOptions = useMemo(() => ({
     replace: (domNode) => {
-      // 可以在这里添加更复杂的节点替换逻辑，如果需要的话
-      // 例如，处理特定的自定义标签或属性
-      // 目前保持原样，直接返回节点
       return domNode;
     }
   }), []);
-
-  // 开发环境调试输出（增强日志）
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && content) {
-      console.groupCollapsed('HTML处理全流程调试');
-      console.log('原始HTML:', content);
-      console.log('removeWatermark:', article?.removeWatermark); // 新增日志
-      console.log('body内容提取结果:', bodyContent);
-      console.log('style内容提取结果:', extractedStyle);
-      console.log('title内容提取结果:', extractedTitle);
-      console.groupEnd();
-    }
-  }, [content, bodyContent, extractedStyle, extractedTitle, article?.removeWatermark]); // 更新依赖
 
   // 动态加载 JSDOM（仅服务端）
   const createDOMPurify = () => {
@@ -161,7 +146,7 @@ const HtmlRenderer = ({ content, article }) => {
   const purified = createDOMPurify();
 
   return (
-    <div className="html-content w-full relative">
+    <div className="html-content w-full relative" suppressHydrationWarning>
       {/* 样式注入 */}
       {extractedStyle && (
         <style
