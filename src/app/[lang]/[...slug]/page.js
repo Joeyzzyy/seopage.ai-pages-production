@@ -33,7 +33,6 @@ function extractMainDomain(host) {
 function getCurrentDomain() {
   const headersList = headers();
   const host = headersList.get('host');
-  // 如果是本地环境，返回默认域名
   if (process.env.NODE_ENV === 'development') {
     return 'altpage.ai';
   }
@@ -48,6 +47,7 @@ export default async function ArticlePage({ params }) {
     const { lang, slug } = resolvedParams;
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
     const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
+    console.log('current domain', domain)
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
     console.log('current articleData', articleData)
