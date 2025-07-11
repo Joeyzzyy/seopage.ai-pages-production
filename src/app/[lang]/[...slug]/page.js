@@ -17,25 +17,32 @@ export const revalidate = 0
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
 // 添加一个新的辅助函数来处理域名
 function extractMainDomain(host) {
-  // 移除端口号（如果有）
+  // 新增处理带www的情况
   const domainWithoutPort = host?.split(':')[0] || '';
-  // 将域名按点分割
-  const parts = domainWithoutPort.split('.');
-  // 如果域名部分少于2个，直接返回原始域名
-  if (parts.length < 2) {
-    return domainWithoutPort;
-  }
-  // 如果是三级及以上域名，返回主域名（最后两部分）
-  // 例如：blog.zhuyuejoey.com -> zhuyuejoey.com
-  return parts.slice(-2).join('.');
+  return domainWithoutPort
+    .replace(/^www\./, '') // 移除www前缀
+    .split('.')
+    .slice(-2)
+    .join('.');
 }
 // 添加一个新的辅助函数来获取当前域名
 function getCurrentDomain() {
   const headersList = headers();
-  const host = headersList.get('host');
+  // 优先使用X-Forwarded-Host头（Vercel会设置这个头）
+  const host = headersList.get('x-forwarded-host') || headersList.get('host');
+  
+  // 开发环境直接返回固定域名
   if (process.env.NODE_ENV === 'development') {
-    return 'altpage.ai';
+    return 'seopage.ai';
   }
+  
+  // 生产环境处理逻辑增加Vercel判断
+  if (host?.includes('vercel.app')) {
+    // 如果使用自定义域名部署，Vercel会保留原始域名在x-vercel-ip-country头中
+    const vercelCustomDomain = headersList.get('x-vercel-ip-country');
+    return vercelCustomDomain || extractMainDomain(host);
+  }
+  
   return extractMainDomain(host);
 }
 
@@ -148,79 +155,4 @@ export async function generateMetadata({ params }) {
     // 根据环境确定合适的 host
     const host = process.env.NODE_ENV === 'development' 
       ? `http://localhost:3001`  // 开发环境使用 localhost
-      : (process.env.NEXT_PUBLIC_HOST || `https://${currentDomain}`); // 生产环境
-    
-    const metadataBaseUrl = host ? new URL(host) : null;
-    const canonicalUrl = getCanonicalUrl(host, currentLang, fullSlug);
-
-    return {
-      title: article.title, 
-      description: article.description,
-      keywords: joinArrayWithComma(article.pageStats?.genKeywords) ,
-      robots: article.deploymentStatus === 'publish' ? 'index, follow' : 'noindex, nofollow',
-      openGraph: { 
-        title: article.title,
-        description: article.description,
-        type: 'article',
-        publishedTime: article.updatedAt,
-        modifiedTime: article.updatedAt,  
-        locale: lang,
-        siteName: '',
-        images: [{
-          url: '',
-          width: 1200,
-          height: 630,
-          alt: article.title
-        }],
-        article: {
-          authors: [article.author],
-          tags: article.pageStats?.genKeywords,
-          section: article.category
-        }
-      },
-      twitter: { 
-        card: 'summary_large_image',
-        title: article.title,
-        description: article.description,
-        images: article.coverImage,
-        creator: ''
-      },
-      alternates: {
-        canonical: canonicalUrl,
-        languages: {
-          'en': `${host}/${fullSlug}`,          // 英文版本不带语言标识符
-          'zh': `${host}/zh/${fullSlug}`,       // 其他语言带语言标识符
-        },
-        hreflang: [
-          {
-            href: `${host}/${fullSlug}`,
-            hrefLang: 'en'
-          },
-          {
-            href: `${host}/zh/${fullSlug}`,
-            hrefLang: 'zh'
-          },
-          {
-            href: `${host}/${fullSlug}`,        // x-default 指向英文版本
-            hrefLang: 'x-default'
-          }
-        ]
-      },
-      metadataBase: metadataBaseUrl,
-      authors: [{ name: article.author }],
-      category: article.category,
-      other: {
-        'article:published_time': article.createdAt,
-        'article:modified_time': article.updatedAt,
-        'article:section': article.category,
-        'article:tag': joinArrayWithComma(article.pageStats?.genKeywords)
-      }
-    };
-  } catch (error) {
-    console.error('Error generating metadata:', error);
-    return {
-      title: 'Error',
-      description: 'An error occurred while generating metadata.'
-    };
-  }
-}
+      : (process.env.NEXT_PUBLIC_HOST || `
