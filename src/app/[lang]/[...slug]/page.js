@@ -99,11 +99,11 @@ export default async function ArticlePage({ params }) {
         background: '#fff'
       }}>
         <h1 style={{
-          fontSize: '4rem',
-          color: '#111',
+          fontSize: '2.5rem', // 字体小一点
+          color: 'green',     // 绿色
           fontWeight: 'bold'
         }}>
-          Rendering Successful
+          Configured Successfully
         </h1>
       </main>
     );
