@@ -83,13 +83,35 @@ function extractMainDomainWithProxy(host) {
 
 // 主页面组件
 export default async function ArticlePage({ params }) {
+  // 1. 解析 slug
+  const resolvedParams = await Promise.resolve(params);
+  const { lang, slug } = resolvedParams;
+  const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
+
+  // 2. 检查是否为 test-rendering
+  if (fullSlug === 'test-rendering') {
+    return (
+      <main style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '80vh',
+        background: '#fff'
+      }}>
+        <h1 style={{
+          fontSize: '4rem',
+          color: '#111',
+          fontWeight: 'bold'
+        }}>
+          Rendering Successful
+        </h1>
+      </main>
+    );
+  }
+
   try {
     const domain = getCurrentDomain();
-    const resolvedParams = await Promise.resolve(params);
-    const { lang, slug } = resolvedParams;
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
-    const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    console.log('current domain', domain)
     const articleData = await getPageBySlug(fullSlug, currentLang, domain);
 
     console.log('current articleData', articleData)
