@@ -4,50 +4,36 @@ import { headers } from 'next/headers'; // 需要 headers 来获取 host 用于�
 import CommonLayout from '../../../../components/layouts/layout'; // 调整布局导入路径
 import Script from 'next/script';
 
-// 1. 确保动态渲染
 export const dynamic = 'force-dynamic';
-// 2. 启用动态路由参数
 export const dynamicParams = true;
-// 3. 完全禁用缓存
 export const fetchCache = 'force-no-store';
-// 4. 设置零秒缓存
 export const revalidate = 0;
 
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
 
-// --- 添加新的辅助函数 ---
-// 提取主域名 (例如: blog.example.com -> example.com)
 function extractMainDomain(host) {
-  // 移除端口号（如果有）
   const domainWithoutPort = host?.split(':')[0] || '';
-  // 将域名按点分割
   const parts = domainWithoutPort.split('.');
-  // 如果域名部分少于2个，直接返回原始域名
   if (parts.length < 2) {
     return domainWithoutPort;
   }
-  // 返回主域名（最后两部分）
   return parts.slice(-2).join('.');
 }
 
 // 获取当前请求的主域名作为 identifier
 function getCurrentDomain() {
   const headersList = headers();
-  const customHost = headersList.get('x-alterpage-host'); // <--- 读取自定义 Header X-AlterPage-Host
-  const forwardedHost = headersList.get('x-forwarded-host'); // 仍然可以读取，作为备选或调试
+  const customHost = headersList.get('x-alterpage-host');
+  const forwardedHost = headersList.get('x-forwarded-host');
   const host = headersList.get('host');
   console.log(`[Debug Headers] X-AlterPage-Host: ${customHost}, X-Forwarded-Host: ${forwardedHost}, Host: ${host}`); // 更新日志
 
-  // --- 优先使用自定义 Header ---
-  const originalHost = customHost || forwardedHost || host; // 优先自定义 X-AlterPage-Host
+  const originalHost = customHost || forwardedHost || host;
   console.log(`[Debug getCurrentDomain] Using originalHost: ${originalHost}`);
 
-  // 如果是本地环境，返回默认域名或根据需要调整
   if (process.env.NODE_ENV === 'development') {
-    // 本地开发时，可能没有 x-forwarded-host，直接用 host 提取或返回默认值
-    const devHost = host; // 使用从 headers3 获取的 host
-    console.log(`[Debug getCurrentDomain] Development mode, using devHost: ${devHost}`); // <-- 新增日志
-    // return 'websitelm.com'; // 或者根据本地 host 提取
+    const devHost = host;
+    console.log(`[Debug getCurrentDomain] Development mode, using devHost: ${devHost}`);
     const devIdentifier = extractMainDomain(devHost);
     console.log(`[Debug getCurrentDomain] Development identifier: ${devIdentifier}`); // <-- 新增日志
     return devIdentifier;
@@ -57,9 +43,7 @@ function getCurrentDomain() {
   console.log(`[Debug getCurrentDomain] Production identifier: ${identifier}`); // <-- 新增日志
   return identifier;
 }
-// --- 结束添加新的辅助函数 ---
 
-// 辅助函数：获取当前请求的 Host (保留端口) 和协议 (用于 URL 构建)
 function getCurrentHostAndProtocol() {
   const headersList = headers();
   const customHost = headersList.get('x-alterpage-host'); // <--- 读取自定义 Header X-AlterPage-Host
@@ -67,13 +51,10 @@ function getCurrentHostAndProtocol() {
   const hostFromHeader = headersList.get('host');
   console.log(`[Debug Headers for URL] X-AlterPage-Host: ${customHost}, X-Forwarded-Host: ${forwardedHost}, Host: ${hostFromHeader}`); // 更新日志
 
-  // --- 优先使用自定义 Header ---
-  const hostHeader = customHost || forwardedHost || hostFromHeader; // 优先自定义 X-AlterPage-Host
+  const hostHeader = customHost || forwardedHost || hostFromHeader;
   console.log(`[Debug getCurrentHostAndProtocol] Using hostHeader for URL: ${hostHeader}`);
 
-  // host 变量现在意义不大，因为 identifier 由 getCurrentDomain 获取
   const host = hostHeader?.split(':')[0] || null;
-  // 协议仍然优先读取 X-Forwarded-Proto
   const forwardedProto = headersList.get('x-forwarded-proto');
   const protocol = forwardedProto || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
   console.log(`[Debug getCurrentHostAndProtocol] X-Forwarded-Proto: ${forwardedProto}, Using protocol: ${protocol}`); // <-- 新增日志
@@ -81,22 +62,17 @@ function getCurrentHostAndProtocol() {
   return { host, protocol, hostHeader }; // 返回原始 hostHeader 用于 URL
 }
 
-// 辅助函数：处理数组并返回逗号分隔的字符串
 function joinArrayWithComma(arr) {
   return Array.isArray(arr) ? arr.filter(Boolean).join(',') : '';
 }
 
-// 辅助函数：为子目录结构生成规范链接
 function getSubfolderCanonicalUrl(protocol, host, subfolder, lang, slugParts) {
-  const baseUrl = `${protocol}://${host}`; // host 是根域名
+  const baseUrl = `${protocol}://${host}`;
   const actualSlug = slugParts.join('/');
-  // 子目录结构总是包含 subfolder 和 lang
   return `${baseUrl}/${subfolder}/${lang}/${actualSlug}`;
 }
 
-// 主页面组件 (子目录)
 export default async function ArticlePageSubfolder({ params }) {
-  // subfoldername 来自路径
   const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
   console.log(`[Subfolder Page Start] Params: ${JSON.stringify(params)}`); // <-- 新增日志
 
@@ -120,7 +96,6 @@ export default async function ArticlePageSubfolder({ params }) {
       // return notFound();
   }
 
-  // --- 检查路径中的 subfolder ---
   if (!pathSubfolder) {
      console.error('[Subfolder Page] Path subfolder segment is missing.');
      return notFound();
@@ -136,7 +111,6 @@ export default async function ArticlePageSubfolder({ params }) {
   const fullSlug = slugArray.join('/');
 
   try {
-    // 使用新的 identifier (主域名) 调用 API
     console.log(`[Subfolder Page] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`); // 日志已包含 identifier
     const articleData = await getPageBySlug(fullSlug, currentLang, identifier);
 
@@ -203,11 +177,16 @@ export default async function ArticlePageSubfolder({ params }) {
 
 export async function generateMetadata({ params }) {
   try {
-    const resolvedParams = await Promise.resolve(params);
-    const { lang = 'en', pageid } = resolvedParams;
-    
-    const articleData = await getPageBySlug(pageid, lang);
-    
+    const { subfoldername, lang = 'en', slug } = params;
+    const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
+    const slugArray = (Array.isArray(slug) ? slug : [slug]).filter(Boolean);
+    const fullSlug = slugArray.join('/');
+
+    // 获取 identifier
+    const identifier = getCurrentDomain();
+
+    const articleData = await getPageBySlug(fullSlug, currentLang, identifier);
+
     if (!articleData?.data) {
       return {
         title: 'Not Found',
