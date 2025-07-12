@@ -177,6 +177,7 @@ export async function generateMetadata({ params }) {
 
     let description = '';
     let keywords = '';
+    let htmlTitle = '';
     if (article.html && typeof article.html === 'string') {
       // 兼容属性顺序的正则
       const descMatch = article.html.match(
@@ -189,10 +190,15 @@ export async function generateMetadata({ params }) {
       keywords = keywordsMatch ? (keywordsMatch[1] || keywordsMatch[2]) : '';
       console.log('正则提取到的 description:', description);
       console.log('正则提取到的 keywords:', keywords);
+      const titleMatch = article.html.match(
+        /<title>([^<]*)<\/title>/i
+      );
+      htmlTitle = titleMatch ? titleMatch[1] : '';
+      console.log('正则提取到的 title:', htmlTitle);
     }
 
     return {
-      title: article.title, 
+      title: htmlTitle, 
       description: description || article.description,
       keywords: "AI SEO, competitor traffic, alternative pages, SEO automation, high-intent traffic, AltPage.ai, marketing, comparison pages",
       robots: 'index, follow',
