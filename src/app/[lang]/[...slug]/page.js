@@ -192,15 +192,15 @@ export async function generateMetadata({ params }) {
     }
 
     return {
-      title: article.data.title, 
+      title: article.title, 
       description: description || article.description,
       keywords: "AI SEO, competitor traffic, alternative pages, SEO automation, high-intent traffic, AltPage.ai, marketing, comparison pages",
       robots: 'index, follow',
       openGraph: { 
-        title: article.data.title,
-        description: description || article.data.description,
+        title: article.title,
+        description: description || article.description,
         type: 'article',
-        publishedTime: article.data.updatedAt,
+        publishedTime: article.updatedAt,
         modifiedTime: article.updatedAt,  
         locale: lang,
         siteName: '',
@@ -208,13 +208,13 @@ export async function generateMetadata({ params }) {
           url: '',
           width: 1200,
           height: 630,
-          alt: article.data.title
+          alt: article.title
         }]
       },
       twitter: { 
         card: 'summary_large_image',
-        title: article.data.title,
-        description: description || article.data.description,
+        title: article.title,
+        description: description || article.description,
         images: article.coverImage,
         creator: ''
       },
@@ -222,8 +222,8 @@ export async function generateMetadata({ params }) {
         canonical: `https://${domain}/${article.slug}`,
       },
       metadataBase: new URL(`https://${domain}`),
-      authors: [{ name: article.data.author }],
-      category: article.data.category
+      authors: [{ name: article.author }],
+      category: article.category
     };
   } catch (error) {
     return {
