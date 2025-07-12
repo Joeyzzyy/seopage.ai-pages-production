@@ -190,41 +190,45 @@ function getCanonicalUrl(host, lang, fullSlug) {
 
 export async function generateMetadata({ params }) {
   try {
-    const domain = getCurrentDomain();
     const resolvedParams = await Promise.resolve(params);
-    const { lang, slug } = resolvedParams;
-    const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
-    const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
-    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
-    if (
-      !articleData?.data ||
-      articleData.data.deploymentStatus !== 'publish'
-    ) {
+    const { lang = 'en', pageid } = resolvedParams;
+    
+    const articleData = await getPageBySlug(pageid, lang);
+    
+    if (!articleData?.data) {
       return {
         title: 'Not Found',
-        description: 'The page you are looking for does not exist.',
-        robots: 'noindex, nofollow' 
+        description: 'The page you are looking for does not exist.'
       };
     }
+
     const article = articleData.data;
-    // 获取当前环境的域名
-    const currentDomain = getCurrentDomain();
-    // 根据环境确定合适的 host
-    const host = process.env.NODE_ENV === 'development' 
-      ? `http://localhost:3001`  // 开发环境使用 localhost
-      : (process.env.NEXT_PUBLIC_HOST || `https://${currentDomain}`); // 生产环境
-    
-    const metadataBaseUrl = host ? new URL(host) : null;
-    const canonicalUrl = getCanonicalUrl(host, currentLang, fullSlug);
+    console.log('article.html:', article.html);
+
+    let description = '';
+    let keywords = '';
+    if (article.html && typeof article.html === 'string') {
+      // 兼容属性顺序的正则
+      const descMatch = article.html.match(
+        /<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i
+      );
+      description = descMatch ? (descMatch[1] || descMatch[2]) : '';
+      const keywordsMatch = article.html.match(
+        /<meta\s+[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']keywords["'][^>]*>/i
+      );
+      keywords = keywordsMatch ? (keywordsMatch[1] || keywordsMatch[2]) : '';
+      console.log('正则提取到的 description:', description);
+      console.log('正则提取到的 keywords:', keywords);
+    }
 
     return {
       title: article.title, 
-      description: article.description,
-      keywords: joinArrayWithComma(article.pageStats?.genKeywords) ,
-      robots: article.deploymentStatus === 'publish' ? 'index, follow' : 'noindex, nofollow',
+      description: description || article.description,
+      keywords: "AI SEO, competitor traffic, alternative pages, SEO automation, high-intent traffic, AltPage.ai, marketing, comparison pages",
+      robots: 'index, follow',
       openGraph: { 
         title: article.title,
-        description: article.description,
+        description: description || article.description,
         type: 'article',
         publishedTime: article.updatedAt,
         modifiedTime: article.updatedAt,  
@@ -235,53 +239,23 @@ export async function generateMetadata({ params }) {
           width: 1200,
           height: 630,
           alt: article.title
-        }],
-        article: {
-          authors: [article.author],
-          tags: article.pageStats?.genKeywords,
-          section: article.category
-        }
+        }]
       },
       twitter: { 
         card: 'summary_large_image',
         title: article.title,
-        description: article.description,
+        description: description || article.description,
         images: article.coverImage,
         creator: ''
       },
       alternates: {
-        canonical: canonicalUrl,
-        languages: {
-          'en': `${host}/${fullSlug}`,          // 英文版本不带语言标识符
-          'zh': `${host}/zh/${fullSlug}`,       // 其他语言带语言标识符
-        },
-        hreflang: [
-          {
-            href: `${host}/${fullSlug}`,
-            hrefLang: 'en'
-          },
-          {
-            href: `${host}/zh/${fullSlug}`,
-            hrefLang: 'zh'
-          },
-          {
-            href: `${host}/${fullSlug}`,        // x-default 指向英文版本
-            hrefLang: 'x-default'
-          }
-        ]
+        canonical: `https://${domain}/${article.slug}`,
       },
-      metadataBase: metadataBaseUrl,
+      metadataBase: new URL(`https://your-domain.com`),
       authors: [{ name: article.author }],
-      category: article.category,
-      other: {
-        'article:published_time': article.createdAt,
-        'article:modified_time': article.updatedAt,
-        'article:section': article.category,
-        'article:tag': joinArrayWithComma(article.pageStats?.genKeywords)
-      }
+      category: article.category
     };
   } catch (error) {
-    console.error('Error generating metadata:', error);
     return {
       title: 'Error',
       description: 'An error occurred while generating metadata.'
