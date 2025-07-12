@@ -5,90 +5,59 @@ import { headers } from 'next/headers';
 import CommonLayout from '../../../components/layouts/layout';
 import Script from 'next/script'
 
-// 1. 确保动态渲染
 export const dynamic = 'force-dynamic'
-// 2. 启用动态路由参数
 export const dynamicParams = true
-// 3. 完全禁用缓存
 export const fetchCache = 'force-no-store'
-// 4. 设置零秒缓存
 export const revalidate = 0
-// 添加支持的语言列表
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
-// 添加一个新的辅助函数来处理域名
+
 function extractMainDomain(host) {
-  // 移除端口号（如果有）
   const domainWithoutPort = host?.split(':')[0] || '';
-  // 将域名按点分割
   const parts = domainWithoutPort.split('.');
-  // 如果域名部分少于2个，直接返回原始域名
   if (parts.length < 2) {
     return domainWithoutPort;
   }
-  // 如果是三级及以上域名，返回主域名（最后两部分）
-  // 例如：blog.zhuyuejoey.com -> zhuyuejoey.com
   return parts.slice(-2).join('.');
 }
-// 修改getCurrentDomain函数
 function getCurrentDomain() {
   const headersList = headers();
-  
-  // 通用代理头处理（适用于Nginx/Vercel等）
   const proxyHeaders = [
-    'x-original-host',       // 常见Nginx配置头
-    'x-forwarded-host',      // 标准代理头
-    'x-vercel-deployment-url' // Vercel专用头
+    'x-original-host',
+    'x-forwarded-host',
+    'x-vercel-deployment-url'
   ];
-  
-  // 从代理头中获取原始域名
   const originalHost = proxyHeaders.reduce((acc, header) => 
     acc || headersList.get(header), 
   null);
-
-  // 优先使用代理头中的域名
   const host = originalHost || headersList.get('host');
-
-  // 开发环境处理
   if (process.env.NODE_ENV === 'development') {
     return 'seopage.ai';
   }
-
-  // 通用域名提取（处理子目录转发）
   return extractMainDomainWithProxy(host);
 }
 
-// 增强版域名提取函数
 function extractMainDomainWithProxy(host) {
   if (!host) return 'seopage.ai'; // 默认值
-  
-  // 移除协议、端口和路径（处理Nginx转发子目录的情况）
   const cleanHost = host
-    .replace(/https?:\/\//, '')  // 移除协议
-    .replace(/\/.*/, '')         // 移除路径
-    .split(':')[0];              // 移除端口
+    .replace(/https?:\/\//, '')
+    .replace(/\/.*/, '')
+    .split(':')[0];
 
-  // 分割域名部分
   const parts = cleanHost.split('.');
-  
-  // 处理特殊案例（如xxx.vercel.app）
   if (parts.length > 2 && parts[parts.length-2] === 'vercel') {
     return process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'seopage.ai';
   }
   
-  // 通用主域名提取规则
   return parts.length > 2 
-    ? parts.slice(-2).join('.')  // 获取主域名
-    : cleanHost;                 // 保留完整域名
+    ? parts.slice(-2).join('.')
+    : cleanHost;
 }
 
-// 主页面组件
 export default async function ArticlePage({ params }) {
-  // 1. 解析 slug
   const resolvedParams = await Promise.resolve(params);
   const { lang, slug } = resolvedParams;
   const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
 
-  // 2. 检查是否为 test-rendering
   if (fullSlug === 'test-rendering') {
     return (
       <main style={{

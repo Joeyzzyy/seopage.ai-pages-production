@@ -201,150 +201,77 @@ export default async function ArticlePageSubfolder({ params }) {
   }
 }
 
-// 元数据生成 (子目录)
 export async function generateMetadata({ params }) {
-  const { subfoldername: pathSubfolder, lang: rawLang, slug: rawSlug } = params;
-  console.log(`[Subfolder Metadata Start] Params: ${JSON.stringify(params)}`); // <-- 新增日志
-
-  // --- 获取 Identifier (主域名) ---
-  const identifier = getCurrentDomain(); // 函数内部已有日志
-  console.log(`[Subfolder Metadata] Determined Identifier: ${identifier}`); // <-- 新增日志
-
-  if (!identifier) {
-     console.error('[Subfolder Metadata] Could not determine identifier (main domain).');
-     return { title: 'Error', description: 'Invalid request', robots: 'noindex, nofollow' };
-  }
-
-  // --- 获取 Host 和 Protocol (用于元数据 URL 构建) ---
-  const headersList = headers(); // 重新获取 headersList 以便获取 protocol
-  const customHost = headersList.get('x-alterpage-host'); // <--- 读取自定义 Header
-  const forwardedHost = headersList.get('x-forwarded-host');
-  const hostFromHeader = headersList.get('host');
-  console.log(`[Debug Headers for Metadata URL] X-AlterPage-Host: ${customHost}, X-Forwarded-Host: ${forwardedHost}, Host: ${hostFromHeader}`); // 更新日志
-
-  // 优先读取自定义 Header 获取原始 host (带端口)，用于构建 URL
-  const hostHeader = customHost || forwardedHost || hostFromHeader; // <--- 优先 X-AlterPage-Host
-  const forwardedProto = headersList.get('x-forwarded-proto');
-  const protocol = forwardedProto || (process.env.NODE_ENV === 'development' ? 'http' : 'https');
-  console.log(`[Subfolder Metadata] Determined Protocol: ${protocol}, Host Header for URL: ${hostHeader}`); // <-- 新增日志
-
-  if (!hostHeader) {
-     console.error('[Subfolder Metadata] Could not determine host for URL generation.');
-     return { title: 'Error', description: 'Could not determine host.', robots: 'noindex, nofollow' };
-  }
-
-  // --- 检查路径中的 subfolder ---
-  if (!pathSubfolder) {
-     console.error('[Subfolder Metadata] Path subfolder segment is missing.');
-     return { title: 'Error', description: 'Invalid request', robots: 'noindex, nofollow' };
-  }
-
-  const currentLang = SUPPORTED_LANGUAGES.includes(rawLang) ? rawLang : 'en';
-  const slugArray = (Array.isArray(rawSlug) ? rawSlug : [rawSlug]).filter(Boolean);
-
-  if (slugArray.length === 0) {
-     console.log(`[Subfolder Metadata] Slug array is empty. Identifier: ${identifier}, Lang: ${currentLang}`);
-     return { title: 'Not Found', robots: 'noindex, nofollow' };
-  }
-  const fullSlug = slugArray.join('/');
-
   try {
-    // 使用新的 identifier (主域名) 调用 API
-    console.log(`[Subfolder Metadata] Calling getPageBySlug with: slug='${fullSlug}', lang='${currentLang}', identifier='${identifier}'`); // 日志已包含 identifier
-    const articleData = await getPageBySlug(fullSlug, currentLang, identifier);
-
-    if (
-      !articleData?.data ||
-      articleData.data.deploymentStatus !== 'publish'
-    ) {
-      console.log(`[Subfolder Metadata] Article not found/published. Slug: ${fullSlug}, Identifier: ${identifier}`);
+    const resolvedParams = await Promise.resolve(params);
+    const { lang = 'en', pageid } = resolvedParams;
+    
+    const articleData = await getPageBySlug(pageid, lang);
+    
+    if (!articleData?.data) {
       return {
         title: 'Not Found',
-        description: 'The page you are looking for does not exist.',
-        robots: 'noindex, nofollow'
+        description: 'The page you are looking for does not exist.'
       };
     }
+
     const article = articleData.data;
+    console.log('article.html:', article.html);
 
-    // --- 构建元数据 URL ---
-    // 使用 hostHeader (带端口) 构建基础 URL
-    const baseUrl = `${protocol}://${hostHeader}`;
-    console.log(`[Subfolder Metadata] Base URL for Metadata: ${baseUrl}`); // <-- 新增日志
-    const metadataBaseUrl = new URL(baseUrl);
-
-    // --- 生成规范链接和 Hreflang ---
-    // 使用 hostHeader (带端口) 构建 URL
-    const alternates = { languages: {}, hreflang: [] };
-    let canonicalUrl = '';
-
-    SUPPORTED_LANGUAGES.forEach(altLang => {
-      // 使用 pathSubfolder 和 hostHeader 构建 URL
-      const href = getSubfolderCanonicalUrl(protocol, hostHeader, pathSubfolder, altLang, slugArray); // <--- 使用 hostHeader
-      alternates.languages[altLang] = href;
-      alternates.hreflang.push({ href, hrefLang: altLang });
-
-      if (altLang === currentLang) {
-        canonicalUrl = href; // 设置当前页面的规范链接
-      }
-    });
-
-    // 添加 x-default (指向英文版)
-    // 使用 pathSubfolder 和 hostHeader 构建 URL
-    const xDefaultHref = getSubfolderCanonicalUrl(protocol, hostHeader, pathSubfolder, 'en', slugArray); // <--- 使用 hostHeader
-    alternates.hreflang.push({ href: xDefaultHref, hrefLang: 'x-default' });
-    alternates.canonical = canonicalUrl; // 添加 canonical 属性
-
-    // 在日志中包含新的 identifier (主域名)
-    console.log(`[Subfolder Metadata] Final Identifier: ${identifier}, Canonical: ${canonicalUrl}`); // 日志已包含 identifier
-    console.log(`[Subfolder Metadata] Alternates:`, alternates);
-    console.log(`[Subfolder Metadata] Generated Canonical URL for Metadata: ${canonicalUrl}`); // <-- 新增日志
+    let description = '';
+    let keywords = '';
+    if (article.html && typeof article.html === 'string') {
+      // 兼容属性顺序的正则
+      const descMatch = article.html.match(
+        /<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i
+      );
+      description = descMatch ? (descMatch[1] || descMatch[2]) : '';
+      const keywordsMatch = article.html.match(
+        /<meta\s+[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']keywords["'][^>]*>/i
+      );
+      keywords = keywordsMatch ? (keywordsMatch[1] || keywordsMatch[2]) : '';
+      console.log('正则提取到的 description:', description);
+      console.log('正则提取到的 keywords:', keywords);
+    }
 
     return {
-      title: article.title,
-      description: article.description,
-      keywords: joinArrayWithComma(article.pageStats?.genKeywords),
-      robots: article.publishStatus === 'publish' ? 'index, follow' : 'noindex, nofollow',
-      openGraph: {
+      title: article.title, 
+      description: description || article.description,
+      keywords: "AI SEO, competitor traffic, alternative pages, SEO automation, high-intent traffic, AltPage.ai, marketing, comparison pages",
+      robots: 'index, follow',
+      openGraph: { 
         title: article.title,
-        description: article.description,
-        url: canonicalUrl, // 使用基于 hostHeader 的规范链接
+        description: description || article.description,
         type: 'article',
-        publishedTime: article.createdAt,
-        modifiedTime: article.updatedAt,
-        locale: currentLang,
-        images: article.coverImage ? [{
-          url: article.coverImage, width: 1200, height: 630, alt: article.title
-        }] : undefined,
-        article: {
-          authors: article.author ? [article.author] : undefined,
-          tags: article.pageStats?.genKeywords,
-          section: article.category
-        }
+        publishedTime: article.updatedAt,
+        modifiedTime: article.updatedAt,  
+        locale: lang,
+        siteName: '',
+        images: [{
+          url: '',
+          width: 1200,
+          height: 630,
+          alt: article.title
+        }]
       },
-      twitter: {
+      twitter: { 
         card: 'summary_large_image',
         title: article.title,
-        description: article.description,
-        images: article.coverImage || undefined,
+        description: description || article.description,
+        images: article.coverImage,
+        creator: ''
       },
-      alternates: alternates, // 使用基于 hostHeader 的 alternates
-      metadataBase: metadataBaseUrl, // 使用基于 hostHeader 的 metadataBase
-      authors: article.author ? [{ name: article.author }] : undefined,
-      category: article.category,
-      other: {
-        'article:published_time': article.createdAt,
-        'article:modified_time': article.updatedAt,
-        'article:section': article.category,
-        'article:tag': joinArrayWithComma(article.pageStats?.genKeywords)
-      }
+      alternates: {
+        canonical: `https://${domain}/${article.slug}`,
+      },
+      metadataBase: new URL(`https://your-domain.com`),
+      authors: [{ name: article.author }],
+      category: article.category
     };
   } catch (error) {
-    // 在错误日志中包含新的 identifier (主域名)
-    console.error(`Error in Subfolder generateMetadata (Identifier: ${identifier}, Params: ${JSON.stringify(params)}):`, error); // 日志已包含 identifier
     return {
       title: 'Error',
-      description: 'An error occurred while generating metadata.',
-      robots: 'noindex, nofollow'
+      description: 'An error occurred while generating metadata.'
     };
   }
 }

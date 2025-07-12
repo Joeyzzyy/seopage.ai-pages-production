@@ -13,9 +13,8 @@ function extractMainDomain(host) {
 }
 
 function getCurrentDomain() {
-  // 判断是否为测试环境
   if (process.env.NODE_ENV === 'development') {
-    return 'altpage.ai';
+    return 'seopage.ai';
   }
   
   const headersList = headers();
@@ -26,7 +25,6 @@ function getCurrentDomain() {
 async function getSiteConfig(domain) {
   try {
     const response = await getDomainFavicon(domain);
-    // 直接返回response数据，因为它已经包含了所需的结构
     return response;
   } catch (error) {
     console.error('Error fetching site config:', error);
@@ -34,13 +32,12 @@ async function getSiteConfig(domain) {
   }
 }
 
-export default async function RootLayout({ children, keywords, robots }) {
+export default async function RootLayout({ children }) {
   const domain = getCurrentDomain();
-  let faviconUrl = '/default-favicon.ico';  // 默认favicon
+  let faviconUrl = '/default-favicon.ico';
   
   try {
     const siteConfig = await getSiteConfig(domain);
-    // 检查返回的数据结构中的favicon路径
     if (siteConfig?.code === 200 && siteConfig?.data?.favicon) {
       faviconUrl = siteConfig.data.favicon;
     }
