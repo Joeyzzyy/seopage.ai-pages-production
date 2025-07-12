@@ -160,9 +160,10 @@ function getCanonicalUrl(host, lang, fullSlug) {
 export async function generateMetadata({ params }) {
   try {
     const resolvedParams = await Promise.resolve(params);
-    const { lang = 'en', pageid } = resolvedParams;
+    const { lang, slug } = resolvedParams;
     const domain = getCurrentDomain();
-    const articleData = await getPageBySlug(pageid, lang, domain);
+    const fullSlug = Array.isArray(slug) ? slug[slug.length - 1] : slug;
+    const articleData = await getPageBySlug(fullSlug, lang, domain);
     
     if (!articleData?.data) {
       return {
