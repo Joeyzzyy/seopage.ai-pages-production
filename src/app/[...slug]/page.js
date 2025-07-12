@@ -226,7 +226,7 @@ export async function generateMetadata({ params }) {
       alternates: {
         canonical: `https://${article.siteUrl}/${article.slug}`,
       },
-      metadataBase: new URL(`https://${identifier}`),
+      metadataBase: new URL(`https://${domain}`),
       authors: [{ name: article.author }],
       category: article.category
     };
