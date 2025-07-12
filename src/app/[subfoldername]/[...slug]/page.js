@@ -127,7 +127,9 @@ export default async function ArticlePageSubfolder({ params }) {
 
     // --- 生成 Schema ---
     // 使用文章数据中的 siteUrl 和 slug 构建规范 URL，与 generateMetadata 保持一致
-    const canonicalUrl = article.siteUrl ? `https://${article.siteUrl}/${article.slug}` : '';
+    const canonicalUrl = article.siteUrl 
+      ? (article.siteUrl.startsWith('http') ? `${article.siteUrl}/${article.slug}` : `https://${article.siteUrl}/${article.slug}`)
+      : '';
     console.log(`[Subfolder Page] Generated Canonical URL for Schema: ${canonicalUrl}`); // <-- 新增日志
 
     const articleSchema = {
@@ -247,7 +249,9 @@ export async function generateMetadata({ params }) {
         creator: ''
       },
       alternates: {
-        canonical: `https://${article.siteUrl}/${article.slug}`,
+        canonical: article.siteUrl
+          ? (article.siteUrl.startsWith('http') ? `${article.siteUrl}/${article.slug}` : `https://${article.siteUrl}/${article.slug}`)
+          : '',
       },
       metadataBase: new URL(`https://${identifier}`),
       authors: [{ name: article.author }],
