@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic';
 
-// 直接导入组件
 const Header = dynamic(() => import('./header-template'), {
   ssr: false
 });

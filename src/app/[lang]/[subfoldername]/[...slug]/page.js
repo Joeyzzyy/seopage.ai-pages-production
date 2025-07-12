@@ -199,6 +199,7 @@ export async function generateMetadata({ params }) {
 
     let description = '';
     let keywords = '';
+    let htmlTitle = '';
     if (article.html && typeof article.html === 'string') {
       // 兼容属性顺序的正则
       const descMatch = article.html.match(
@@ -209,17 +210,23 @@ export async function generateMetadata({ params }) {
         /<meta\s+[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']keywords["'][^>]*>/i
       );
       keywords = keywordsMatch ? (keywordsMatch[1] || keywordsMatch[2]) : '';
+      // 新增：提取<title>标签内容
+      const titleMatch = article.html.match(
+        /<title>([^<]*)<\/title>/i
+      );
+      htmlTitle = titleMatch ? titleMatch[1] : '';
+      console.log('正则提取到的 title:', htmlTitle);
       console.log('正则提取到的 description:', description);
       console.log('正则提取到的 keywords:', keywords);
     }
 
     return {
-      title: article.title, 
+      title: htmlTitle,
       description: description || article.description,
       keywords: "AI SEO, competitor traffic, alternative pages, SEO automation, high-intent traffic, AltPage.ai, marketing, comparison pages",
       robots: 'index, follow',
       openGraph: { 
-        title: article.title,
+        title: htmlTitle,
         description: description || article.description,
         type: 'article',
         publishedTime: article.updatedAt,
@@ -230,12 +237,12 @@ export async function generateMetadata({ params }) {
           url: '',
           width: 1200,
           height: 630,
-          alt: article.title
+          alt: htmlTitle 
         }]
       },
       twitter: { 
         card: 'summary_large_image',
-        title: article.title,
+        title: htmlTitle,
         description: description || article.description,
         images: article.coverImage,
         creator: ''
