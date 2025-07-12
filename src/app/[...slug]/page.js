@@ -1,8 +1,8 @@
-import { getPageBySlug } from '../lib/api/index';
+import { getPageBySlug } from '../../lib/api/index'; 
 import { notFound } from 'next/navigation';
-import { headers } from 'next/headers';
-import CommonLayout from '../components/layouts/layout';
-import Script from 'next/script'
+import { headers } from 'next/headers'; // 
+import CommonLayout from '../../components/layouts/layout'; 
+import Script from 'next/script';
 
 export const dynamic = 'force-dynamic'
 export const dynamicParams = true

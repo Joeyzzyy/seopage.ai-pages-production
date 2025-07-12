@@ -1,7 +1,7 @@
-import { getPageBySlug } from '../../../lib/api/index'; // 调整 API 导入路径
+import { getPageBySlug } from '../../../lib/api/index'; 
 import { notFound } from 'next/navigation';
-import { headers } from 'next/headers'; // 需要 headers 来获取 host 用于构建 URL
-import CommonLayout from '../../../components/layouts/layout'; // 调整布局导入路径
+import { headers } from 'next/headers'; // 
+import CommonLayout from '../../../components/layouts/layout'; 
 import Script from 'next/script';
 
 export const dynamic = 'force-dynamic';
