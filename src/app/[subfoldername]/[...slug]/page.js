@@ -246,7 +246,7 @@ export async function generateMetadata({ params }) {
         creator: ''
       },
       alternates: {
-        canonical: `https://${domain}/${article.slug}`,
+        canonical: `https://${article.siteUrl}/${article.slug}`,
       },
       metadataBase: new URL(`https://your-domain.com`),
       authors: [{ name: article.author }],
