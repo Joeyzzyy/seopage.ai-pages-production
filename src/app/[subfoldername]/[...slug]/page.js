@@ -66,6 +66,7 @@ function joinArrayWithComma(arr) {
   return Array.isArray(arr) ? arr.filter(Boolean).join(',') : '';
 }
 
+// 注意：此函数已不再使用，保留是为了向后兼容
 function getSubfolderCanonicalUrl(protocol, host, subfolder, lang, slugParts) {
   const baseUrl = `${protocol}://${host}`;
   const actualSlug = slugParts.join('/');
@@ -125,8 +126,8 @@ export default async function ArticlePageSubfolder({ params }) {
     const article = articleData.data;
 
     // --- 生成 Schema ---
-    // 使用 pathSubfolder 和 hostHeader (带端口) 构建规范 URL 路径部分
-    const canonicalUrl = hostHeader ? getSubfolderCanonicalUrl(protocol, hostHeader, pathSubfolder, currentLang, slugArray) : '';
+    // 使用文章数据中的 siteUrl 和 slug 构建规范 URL，与 generateMetadata 保持一致
+    const canonicalUrl = article.siteUrl ? `https://${article.siteUrl}/${article.slug}` : '';
     console.log(`[Subfolder Page] Generated Canonical URL for Schema: ${canonicalUrl}`); // <-- 新增日志
 
     const articleSchema = {
@@ -146,7 +147,7 @@ export default async function ArticlePageSubfolder({ params }) {
       },
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': canonicalUrl // 使用基于 hostHeader 的规范链接
+        '@id': canonicalUrl // 使用与 generateMetadata 相同的规范链接
       },
       image: article.coverImage || undefined,
       articleBody: article.content,
@@ -248,7 +249,7 @@ export async function generateMetadata({ params }) {
       alternates: {
         canonical: `https://${article.siteUrl}/${article.slug}`,
       },
-      metadataBase: new URL(`https://your-domain.com`),
+      metadataBase: new URL(`https://${identifier}`),
       authors: [{ name: article.author }],
       category: article.category
     };
