@@ -182,9 +182,7 @@ export async function generateMetadata({ params }) {
     const slugArray = (Array.isArray(slug) ? slug : [slug]).filter(Boolean);
     const fullSlug = slugArray.join('/');
 
-    // 获取 identifier
     const identifier = getCurrentDomain();
-
     const articleData = await getPageBySlug(fullSlug, currentLang, identifier);
 
     if (!articleData?.data) {
