@@ -57,25 +57,7 @@ const nextConfig = {
     domains: ['websitelm-us-east-2.s3.us-west-2.amazonaws.com'],
   },
   async rewrites() {
-    const VALID_LANGS = ['zh', 'es', 'fr', 'de', 'ja', 'en']
-    
-    return [
-      {
-        // 处理根路径
-        source: '/',
-        destination: '/en/home',
-      },
-      // 直接处理不带语言前缀的路径
-      {
-        source: '/:path*',
-        destination: '/en/:path*',
-      },
-      // 为每个有效语言添加一个规则
-      ...VALID_LANGS.map(lang => ({
-        source: `/${lang}/:path*`,
-        destination: `/${lang}/:path*`,
-      }))
-    ]
+    return [];
   },
 };
 
