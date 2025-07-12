@@ -1,8 +1,7 @@
-import { getPageBySlug } from '../../lib/api/index';
+import { getPageBySlug } from '../lib/api/index';
 import { notFound } from 'next/navigation';
-import { ClientWrapper } from '../../components/layouts/client-wrapper';
 import { headers } from 'next/headers';
-import CommonLayout from '../../components/layouts/layout';
+import CommonLayout from '../components/layouts/layout';
 import Script from 'next/script'
 
 export const dynamic = 'force-dynamic'
