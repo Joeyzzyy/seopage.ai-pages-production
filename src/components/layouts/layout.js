@@ -1,51 +1,6 @@
 'use client';
-import React, { useEffect, useMemo, memo, useState, useCallback } from 'react';
-import parse, { domToReact } from 'html-react-parser';
-import { Typography, message, Button, Drawer, Input, Modal } from 'antd';
-import Header from './header-template';
-import Footer from './footer-template';
-/* divider */
-import HeroSectionWithVideo from '../common/sections/hero-section-with-video';
-import HeroSectionWithMultipleTexts from '../common/sections/hero-section-with-multiple-texts';
-/* divider */
-import TitleSection from '../common/sections/title-section';
-import TitleSectionWithImage from '../common/sections/title-section-with-image';
-/* divider */
-import WhyChooseUsWithSmallBlocks from '../common/sections/why-choose-us-with-small-blocks';
-import WhyChooseUsWithBlocks from '../common/sections/why-choose-us-with-blocks';
-import WhyChooseUsWithStory from '../common/sections/why-choose-us-with-story';
-/* divider */
-import HowItWorksWithWorkflow from '../common/sections/how-it-works-with-workflow';
-import HowItWorksWithBlocks from '../common/sections/how-it-works-with-blocks';
-/* divider */
-import FeaturesTabbed from '../common/sections/features-tabbed';
-/* divider */
-import ProductBenefitsWithBlocks from '../common/sections/product-benefits-with-blocks';
-import ProductBenefitsWithTable from '../common/sections/product-benefits-with-table';
-/* divider */
-import UserReviewsWithMovingCards from '../common/sections/user-reviews-with-moving-cards';
-/* divider */
-import MeetOurTeam from '../common/sections/meet-our-team';
-/* divider */
-import JobListNormal from '../common/sections/job-list-normal';
-/* divider */
-import FAQ from '../common/sections/faq-standard';
-/* divider */
-import CallToAction from '../common/sections/call-to-action';
-import CallToActionComplex from '../common/sections/call-to-action-complex';
-import CallToActionWithInput from '../common/sections/call-to-action-with-input';
-/* divider */
-import KeyResultsWithTextBlock from '../common/sections/key-results-with-text-block';
-import KeyResultsWithImage from '../common/sections/key-results-with-image';
-import KeyResultsWithCards from '../common/sections/key-results-with-cards';
-/* divider */
-import PageListCard from '../common/sections/page-list-card';
-/* divider */
-import SubscriptionCard from '../common/sections/subscription-card';
-/* divider */
-import FeatureComparisonTable from '../common/sections/feature-comparison-table';
-/* divider */
-import ProductComparisonTable from '../common/sections/product-comparison-table';
+import React, { useEffect, useMemo, memo } from 'react';
+import parse from 'html-react-parser';
 
 /**
  * HTML Content Renderer Component
@@ -109,7 +64,6 @@ const HtmlRenderer = ({ content, article }) => {
 
       // 清理函数
       return () => {
-        // 检查 styleTag 是否仍然是 document.head 的子节点
         if (styleTag.parentNode === document.head) {
           document.head.removeChild(styleTag);
         }
@@ -134,12 +88,10 @@ const HtmlRenderer = ({ content, article }) => {
   // 动态加载 JSDOM（仅服务端）
   const createDOMPurify = () => {
     if (typeof window === 'undefined') {
-      // 服务端环境动态加载
       const { JSDOM } = require('jsdom');
       const dom = new JSDOM('');
       return require('dompurify')(dom.window);
     }
-    // 客户端环境直接使用
     return require('dompurify');
   };
 
@@ -164,110 +116,15 @@ const HtmlRenderer = ({ content, article }) => {
   );
 };
 
-// 组件映射表，用于动态渲染不同类型的组件
-const COMPONENT_MAP = {
-  TitleSection: TitleSection,
-  TitleSectionWithImage: TitleSectionWithImage,
-  HeroSectionWithVideo: HeroSectionWithVideo,
-  HeroSectionWithMultipleTexts: HeroSectionWithMultipleTexts,
-  WhyChooseUsWithSmallBlocks: WhyChooseUsWithSmallBlocks,
-  WhyChooseUsWithBlocks: WhyChooseUsWithBlocks,
-  WhyChooseUsWithStory: WhyChooseUsWithStory,
-  HowItWorksWithWorkflow: HowItWorksWithWorkflow,
-  FeaturesTabbed: FeaturesTabbed,
-  ProductBenefitsWithBlocks: ProductBenefitsWithBlocks,
-  UserReviewsWithMovingCards: UserReviewsWithMovingCards,
-  MeetOurTeam: MeetOurTeam,
-  JobList: JobListNormal,
-  Faqs: FAQ,
-  CallToActionComplex: CallToActionComplex,
-  CallToActionWithEmailInput: CallToActionWithInput,
-  ProductBenefitsWithTable: ProductBenefitsWithTable,
-  KeyResultsWithTextBlock: KeyResultsWithTextBlock,
-  KeyResultsWithImage: KeyResultsWithImage,
-  KeyResultsWithCards: KeyResultsWithCards,
-  HowItWorksWithBlocks: HowItWorksWithBlocks,
-  CallToAction: CallToAction,
-  PageListCard: PageListCard,
-  SubscriptionCard: SubscriptionCard,
-  FeatureComparisonTable: FeatureComparisonTable,
-  ProductComparison: ProductComparisonTable,
-};
-
 /**
- * 通用布局组件
- * 支持两种渲染模式：
- * 1. 组件拼接模式：通过sections数组渲染多个组件
- * 2. HTML直接渲染模式：渲染完整的HTML内容
+ * 只渲染 HTML 内容的通用布局组件
  * @param {Object} props
  * @param {Object} props.article - Article data object
  */
 const CommonLayout = ({ article }) => {
-  // Extract header configuration from article data
-  const headerData = useMemo(() => {
-    return article?.pageLayout?.pageHeaders;
-  }, [article?.pageLayout?.pageHeaders]);
-
-  // Extract footer configuration from article data
-  const footerData = useMemo(() => {
-    return article?.pageLayout?.pageFooters;
-  }, [article?.pageLayout?.pageFooters]);
-
-  // 确定内容是否为完整HTML - 改进版
-  const isHtmlContent = article.html?.trim().startsWith('<!DOCTYPE html>') ||
-                       article.html?.trim().startsWith('<html');
-
-  // --- 添加调试日志 ---
-  // console.log('[CommonLayout] isHtmlContent:', isHtmlContent); // 可以保留或移除
-  // --- 结束调试日志 ---
-
-  // 当是 HTML 内容时，直接渲染 HtmlRenderer。
-  // HtmlRenderer 内部会处理 body、style 和 title。
-  if (isHtmlContent) {
-    return (
-        <HtmlRenderer content={article.html} article={article} />
-    );
-  }
-
-  // 非 HTML 内容模式保持不变
   return (
-    <div suppressHydrationWarning className="min-h-screen flex flex-col">
-      {headerData && (
-        <Header
-          data={headerData}
-          memo={() => JSON.stringify(headerData)}
-        />
-      )}
-      <div className={`flex-1 w-full max-w-[100vw] overflow-x-hidden ${headerData ? 'pt-[60px]' : ''}`}>
-        {article.sections?.map((section, index) => {
-          const Component = COMPONENT_MAP[section.componentName];
-          if (!Component) return null;
-          if (article.pageType === 'Landing Page' && section.componentName === 'TitleSection') {
-            return null;
-          }
-          return (
-            <div
-              key={`${section.componentName}-${section.sectionId}`}
-              className="w-full bg-white"
-            >
-              <Component
-                data={section}
-                author={article.author}
-                date={article.createdAt}
-              />
-            </div>
-          );
-        })}
-      </div>
-      {footerData && (
-        <Footer
-          data={footerData}
-          memo={() => JSON.stringify(footerData)}
-        />
-      )}
-    </div>
+    <HtmlRenderer content={article.html} article={article} />
   );
 };
 
-// Use memo to optimize component performance
 export default memo(CommonLayout);

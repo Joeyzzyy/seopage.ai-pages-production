@@ -50,19 +50,6 @@ export default async function RootLayout({ children, keywords, robots }) {
 
   return (
     <html lang="en">
-      <head>
-        <meta name="keywords" content={keywords} />
-        <link 
-          rel="icon" 
-          href={faviconUrl} 
-          type="image/x-icon"
-        />
-        <link 
-          rel="shortcut icon" 
-          href={faviconUrl} 
-          type="image/x-icon"
-        />
-      </head>
       <body suppressHydrationWarning={true} style={{ overflowX: 'hidden' }}>
         {children}
       </body>
