@@ -221,9 +221,19 @@ export async function generateMetadata({ params }) {
       console.log('正则提取到的 keywords:', keywords);
     }
 
+    // 在generateMetadata函数中添加favicon提取
+    const faviconMatch = article.html.match(
+      /<link[^>]*rel=["']icon["'][^>]*href=["']([^"']*)["'][^>]*>/i
+    );
+    const faviconUrl = faviconMatch ? faviconMatch[1] : null;
+
     return {
       title: htmlTitle,
       description: description || article.description,
+      // 添加favicon
+      icons: {
+        icon: faviconUrl || '/default-favicon.ico',
+      },
       keywords: "AI SEO, competitor traffic, alternative pages, SEO automation, high-intent traffic, AltPage.ai, marketing, comparison pages",
       robots: 'index, follow',
       openGraph: { 
