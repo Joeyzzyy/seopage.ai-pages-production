@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
@@ -12,11 +14,13 @@ const nextConfig = {
       ],
     },
   ],
-  transpilePackages: ['@ant-design/icons', 'antd'],
+  // 移除 Ant Design 相关的 transpilePackages
+  // transpilePackages: ['@ant-design/icons', 'antd'],
   experimental: {
     optimizeCss: true,
     scrollRestoration: true,
   },
+  serverExternalPackages: ['jsdom'],
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
       config.optimization = {
@@ -24,15 +28,30 @@ const nextConfig = {
         splitChunks: {
           chunks: 'all',
           cacheGroups: {
-            antd: {
-              name: 'antd',
-              test: /[\\/]node_modules[\\/]antd[\\/]/,
-              priority: 10,
-            },
+            // 移除 antd 相关的缓存组配置
+            // antd: {
+            //   name: 'antd',
+            //   test: /[\\/]node_modules[\\/]antd[\\/]/,
+            //   priority: 10,
+            // },
           },
         },
       };
     }
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        net: false,
+        tls: false,
+        dns: false,
+        fs: false,
+        child_process: false
+      };
+    }
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'html-react-parser': path.resolve('./node_modules/html-react-parser')
+    };
     return config;
   },
   reactStrictMode: true,
@@ -56,9 +75,14 @@ const nextConfig = {
     ],
     domains: ['websitelm-us-east-2.s3.us-west-2.amazonaws.com'],
   },
+  // 添加域名配置
   async rewrites() {
-    return [];
-  },
+    return {
+      beforeFiles: [
+        
+      ]
+    }
+  }
 };
 
 module.exports = nextConfig;
