@@ -10,14 +10,6 @@ export const fetchCache = 'force-no-store'
 export const revalidate = 0
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
 
-function extractMainDomain(host) {
-  const domainWithoutPort = host?.split(':')[0] || '';
-  const parts = domainWithoutPort.split('.');
-  if (parts.length < 2) {
-    return domainWithoutPort;
-  }
-  return parts.slice(-2).join('.');
-}
 function getCurrentDomain() {
   const headersList = headers();
   const proxyHeaders = [
@@ -132,28 +124,6 @@ export default async function ArticlePage({ params }) {
     console.error('Error in ArticlePage:', error);
     throw error;
   }
-}
-
-// 添加一个新的辅助函数来处理数组并返回逗号分隔的字符串
-function joinArrayWithComma(arr) {
-  return Array.isArray(arr) ? arr.filter(Boolean).join(',') : '';
-}
-
-// 添加一个新的辅助函数来获取规范链接
-function getCanonicalUrl(host, lang, fullSlug) {
-  // 确保 host 没有尾部斜杠
-  const baseUrl = host.replace(/\/$/, '');
-  
-  // 规范化 slug（移除首尾斜杠）
-  const normalizedSlug = fullSlug.replace(/^\/+|\/+$/g, '');
-  
-  // 对于英文页面，使用不带语言标识符的URL作为规范链接
-  if (lang === 'en') {
-    return `${baseUrl}/${normalizedSlug}`;
-  }
-  
-  // 其他语言使用带语言标识符的URL
-  return `${baseUrl}/${lang}/${normalizedSlug}`;
 }
 
 export async function generateMetadata({ params }) {
