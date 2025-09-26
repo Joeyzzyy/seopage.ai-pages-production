@@ -72,7 +72,7 @@ export default async function ArticlePage({ params }) {
   try {
     const domain = getCurrentDomain();
     const currentLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
-    const articleData = await getPageBySlug(fullSlug, currentLang, domain);
+    const articleData = await getPageBySlug(fullSlug, 'en', domain);
 
     console.log('current articleData', articleData)
 
