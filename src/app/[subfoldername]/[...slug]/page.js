@@ -126,6 +126,7 @@ export default async function ArticlePageSubfolder({ params }) {
 
     const article = articleData.data;
 
+<<<<<<< HEAD
     // 检测是否为博客类型 - 增强检测逻辑
     const isBlogType = article?.pageType === 'blog' || 
                       article?.category === 'blog' || 
@@ -145,7 +146,6 @@ export default async function ArticlePageSubfolder({ params }) {
       htmlContainsCluster: article?.html?.includes('"cluster":'),
       htmlContainsAuthor: article?.html?.includes('"author":')
     });
-
     // --- 生成 Schema ---
     // 使用文章数据中的 siteUrl 和 slug 构建规范 URL，与 generateMetadata 保持一致
     const canonicalUrl = article.siteUrl 

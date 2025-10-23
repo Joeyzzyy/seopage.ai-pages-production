@@ -106,7 +106,6 @@ export default async function ArticlePage({ params }) {
       htmlContainsCluster: article?.html?.includes('"cluster":'),
       htmlContainsAuthor: article?.html?.includes('"author":')
     });
-
     const articleSchema = {
       '@context': 'https://schema.org',
       '@type': 'Article',
