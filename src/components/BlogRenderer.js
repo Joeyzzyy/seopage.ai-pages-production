@@ -596,7 +596,7 @@ const BlogContentRenderer = ({ content, article }) => {
         "name": "SeoPage.ai",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://seopage.ai/images/competitors-logo-homescreen/seopageai-logo.png",
+          "url": "https://seopage.ai/images/competitors-logo-homescreen/seopage-ai-logo.png",
           "width": 300,
           "height": 60
         },

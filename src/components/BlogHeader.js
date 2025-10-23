@@ -24,7 +24,7 @@ export const BlogHeader = () => {
               className="flex-shrink-0 hover:scale-105 transition-transform duration-200 flex items-center"
             >
               <img 
-                src="/images/seopageai-logo.png"
+                src="/images/seopage-ai-logo.png"
                 alt="SEOPAGE.AI" 
                 className="h-6 w-auto sm:h-7 md:h-8"
                 style={{

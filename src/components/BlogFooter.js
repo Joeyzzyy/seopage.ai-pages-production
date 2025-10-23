@@ -108,7 +108,7 @@ export const BlogFooter = () => {
               className="flex items-center hover:opacity-80 transition-opacity duration-300"
             >
               <img
-                src="/images/seopageai-logo.png"
+                src="/images/seopage-ai-logo.png"
                 alt="SEOPage.ai"
                 className="h-6 w-auto"
                 style={{
