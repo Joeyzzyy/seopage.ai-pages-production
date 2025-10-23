@@ -126,7 +126,6 @@ export default async function ArticlePageSubfolder({ params }) {
 
     const article = articleData.data;
 
-<<<<<<< HEAD
     // 检测是否为博客类型 - 增强检测逻辑
     const isBlogType = article?.pageType === 'blog' || 
                       article?.category === 'blog' || 
