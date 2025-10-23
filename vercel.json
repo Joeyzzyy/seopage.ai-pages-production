@@ -10,6 +10,11 @@
       }
     }
   ],
+  "functions": {
+    "src/app/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "headers": [
     {
       "source": "/images/(.*)",

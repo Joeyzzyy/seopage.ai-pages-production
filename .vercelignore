@@ -1,0 +1,16 @@
+# 确保 public 文件夹被正确部署
+!public/
+!public/images/
+!public/images/*.png
+!public/images/*.jpg
+!public/images/*.jpeg
+!public/images/*.gif
+!public/images/*.svg
+!public/images/*.ico
+
+# 排除不需要的文件
+node_modules/
+.next/
+.git/
+*.log
+.DS_Store

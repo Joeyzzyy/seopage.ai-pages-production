@@ -1,0 +1,2 @@
+This file is created to test if the public/images folder is properly deployed to Vercel.
+Created at: $(date)
