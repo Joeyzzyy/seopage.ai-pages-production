@@ -5,6 +5,26 @@ const path = require('path');
 const nextConfig = {
   headers: async () => [
     {
+      // 静态资源（图片、图标等）设置较短缓存时间
+      source: '/images/:path*',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=600',
+        },
+      ],
+    },
+    {
+      source: '/icons/:path*',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=600',
+        },
+      ],
+    },
+    {
+      // 其他资源保持原有缓存策略
       source: '/:path*',
       headers: [
         {
