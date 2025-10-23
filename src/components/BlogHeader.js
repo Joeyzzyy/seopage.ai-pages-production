@@ -6,7 +6,6 @@ const getImageUrl = () => {
   return 'https://websitelm-pages-production.vercel.app/images/seopage-ai-logo.png';
 };
 
-// 样式定义
 const animationStyles = `
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
