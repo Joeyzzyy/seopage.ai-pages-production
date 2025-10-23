@@ -1,15 +1,4 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "env": {
-          "NODE_ENV": "production"
-        }
-      }
-    }
-  ],
   "functions": {
     "src/app/**/*.js": {
       "runtime": "nodejs18.x"
