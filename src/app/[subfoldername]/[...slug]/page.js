@@ -245,6 +245,16 @@ export async function generateMetadata({ params }) {
       console.log('正则提取到的 keywords:', keywords);
     }
 
+    // 检测是否为博客类型 - 增强检测逻辑
+    const isBlogType = article?.pageType === 'blog' || 
+                      article?.category === 'blog' || 
+                      article?.type === 'blog' ||
+                      (article?.html && typeof article.html === 'string' && article.html.includes('"pageType":"blog"')) ||
+                      (article?.html && typeof article.html === 'string' && article.html.includes('"content":')) ||
+                      (article?.html && typeof article.html === 'string' && article.html.includes('"type":"blog"')) ||
+                      (article?.html && typeof article.html === 'string' && article.html.includes('"cluster":')) ||
+                      (article?.html && typeof article.html === 'string' && article.html.includes('"author":'));
+
     // 在generateMetadata函数中添加favicon提取
     const faviconMatch = article.html.match(
       /<link[^>]*rel=["']icon["'][^>]*href=["']([^"']*)["'][^>]*>/i
@@ -254,9 +264,11 @@ export async function generateMetadata({ params }) {
     return {
       title: htmlTitle,
       description: description || article.description,
-      // 添加favicon
+      // 添加favicon - 博客类型使用专用favicon
       icons: {
-        icon: faviconUrl || '/default-favicon.ico',
+        icon: isBlogType 
+          ? 'https://websitelm-us-east-2.s3.amazonaws.com/68e65b3c71b6633cb0ae8cae/2025-10-23/ijnz8f6d77_20251023-132759.png'
+          : (faviconUrl || '/icons/kreado-logo.ico'),
       },
       keywords: "AI SEO, competitor traffic, alternative pages, SEO automation, high-intent traffic, AltPage.ai, marketing, comparison pages",
       robots: 'index, follow',
