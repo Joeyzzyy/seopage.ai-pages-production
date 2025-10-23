@@ -172,26 +172,8 @@ export async function generateMetadata({ params }) {
     let description = '';
     let keywords = '';
     let htmlTitle = '';
-    if (article.html && typeof article.html === 'string') {
-      // 兼容属性顺序的正则
-      const descMatch = article.html.match(
-        /<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i
-      );
-      description = descMatch ? (descMatch[1] || descMatch[2]) : '';
-      const keywordsMatch = article.html.match(
-        /<meta\s+[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']keywords["'][^>]*>/i
-      );
-      keywords = keywordsMatch ? (keywordsMatch[1] || keywordsMatch[2]) : '';
-      console.log('正则提取到的 description:', description);
-      console.log('正则提取到的 keywords:', keywords);
-      const titleMatch = article.html.match(
-        /<title>([^<]*)<\/title>/i
-      );
-      htmlTitle = titleMatch ? titleMatch[1] : '';
-      console.log('正则提取到的 title:', htmlTitle);
-    }
-
-    // 检测是否为博客类型 - 增强检测逻辑
+    
+    // 检测是否为博客类型并处理JSON格式数据
     const isBlogType = article?.pageType === 'blog' || 
                       article?.category === 'blog' || 
                       article?.type === 'blog' ||
@@ -201,6 +183,51 @@ export async function generateMetadata({ params }) {
                       (article?.html && typeof article.html === 'string' && article.html.includes('"cluster":')) ||
                       (article?.html && typeof article.html === 'string' && article.html.includes('"author":'));
 
+    if (article.html && typeof article.html === 'string') {
+      if (isBlogType) {
+        // 博客类型：尝试解析JSON格式数据
+        try {
+          const parsedContent = JSON.parse(article.html);
+          if (parsedContent && typeof parsedContent === 'object') {
+            htmlTitle = parsedContent.title || '';
+            description = parsedContent.description || '';
+            keywords = parsedContent.keywords || '';
+            console.log('博客类型JSON提取到的 title:', htmlTitle);
+            console.log('博客类型JSON提取到的 description:', description);
+            console.log('博客类型JSON提取到的 keywords:', keywords);
+          }
+        } catch (e) {
+          console.log('博客类型JSON解析失败，尝试HTML提取:', e.message);
+          // JSON解析失败，回退到HTML提取
+          const titleMatch = article.html.match(/<title>([^<]*)<\/title>/i);
+          htmlTitle = titleMatch ? titleMatch[1] : '';
+          const descMatch = article.html.match(
+            /<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i
+          );
+          description = descMatch ? (descMatch[1] || descMatch[2]) : '';
+          const keywordsMatch = article.html.match(
+            /<meta\s+[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']keywords["'][^>]*>/i
+          );
+          keywords = keywordsMatch ? (keywordsMatch[1] || keywordsMatch[2]) : '';
+        }
+      } else {
+        // 非博客类型：直接HTML提取
+        const descMatch = article.html.match(
+          /<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i
+        );
+        description = descMatch ? (descMatch[1] || descMatch[2]) : '';
+        const keywordsMatch = article.html.match(
+          /<meta\s+[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']keywords["'][^>]*>/i
+        );
+        keywords = keywordsMatch ? (keywordsMatch[1] || keywordsMatch[2]) : '';
+        const titleMatch = article.html.match(/<title>([^<]*)<\/title>/i);
+        htmlTitle = titleMatch ? titleMatch[1] : '';
+        console.log('非博客类型HTML提取到的 title:', htmlTitle);
+        console.log('非博客类型HTML提取到的 description:', description);
+        console.log('非博客类型HTML提取到的 keywords:', keywords);
+      }
+    }
+
     // 在generateMetadata函数中添加favicon提取
     const faviconMatch = article.html.match(
       /<link[^>]*rel=["']icon["'][^>]*href=["']([^"']*)["'][^>]*>/i
@@ -208,8 +235,8 @@ export async function generateMetadata({ params }) {
     const faviconUrl = faviconMatch ? faviconMatch[1] : null;
 
     return {
-      title: htmlTitle, 
-      description: description || article.description,
+      title: htmlTitle || article.title || 'Untitled', 
+      description: description || article.description || 'No description available',
       // 添加favicon - 博客类型使用专用favicon
       icons: {
         icon: isBlogType 
@@ -219,8 +246,8 @@ export async function generateMetadata({ params }) {
       keywords: "AI SEO, competitor traffic, alternative pages, SEO automation, high-intent traffic, AltPage.ai, marketing, comparison pages",
       robots: 'index, follow',
       openGraph: { 
-        title: article.title,
-        description: description || article.description,
+        title: htmlTitle || article.title || 'Untitled',
+        description: description || article.description || 'No description available',
         type: 'article',
         publishedTime: article.updatedAt,
         modifiedTime: article.updatedAt,  
@@ -230,13 +257,13 @@ export async function generateMetadata({ params }) {
           url: '',
           width: 1200,
           height: 630,
-          alt: article.title
+          alt: htmlTitle || article.title || 'Untitled'
         }]
       },
       twitter: { 
         card: 'summary_large_image',
-        title: article.title,
-        description: description || article.description,
+        title: htmlTitle || article.title || 'Untitled',
+        description: description || article.description || 'No description available',
         images: article.coverImage,
         creator: ''
       },
