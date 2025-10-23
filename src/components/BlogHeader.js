@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import Image from 'next/image';
 
 // 样式定义
 const animationStyles = `
@@ -23,14 +24,17 @@ export const BlogHeader = () => {
               rel="noopener noreferrer"
               className="flex-shrink-0 hover:scale-105 transition-transform duration-200 flex items-center"
             >
-              <img 
+              <Image 
                 src="/images/seopageai-logo.png"
                 alt="SEOPAGE.AI" 
+                width={120}
+                height={24}
                 className="h-6 w-auto sm:h-7 md:h-8"
                 style={{
                   imageRendering: 'crisp-edges',
                   imageRendering: '-webkit-optimize-contrast'
                 }}
+                priority
               />
             </a>
 

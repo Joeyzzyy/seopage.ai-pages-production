@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import Image from 'next/image';
 
 // 链接数据
 const footerLinks = [
@@ -107,9 +108,11 @@ export const BlogFooter = () => {
               rel="noopener noreferrer"
               className="flex items-center hover:opacity-80 transition-opacity duration-300"
             >
-              <img
+              <Image
                 src="/images/seopageai-logo.png"
                 alt="SEOPage.ai"
+                width={120}
+                height={24}
                 className="h-6 w-auto"
                 style={{
                   imageRendering: 'crisp-edges',
