@@ -1,6 +1,11 @@
 'use client';
 import React from 'react';
 
+// 使用绝对路径指向你的Vercel部署
+const getImageUrl = () => {
+  return 'https://websitelm-pages-production.vercel.app/images/seopage-ai-logo.png';
+};
+
 // 样式定义
 const animationStyles = `
   @keyframes fadeIn {
@@ -11,6 +16,8 @@ const animationStyles = `
 `;
 
 export const BlogHeader = () => {
+  const imageUrl = getImageUrl();
+  
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 select-none transition-all duration-300 shadow-md">
@@ -24,7 +31,7 @@ export const BlogHeader = () => {
               className="flex-shrink-0 hover:scale-105 transition-transform duration-200 flex items-center"
             >
               <img 
-                src="/images/seopage-ai-logo.png"
+                src={imageUrl}
                 alt="SEOPAGE.AI" 
                 className="h-6 w-auto sm:h-7 md:h-8"
                 style={{

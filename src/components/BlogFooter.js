@@ -1,6 +1,11 @@
 'use client';
 import React from 'react';
 
+// 使用绝对路径指向你的Vercel部署
+const getImageUrl = () => {
+  return 'https://websitelm-pages-production.vercel.app/images/seopage-ai-logo.png';
+};
+
 // 链接数据
 const footerLinks = [
   {
@@ -70,6 +75,8 @@ const footerLinks = [
 ];
 
 export const BlogFooter = () => {
+  const imageUrl = getImageUrl();
+  
   return (
     <footer className="bg-gray-50 border-t border-gray-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -108,7 +115,7 @@ export const BlogFooter = () => {
               className="flex items-center hover:opacity-80 transition-opacity duration-300"
             >
               <img
-                src="/images/seopage-ai-logo.png"
+                src={imageUrl}
                 alt="SEOPage.ai"
                 className="h-6 w-auto"
                 style={{
