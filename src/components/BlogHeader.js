@@ -1,9 +1,9 @@
 'use client';
 import React from 'react';
 
-// 使用绝对路径指向你的Vercel部署
+// 使用相对路径访问public目录下的图片
 const getImageUrl = () => {
-  return 'https://websitelm-pages-production.vercel.app/images/seopage-ai-logo.png';
+  return '/images/seopage-ai-logo.png';
 };
 
 const animationStyles = `
