@@ -90,10 +90,14 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'images.ctfassets.net'
+      },
+      {
+        protocol: 'https',
         hostname: '*',
       }
     ],
-    domains: ['websitelm-us-east-2.s3.us-west-2.amazonaws.com'],
+    domains: ['websitelm-us-east-2.s3.us-west-2.amazonaws.com', 'images.ctfassets.net'],
   },
   // 添加域名配置
   async rewrites() {

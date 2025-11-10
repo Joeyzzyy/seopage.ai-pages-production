@@ -674,12 +674,13 @@ const BlogContentRenderer = ({ content, article }) => {
         
         {/* Hero 图片 */}
         {parsedContent?.heroImage && (
-          <div className="relative w-2/3 mx-auto aspect-video mb-8">
+          <div className="w-2/3 mx-auto mb-8 flex justify-center items-center">
             <Image
               src={parsedContent.heroImage}
               alt={parsedContent.title || 'Hero image'}
-              fill
-              className="object-contain"
+              width={1200}
+              height={675}
+              className="w-full h-auto object-contain"
               priority
               sizes="(max-width: 768px) 100vw, 60vw"
             />
