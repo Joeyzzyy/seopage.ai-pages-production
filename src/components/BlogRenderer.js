@@ -547,12 +547,20 @@ const BlogContentRenderer = ({ content, article }) => {
   const { parsedContent, htmlContent, extractedTitle, extractedDescription } = useMemo(() => {
     if (!content) return { parsedContent: null, htmlContent: '', extractedTitle: null, extractedDescription: null };
     
+    // 辅助函数：从HTML中移除第一个h1标签
+    const removeFirstH1 = (html) => {
+      if (!html || typeof html !== 'string') return html;
+      return html.replace(/<h1[^>]*>[\s\S]*?<\/h1>/i, '');
+    };
+    
     try {
       const parsed = JSON.parse(content);
       if (parsed && typeof parsed === 'object' && parsed.content) {
+        // 移除JSON内容中的第一个h1标签，避免重复显示
+        const cleanedContent = removeFirstH1(parsed.content);
         return {
           parsedContent: parsed,
-          htmlContent: parsed.content,
+          htmlContent: cleanedContent,
           extractedTitle: null,
           extractedDescription: null
         };
@@ -561,6 +569,7 @@ const BlogContentRenderer = ({ content, article }) => {
       // JSON解析失败，尝试从HTML中提取标题和描述
       let htmlTitle = null;
       let htmlDescription = null;
+      let cleanedHtml = content;
       
       if (typeof content === 'string') {
         // 尝试提取 <title> 标签
@@ -584,17 +593,22 @@ const BlogContentRenderer = ({ content, article }) => {
         if (descMatch) {
           htmlDescription = (descMatch[1] || descMatch[2] || '').trim();
         }
+        
+        // 移除HTML中的第一个h1标签，避免与外部标题重复
+        cleanedHtml = removeFirstH1(content);
       }
       
       return {
         parsedContent: null,
-        htmlContent: content,
+        htmlContent: cleanedHtml,
         extractedTitle: htmlTitle,
         extractedDescription: htmlDescription
       };
     }
     
-    return { parsedContent: null, htmlContent: content, extractedTitle: null, extractedDescription: null };
+    // 如果既不是JSON也不是HTML，也尝试移除h1
+    const cleanedContent = removeFirstH1(content);
+    return { parsedContent: null, htmlContent: cleanedContent, extractedTitle: null, extractedDescription: null };
   }, [content]);
 
   // 处理所有链接在新标签页打开
@@ -719,6 +733,11 @@ const BlogContentRenderer = ({ content, article }) => {
             </>
           )}
         </div>
+        
+        {/* 文章标题 */}
+        <h1 className="text-4xl font-bold mb-3 text-gray-900 leading-tight">
+          {parsedContent?.title || extractedTitle || article?.title || 'Untitled'}
+        </h1>
         
         {/* Hero 图片 */}
         {parsedContent?.heroImage && (
