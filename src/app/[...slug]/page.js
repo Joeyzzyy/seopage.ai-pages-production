@@ -78,7 +78,7 @@ export default async function ArticlePage({ params }) {
     console.log('current articleData', articleData)
 
     if (
-      !articleData?.data &&
+      !articleData?.data ||
       articleData.data.deploymentStatus !== 'publish'
     ) {
       console.error(`Article not found or not published for slug: ${slug}`);

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BlogHeader } from './BlogHeader';
@@ -406,11 +406,16 @@ function BlogTableOfContents({ htmlContent }) {
   const [isVisible, setIsVisible] = useState(true);
   const [extractedSections, setExtractedSections] = useState([]);
   const [hasConclusion, setHasConclusion] = useState(false);
+  const timeoutRef = useRef(null);
+  const rafRef = useRef(null);
 
   useEffect(() => {
     if (htmlContent) {
-      // 增加延迟时间，确保内容已完全渲染
-      const timer = setTimeout(() => {
+      let retryCount = 0;
+      const maxRetries = 10;
+      
+      // 使用 requestAnimationFrame 确保在 DOM 渲染后执行
+      const findAndExtractSections = () => {
         const contentElement = document.querySelector('.blog-article-content');
         
         if (contentElement) {
@@ -419,12 +424,7 @@ function BlogTableOfContents({ htmlContent }) {
           let conclusionFound = false;
           
           Array.from(h2Elements).forEach((h2, index) => {
-            // 如果元素已经有ID，先清除它
-            if (h2.id) {
-              h2.removeAttribute('id');
-            }
-            
-            const title = h2.textContent?.trim() || h2.innerText?.trim() || `Section ${index + 1}`;
+            const title = h2.textContent || h2.innerText || `Section ${index + 1}`;
             
             if (title.toLowerCase().includes('conclusion') || 
                 title.toLowerCase().includes('总结') || 
@@ -432,66 +432,57 @@ function BlogTableOfContents({ htmlContent }) {
               conclusionFound = true;
               h2.id = 'conclusion';
             } else {
-              const sectionId = `section-${extracted.length}`;
-              h2.id = sectionId;
+              h2.id = `section-${extracted.length}`;
               extracted.push({
                 h2: title,
-                id: sectionId
+                id: `section-${extracted.length}`
               });
             }
           });
           
           setExtractedSections(extracted);
           setHasConclusion(conclusionFound);
+        } else if (retryCount < maxRetries) {
+          // 如果元素还没渲染，延迟重试
+          retryCount++;
+          timeoutRef.current = setTimeout(findAndExtractSections, 200);
         }
-      }, 300); // 增加延迟到300ms，确保DOM完全渲染
+      };
 
-      return () => clearTimeout(timer);
+      // 先等待一帧，然后开始查找
+      rafRef.current = requestAnimationFrame(() => {
+        timeoutRef.current = setTimeout(findAndExtractSections, 100);
+      });
+
+      return () => {
+        if (rafRef.current) {
+          cancelAnimationFrame(rafRef.current);
+        }
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
     }
   }, [htmlContent]);
 
-  const scrollToSection = (index, e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
+  const scrollToSection = (index) => {
+    const element = document.getElementById(`section-${index}`);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
     }
-    
-    // 使用 setTimeout 确保 DOM 已更新
-    setTimeout(() => {
-      const element = document.getElementById(`section-${index}`);
-      if (element) {
-        const headerOffset = 80; // 固定头部的高度
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    }, 50);
   };
 
-  const scrollToConclusion = (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
+  const scrollToConclusion = () => {
+    const element = document.getElementById('conclusion');
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
     }
-    
-    // 使用 setTimeout 确保 DOM 已更新
-    setTimeout(() => {
-      const element = document.getElementById('conclusion');
-      if (element) {
-        const headerOffset = 80; // 固定头部的高度
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    }, 50);
   };
 
   if (!extractedSections || extractedSections.length === 0) {
@@ -526,9 +517,8 @@ function BlogTableOfContents({ htmlContent }) {
             {extractedSections.map((section, index) => (
               <button
                 key={index}
-                onClick={(e) => scrollToSection(index, e)}
-                className="w-full text-left text-sm px-3 py-2 rounded hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600 cursor-pointer"
-                type="button"
+                onClick={() => scrollToSection(index)}
+                className="w-full text-left text-sm px-3 py-2 rounded hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600"
               >
                 <span className="block truncate">{section.h2}</span>
               </button>
@@ -536,8 +526,7 @@ function BlogTableOfContents({ htmlContent }) {
             {hasConclusion && (
               <button
                 onClick={scrollToConclusion}
-                className="w-full text-left text-sm px-3 py-2 rounded hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600 cursor-pointer"
-                type="button"
+                className="w-full text-left text-sm px-3 py-2 rounded hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600"
               >
                 <span className="block truncate">Conclusion</span>
               </button>
