@@ -409,6 +409,7 @@ function BlogTableOfContents({ htmlContent }) {
 
   useEffect(() => {
     if (htmlContent) {
+      // 增加延迟时间，确保内容已完全渲染
       const timer = setTimeout(() => {
         const contentElement = document.querySelector('.blog-article-content');
         
@@ -418,7 +419,12 @@ function BlogTableOfContents({ htmlContent }) {
           let conclusionFound = false;
           
           Array.from(h2Elements).forEach((h2, index) => {
-            const title = h2.textContent || h2.innerText || `Section ${index + 1}`;
+            // 如果元素已经有ID，先清除它
+            if (h2.id) {
+              h2.removeAttribute('id');
+            }
+            
+            const title = h2.textContent?.trim() || h2.innerText?.trim() || `Section ${index + 1}`;
             
             if (title.toLowerCase().includes('conclusion') || 
                 title.toLowerCase().includes('总结') || 
@@ -426,10 +432,11 @@ function BlogTableOfContents({ htmlContent }) {
               conclusionFound = true;
               h2.id = 'conclusion';
             } else {
-              h2.id = `section-${extracted.length}`;
+              const sectionId = `section-${extracted.length}`;
+              h2.id = sectionId;
               extracted.push({
                 h2: title,
-                id: `section-${extracted.length}`
+                id: sectionId
               });
             }
           });
@@ -437,30 +444,54 @@ function BlogTableOfContents({ htmlContent }) {
           setExtractedSections(extracted);
           setHasConclusion(conclusionFound);
         }
-      }, 100);
+      }, 300); // 增加延迟到300ms，确保DOM完全渲染
 
       return () => clearTimeout(timer);
     }
   }, [htmlContent]);
 
-  const scrollToSection = (index) => {
-    const element = document.getElementById(`section-${index}`);
-    if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
+  const scrollToSection = (index, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
+    
+    // 使用 setTimeout 确保 DOM 已更新
+    setTimeout(() => {
+      const element = document.getElementById(`section-${index}`);
+      if (element) {
+        const headerOffset = 80; // 固定头部的高度
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 50);
   };
 
-  const scrollToConclusion = () => {
-    const element = document.getElementById('conclusion');
-    if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
+  const scrollToConclusion = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
+    
+    // 使用 setTimeout 确保 DOM 已更新
+    setTimeout(() => {
+      const element = document.getElementById('conclusion');
+      if (element) {
+        const headerOffset = 80; // 固定头部的高度
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 50);
   };
 
   if (!extractedSections || extractedSections.length === 0) {
@@ -495,8 +526,9 @@ function BlogTableOfContents({ htmlContent }) {
             {extractedSections.map((section, index) => (
               <button
                 key={index}
-                onClick={() => scrollToSection(index)}
-                className="w-full text-left text-sm px-3 py-2 rounded hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600"
+                onClick={(e) => scrollToSection(index, e)}
+                className="w-full text-left text-sm px-3 py-2 rounded hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600 cursor-pointer"
+                type="button"
               >
                 <span className="block truncate">{section.h2}</span>
               </button>
@@ -504,7 +536,8 @@ function BlogTableOfContents({ htmlContent }) {
             {hasConclusion && (
               <button
                 onClick={scrollToConclusion}
-                className="w-full text-left text-sm px-3 py-2 rounded hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600"
+                className="w-full text-left text-sm px-3 py-2 rounded hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600 cursor-pointer"
+                type="button"
               >
                 <span className="block truncate">Conclusion</span>
               </button>
