@@ -720,11 +720,6 @@ const BlogContentRenderer = ({ content, article }) => {
           )}
         </div>
         
-        {/* 文章标题 */}
-        <h1 className="text-4xl font-bold mb-3 text-gray-900 leading-tight">
-          {parsedContent?.title || extractedTitle || article?.title || 'Untitled'}
-        </h1>
-        
         {/* Hero 图片 */}
         {parsedContent?.heroImage && (
           <div className="w-2/3 mx-auto mb-8 flex justify-center items-center">
