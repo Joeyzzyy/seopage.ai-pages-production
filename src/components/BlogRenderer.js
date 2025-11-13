@@ -544,26 +544,57 @@ function BlogTableOfContents({ htmlContent }) {
  */
 const BlogContentRenderer = ({ content, article }) => {
   // 解析 JSON 格式的 HTML 内容
-  const { parsedContent, htmlContent } = useMemo(() => {
-    if (!content) return { parsedContent: null, htmlContent: '' };
+  const { parsedContent, htmlContent, extractedTitle, extractedDescription } = useMemo(() => {
+    if (!content) return { parsedContent: null, htmlContent: '', extractedTitle: null, extractedDescription: null };
     
     try {
       const parsed = JSON.parse(content);
       if (parsed && typeof parsed === 'object' && parsed.content) {
         return {
           parsedContent: parsed,
-          htmlContent: parsed.content
+          htmlContent: parsed.content,
+          extractedTitle: null,
+          extractedDescription: null
         };
       }
     } catch (e) {
-      // 如果不是 JSON，直接使用原始内容
+      // JSON解析失败，尝试从HTML中提取标题和描述
+      let htmlTitle = null;
+      let htmlDescription = null;
+      
+      if (typeof content === 'string') {
+        // 尝试提取 <title> 标签
+        const titleMatch = content.match(/<title[^>]*>([^<]*)<\/title>/i);
+        if (titleMatch && titleMatch[1]) {
+          htmlTitle = titleMatch[1].trim();
+        }
+        
+        // 尝试提取 <h1> 标签（作为备选）
+        if (!htmlTitle) {
+          const h1Match = content.match(/<h1[^>]*>([^<]*)<\/h1>/i);
+          if (h1Match && h1Match[1]) {
+            htmlTitle = h1Match[1].trim();
+          }
+        }
+        
+        // 尝试提取 meta description
+        const descMatch = content.match(
+          /<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>|<meta\s+[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i
+        );
+        if (descMatch) {
+          htmlDescription = (descMatch[1] || descMatch[2] || '').trim();
+        }
+      }
+      
       return {
         parsedContent: null,
-        htmlContent: content
+        htmlContent: content,
+        extractedTitle: htmlTitle,
+        extractedDescription: htmlDescription
       };
     }
     
-    return { parsedContent: null, htmlContent: content };
+    return { parsedContent: null, htmlContent: content, extractedTitle: null, extractedDescription: null };
   }, [content]);
 
   // 处理所有链接在新标签页打开
@@ -590,8 +621,8 @@ const BlogContentRenderer = ({ content, article }) => {
 
   // 生成博客结构化数据
   const blogStructuredData = useMemo(() => {
-    const title = parsedContent?.title || article?.title || 'Untitled';
-    const description = parsedContent?.description || article?.description || '';
+    const title = parsedContent?.title || extractedTitle || article?.title || 'Untitled';
+    const description = parsedContent?.description || extractedDescription || article?.description || '';
     const author = parsedContent?.author || article?.author || 'SeoPage.ai Team';
     const publishDate = article?.created_at || new Date().toISOString();
     const modifiedDate = article?.updated_at || publishDate;
@@ -634,7 +665,7 @@ const BlogContentRenderer = ({ content, article }) => {
       "keywords": parsedContent?.keywords || "SEO, Blog, Marketing, Digital Marketing",
       "wordCount": htmlContent ? htmlContent.split(' ').length : 0
     };
-  }, [parsedContent, article, htmlContent]);
+  }, [parsedContent, article, htmlContent, extractedTitle, extractedDescription]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -691,7 +722,7 @@ const BlogContentRenderer = ({ content, article }) => {
         
         {/* 文章标题 */}
         <h1 className="text-4xl font-bold mb-3 text-gray-900 leading-tight">
-          {parsedContent?.title || article?.title || 'Untitled'}
+          {parsedContent?.title || extractedTitle || article?.title || 'Untitled'}
         </h1>
         
         {/* Hero 图片 */}
